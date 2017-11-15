@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <>
 #include <math.h>
 #include "movements.h"
 #include "configuration.h"
