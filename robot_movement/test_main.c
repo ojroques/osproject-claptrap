@@ -21,5 +21,5 @@
 
 int main(void){
   turn_left(180);
-  return 0
+  return 0;
 }
