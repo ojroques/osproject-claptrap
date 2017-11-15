@@ -11,7 +11,7 @@ movements:
 
 test_main: movements
 	gcc -I./ev3dev-c/source/ev3 -O2 -std=gnu99 -W -Wall -Wno-comment -c ../robot_movement/test_main.c -o ../robot_movement/test_main.o
-	gcc -o ../robot_movement/movements.o ../robot_movement/test_main.o -Wall -lm -lev3dev-c ../robot_movement/test_main
+	gcc ../robot_movement/movements.o ../robot_movement/test_main.o -Wall -lm -lev3dev-c -o ../robot_movement/test_main
 
 run_tester:
 	./tester
