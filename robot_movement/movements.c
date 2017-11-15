@@ -11,7 +11,7 @@
 void turn_left(float angle){
   uint8_t lsn;
   uint8_t rsn;
-  float rad = angle/360 * 2*M_PI
+  float rad = angle/360 * 2*M_PI;
   while (ev3_tacho_init() < 1) Sleep(1);
   if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT,0, &lsn, 0 )){
     if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT,0,&rsn,0 )){
@@ -20,7 +20,7 @@ void turn_left(float angle){
       int rel_pos;
       get_tacho_max_speed(lsn, &max_speed);
       get_tacho_count_per_rot(lsn, &count_per_rot);
-      rel_pos = floor(ROBOT_RADIUS*rad/WHEEL_PERIMETER * count_per_rot)
+      rel_pos = floor(ROBOT_RADIUS*rad/WHEEL_PERIMETER * count_per_rot);
       set_tacho_speed_sp( lsn, max_speed / 2 );
       set_tacho_speed_sp( rsn, max_speed / 2 );
       set_tacho_ramp_up_sp( lsn, 0 );
