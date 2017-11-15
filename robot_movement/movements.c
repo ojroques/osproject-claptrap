@@ -1,18 +1,31 @@
 #include <stdlib.h>
+#include <>
 #include <math.h>
 #include "movements.h"
 #include "configuration.h"
 #include "ev3.h"
 #include "ev3_port.h"
 #include "ev3_tacho.h"
+// WIN32 /////////////////////////////////////////
+#ifdef __WIN32__
 
+#include <windows.h>
+
+// UNIX //////////////////////////////////////////
+#else
+
+#include <unistd.h>
+#define Sleep( msec ) usleep(( msec ) * 1000 )
+
+//////////////////////////////////////////////////
+#endif
 
 
 void turn_left(float angle){
   uint8_t lsn;
   uint8_t rsn;
   float rad = angle/360 * 2*M_PI;
-  while (ev3_tacho_init() < 1) Sleep(1);
+  while (ev3_tacho_init() < 1) Sleep(1000);
   if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT,0, &lsn, 0 )){
     if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT,0,&rsn,0 )){
       int max_speed;
