@@ -17,8 +17,6 @@
 
 //////////////////////////////////////////////////
 #endif
-const char const *color[] = { "?", "BLACK", "BLUE", "GREEN", "YELLOW", "RED", "WHITE", "BROWN" };
-#define COLOR_COUNT  (( int )( sizeof( color ) / sizeof( color[ 0 ])))
 
 static bool _check_pressed( uint8_t sn )
 {
@@ -34,7 +32,7 @@ static bool _check_pressed( uint8_t sn )
 int main( void )
 {
 	uint8_t sn_touch;
-	uint8_t sn_color;
+	uint8_t sn_gyro;
 	char s[ 256 ];
 	int val;
 
@@ -61,22 +59,22 @@ int main( void )
 	if ( ev3_search_sensor( LEGO_EV3_TOUCH, &sn_touch, 0 )) {
 		printf( "TOUCH sensor is found, press BUTTON for EXIT...\n" );
 	}
-    if ( ev3_search_sensor( LEGO_EV3_COLOR, &sn_color, 0 )) {
-        printf("COLOR sensor is found\n" );
-        printf("    Port = %s\n", ev3_sensor_port_name(sn_color, s ));
-        set_sensor_mode_inx(sn_color, LEGO_EV3_COLOR_COL_COLOR);
+    if ( ev3_search_sensor( LEGO_EV3_GYRO, &sn_gyro, 0 )) {
+        printf("GYRO sensor is found\n" );
+        printf("    Port = %s\n", ev3_sensor_port_name(sn_gyro, s ));
+        set_sensor_mode_inx(sn_gyro, LEGO_EV3_GYRO_GYRO_ANG);
         get_sensor_units(sn_gyro, s, sizeof(s));
         printf("    Units in %s", s);
-        if (get_sensor_mode(sn_color, s, sizeof(s))) {
+        if (get_sensor_mode(sn_gyro, s, sizeof(s))) {
 			printf("    Mode = %s\n", s);
 		}
 
     	for ( ; ; ){
-            printf("    Reading COLOR...\n");
-			if ( !get_sensor_value( 0, sn_color, &val ) || ( val < 0 ) || ( val >= COLOR_COUNT )) {
+            printf("    Reading ANGLE...\n");
+			if (!get_sensor_value(0, sn_gyro, &val)) {
 				val = 0;
 			}
-			printf( "\r(%d, %s) \n", val, color[val]);
+			printf( "\r(%d) \n", val);
 			fflush( stdout );
 
     		if ( _check_pressed( sn_touch )) break;
