@@ -33,18 +33,11 @@ static bool _check_pressed( uint8_t sn )
 
 int main( void )
 {
-	int i;
-	uint8_t sn;
-	FLAGS_T state;
 	uint8_t sn_touch;
 	uint8_t sn_color;
-	uint8_t sn_compass;
-	uint8_t sn_sonar;
-	uint8_t sn_mag;
 	char s[ 256 ];
 	int val;
-	float value;
-	uint32_t n, ii;
+
 #ifndef __ARM_ARCH_4T__
 	/* Disable auto-detection of the brick (you have to set the correct address below) */
 	ev3_brick_addr = "192.168.0.204";
@@ -70,18 +63,18 @@ int main( void )
 	}
     if ( ev3_search_sensor( LEGO_EV3_COLOR, &sn_color, 0 )) {
         printf("COLOR sensor is found\n" );
-        printf("   Port = %s\n", ev3_sensor_port_name(sn_color, s ));
+        printf("    Port = %s\n", ev3_sensor_port_name(sn_color, s ));
+        set_sensor_mode_inx(sn_color, LEGO_EV3_COLOR_COL_COLOR);
         if (get_sensor_mode(sn_color, s, sizeof(s))) {
-			printf("    Mode = %s\n", s );
+			printf("    Mode = %s\n", s);
 		}
-        set_sensor_mode_inx(&sn, LEGO_EV3_COLOR_COL_REFLECT);
 
     	for ( ; ; ){
-            printf("    Reading COLOR...\n", );
+            printf("    Reading COLOR...\n");
 			if ( !get_sensor_value( 0, sn_color, &val ) || ( val < 0 ) || ( val >= COLOR_COUNT )) {
 				val = 0;
 			}
-			printf( "\r(%s) \n", color[ val ]);
+			printf( "\r(%d, %s) \n", %d, color[val]);
 			fflush( stdout );
 
     		if ( _check_pressed( sn_touch )) break;
@@ -91,6 +84,7 @@ int main( void )
     		if ( _check_pressed( sn_touch )) break;
     		Sleep( 200 );
     	}
+    }
 
 	ev3_uninit();
 	printf( "*** ( EV3 ) Bye! ***\n" );
