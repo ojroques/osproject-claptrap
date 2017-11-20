@@ -17,6 +17,7 @@
 //////////////////////////////////////////////////
 #endif
 
+//Erwan
 void set_mode_gyro(int mode){
   int8_t sn_mag;
   if (ev3_search_sensor(NXT_ANALOG, &sn_mag,0)){
@@ -50,6 +51,7 @@ void set_mode_gyro(int mode){
   }
 }
 
+//Erwan
 float gyro_value0(){
   uint8_t sn_mag;
   float value;
