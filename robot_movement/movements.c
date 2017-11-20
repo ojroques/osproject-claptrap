@@ -30,7 +30,8 @@ void turn_left(float angle){
       int max_speed;
       int count_per_rot;
       int rel_pos;
-      multi_set_tacho_stop_action(lsn,rsn,HOLD);
+      set_tacho_stop_action(lsn,HOLD);
+      set_tacho_stop_action(rsn,HOLD);
       get_tacho_max_speed(lsn, &max_speed);
       get_tacho_count_per_rot(lsn, &count_per_rot);
       rel_pos = floor(ROBOT_RADIUS*rad/WHEEL_PERIMETER * count_per_rot);
@@ -60,7 +61,8 @@ void turn_rigth(float angle){
       int max_speed;
       int count_per_rot;
       int rel_pos;
-      multi_set_tacho_stop_action(lsn,rsn,HOLD);
+      set_tacho_stop_action(lsn,HOLD);
+      set_tacho_stop_action(rsn,HOLD);
       get_tacho_max_speed(lsn, &max_speed);
       get_tacho_count_per_rot(lsn, &count_per_rot);
       rel_pos = floor(ROBOT_RADIUS*rad/WHEEL_PERIMETER * count_per_rot);
@@ -83,14 +85,14 @@ void turn_rigth(float angle){
 void forward(float distance){
   uint8_t lsn;
   uint8_t rsn;
-  float rad = angle/360 * 2*M_PI;
   while (ev3_tacho_init() < 1) Sleep(1000);
   if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT,0, &lsn, 0 )){
     if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT,0,&rsn,0 )){
       int max_speed;
       int count_per_rot;
       int rel_pos;
-      multi_set_tacho_stop_action(lsn,rsn,HOLD);
+      set_tacho_stop_action(lsn,HOLD);
+      set_tacho_stop_action(rsn,HOLD);
       get_tacho_max_speed(lsn, &max_speed);
       get_tacho_count_per_rot(lsn, &count_per_rot);
       rel_pos = floor(distance/WHEEL_PERIMETER * count_per_rot);
@@ -113,14 +115,14 @@ void forward(float distance){
 void backward(float distance){
   uint8_t lsn;
   uint8_t rsn;
-  float rad = angle/360 * 2*M_PI;
   while (ev3_tacho_init() < 1) Sleep(1000);
   if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT,0, &lsn, 0 )){
     if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT,0,&rsn,0 )){
       int max_speed;
       int count_per_rot;
       int rel_pos;
-      multi_set_tacho_stop_action(lsn,rsn,HOLD);
+      set_tacho_stop_action(lsn,HOLD);
+      set_tacho_stop_action(rsn,HOLD);
       get_tacho_max_speed(lsn, &max_speed);
       get_tacho_count_per_rot(lsn, &count_per_rot);
       rel_pos = floor(distance/WHEEL_PERIMETER * count_per_rot);
