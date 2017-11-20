@@ -20,6 +20,6 @@
 #endif
 
 int main(void){
-  turn_left(180);
+  turn_left(360);
   return 0;
 }
