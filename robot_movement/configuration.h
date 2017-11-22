@@ -1,4 +1,0 @@
-#define LEFT_WHEEL_PORT 66
-#define RIGHT_WHEEL_PORT 67
-#define ROBOT_RADIUS
-#define WHEEL_PERIMETER
