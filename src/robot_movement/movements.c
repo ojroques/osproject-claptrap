@@ -30,8 +30,8 @@ void turn_left(float angle){
       int max_speed;
       int count_per_rot;
       int rel_pos;
-      set_tacho_stop_action(lsn,HOLD);
-      set_tacho_stop_action(rsn,HOLD);
+      set_tacho_stop_action_inx(lsn,TACHO_HOLD);
+      set_tacho_stop_action_inx(rsn,TACHO_HOLD);
       get_tacho_max_speed(lsn, &max_speed);
       get_tacho_count_per_rot(lsn, &count_per_rot);
       rel_pos = floor(ROBOT_RADIUS*rad/WHEEL_PERIMETER * count_per_rot);
@@ -61,8 +61,8 @@ void turn_rigth(float angle){
       int max_speed;
       int count_per_rot;
       int rel_pos;
-      set_tacho_stop_action(lsn,HOLD);
-      set_tacho_stop_action(rsn,HOLD);
+      set_tacho_stop_action_inx(lsn,TACHO_HOLD);
+      set_tacho_stop_action_inx(rsn,TACHO_HOLD);
       get_tacho_max_speed(lsn, &max_speed);
       get_tacho_count_per_rot(lsn, &count_per_rot);
       rel_pos = floor(ROBOT_RADIUS*rad/WHEEL_PERIMETER * count_per_rot);
@@ -91,8 +91,8 @@ void forward(float distance){
       int max_speed;
       int count_per_rot;
       int rel_pos;
-      set_tacho_stop_action(lsn,HOLD);
-      set_tacho_stop_action(rsn,HOLD);
+      set_tacho_stop_action_inx(lsn,TACHO_HOLD);
+      set_tacho_stop_action_inx(rsn,TACHO_HOLD);
       get_tacho_max_speed(lsn, &max_speed);
       get_tacho_count_per_rot(lsn, &count_per_rot);
       rel_pos = floor(distance/WHEEL_PERIMETER * count_per_rot);
@@ -121,8 +121,8 @@ void backward(float distance){
       int max_speed;
       int count_per_rot;
       int rel_pos;
-      set_tacho_stop_action(lsn,HOLD);
-      set_tacho_stop_action(rsn,HOLD);
+      set_tacho_stop_action_inx(lsn,TACHO_HOLD);
+      set_tacho_stop_action_inx(rsn,TACHO_HOLD);
       get_tacho_max_speed(lsn, &max_speed);
       get_tacho_count_per_rot(lsn, &count_per_rot);
       rel_pos = floor(distance/WHEEL_PERIMETER * count_per_rot);
