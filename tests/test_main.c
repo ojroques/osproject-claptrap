@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
-#include "../src/robot_movement/movements.h"
-#include "../src/robot_movement/configuration.h"
+#include "../src/robot_movement/tacho.h"
+#include "../src/robot_movement/const.h"
 #include "ev3.h"
 #include "ev3_port.h"
 #include "ev3_tacho.h"
@@ -21,6 +21,13 @@
 
 //Erwan
 int main(void){
-  turn_left(360);
+  forward(15);
+  Sleep (2000);
+  backward(15);
+  Sleep(2000);
+  turn_left(180);
+  Sleep (1000);
+  turn_rigth(180);
+  Sleep (1000);
   return 0;
 }
