@@ -1,0 +1,21 @@
+#ifndef __CONST_H
+#define __CONST_H
+
+/* GENERAL */
+#define Sleep( msec ) usleep(( msec ) * 1000 )
+
+/* USED BY CLIENT.C */
+#define SERV_ADDR        "dc:53:60:ad:61:90"    /* The address of the server */
+#define TEAM_ID          7                      /* The team ID */
+#define MSG_ACK          0
+#define MSG_START        1
+#define MSG_STOP         2
+#define MSG_KICK         3
+#define MSG_POSITION     4
+#define MSG_MAPDATA      5
+#define MSG_MAPDONE      6
+#define CONNECTION_ERROR 0
+#define WRONG_MESSAGE    1
+#define START_MESSAGE    2
+
+#endif

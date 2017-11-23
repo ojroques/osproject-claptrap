@@ -1,3 +1,5 @@
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -8,8 +10,8 @@
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/rfcomm.h>
 
-#define SERV_ADDR   "dc:53:60:ad:61:90"     /* Whatever the address of the server is */
-#define TEAM_ID     7                       /* Your team ID */
+#define SERV_ADDR    "dc:53:60:ad:61:90"     /* The address of the server */
+#define TEAM_ID      7                       /* The team ID */
 
 #define MSG_ACK      0
 #define MSG_START    1
