@@ -4,6 +4,7 @@
 #include "ev3_port.h"
 #include "ev3_tacho.h"
 #include "ev3_sensor.h"
+#include "sensors.h"
 // WIN32 /////////////////////////////////////////
 #ifdef __WIN32__
 
@@ -33,10 +34,8 @@ static bool _check_pressed( uint8_t sn )
 
 int main( void )
 {
-	/*sn stands for "sequence number" */
 	uint8_t sn_touch;
 	uint8_t sn_color;
-	/*array de char*/
 	char s[ 256 ];
 	int val;
 
@@ -64,21 +63,23 @@ int main( void )
 		printf( "TOUCH sensor is found, press BUTTON for EXIT...\n" );
 	}
     if ( ev3_search_sensor( LEGO_EV3_COLOR, &sn_color, 0 )) {
-        printf("COLOR sensor is found\n" );
-				printf("the sensor sn number is %d \n",*sn_color);
-				printf("    Port = %s\n", ev3_sensor_port_name(sn_color, s ));
+
+				printf("COLOR sensor is found\n" );
+				printf("sn number for color sensor is %d \n", sn_color);
+        printf("    Port = %s\n", ev3_sensor_port_name(sn_color, s ));
         set_sensor_mode_inx(sn_color, LEGO_EV3_COLOR_COL_AMBIENT);
         if (get_sensor_mode(sn_color, s, sizeof(s))) {
 			printf("    Mode = %s\n", s);
 		}
 
     	for ( ; ; ){
-            printf("    Reading COLOR...\n");
-			if ( !get_sensor_value( 0, sn_color, &val ) || ( val < 0 ) ) {
-				val = 0;
-			}
+            /*printf("    Reading COLOR...\n");*/
+			//if ( !get_sensor_value( 0, sn_color, &val ) || ( val < 0 ) ) {
+			//	val = 0;
+			//}
+			val = get_color(sn_color);
 			//printf( "\r(%d, %s) \n", d, color[val]);
-			//printf( "\r%d \n", val);
+			printf( "\r%d \n", val);
 			fflush( stdout );
 
     		if ( _check_pressed( sn_touch )) break;
