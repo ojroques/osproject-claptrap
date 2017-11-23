@@ -78,8 +78,8 @@ int main( void )
 			//	val = 0;
 			//}
 			val = get_color(sn_color);
-			//printf( "\r(%d, %s) \n", d, color[val]);
-			printf( "\r%d \n", val);
+			printf( "\r(%d, %s) \n", val, color[val]);
+			//printf( "\r%d \n", val);
 			fflush( stdout );
 
     		if ( _check_pressed( sn_touch )) break;
