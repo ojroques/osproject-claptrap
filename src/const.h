@@ -14,6 +14,7 @@
 #define MSG_POSITION     4
 #define MSG_MAPDATA      5
 #define MSG_MAPDONE      6
+#define MSG_OBSTACLE     7
 #define CONNECTION_ERROR 0
 #define WRONG_MESSAGE    1
 #define START_MESSAGE    2

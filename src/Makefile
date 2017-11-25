@@ -1,9 +1,9 @@
-CC = gcc
+CC     = gcc
 CFLAGS = -Wall -c
+EXEC   = client image
 
 client: client.o
-	# $(CC) -Wall -lm -lev3dev-c -lbluetooth client.o -o client
-	$(CC) -Wall -lm -lbluetooth client.o -o client
+	$(CC) -Wall client.o -o client -lm -lbluetooth
 	./client
 
 client.o: client.c client.h
@@ -18,3 +18,6 @@ image.o: image.c image.h
 
 clean:
 	rm -f *.o
+
+ultraclean:
+	rm -f *.o $(EXEC)
