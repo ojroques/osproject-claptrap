@@ -34,10 +34,15 @@ static bool _check_pressed( uint8_t sn )
 
 int main( void )
 {
+
+
 	uint8_t sn_touch;
 	uint8_t sn_color;
 	char s[ 256 ];
 	int val;
+	RawRGB rgb;
+
+
 
 #ifndef __ARM_ARCH_4T__
 	/* Disable auto-detection of the brick (you have to set the correct address below) */
@@ -72,14 +77,15 @@ int main( void )
 			printf("    Mode = %s\n", s);
 		}
 
+
+
     	for ( ; ; ){
-            /*printf("    Reading COLOR...\n");*/
-			//if ( !get_sensor_value( 0, sn_color, &val ) || ( val < 0 ) ) {
-			//	val = 0;
-			//}
-			val = get_color(sn_color);
-			printf( "\r(%d, %s) \n", val, color[val]);
-			//printf( "\r%d \n", val);
+			//get sensor value
+			rgb = get_raw_rgb(sn_color);
+			//print values
+			printf( "\r value 0 = %d, value 1 = %d, value 2 = %d \n", rgb.value0, rgb.value1, rgb.value2);
+
+
 			fflush( stdout );
 
     		if ( _check_pressed( sn_touch )) break;
