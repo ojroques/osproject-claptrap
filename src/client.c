@@ -143,4 +143,5 @@ int main() {
     send_obstacle(x, y, act);
     send_mapdata(x, y, red, green, blue);
     send_mapdone();
+    return 0;
 }

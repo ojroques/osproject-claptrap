@@ -14,7 +14,7 @@ image: image.o
 	./image
 
 image.o: image.c image.h
-	$(CC) $(CFLAGS) image.c -o image.o
+	$(CC) -std=gnu99 -W $(CFLAGS) image.c -o image.o
 
 clean:
 	rm -f *.o
