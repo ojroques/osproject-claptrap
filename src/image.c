@@ -76,6 +76,7 @@ int main() {
     init_image();
     set_cell(20, 12, 1);
     place_obstacle(12, 12);
+    place_obstacle(12, 12);
     print_image();
     printf("La case (8, 12) a pour valeur %d.\n", get_cell(8, 12));
     return 0;
