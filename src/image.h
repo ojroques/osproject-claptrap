@@ -3,7 +3,7 @@
 
 void print_image();
 void init_image();
-u_int8_t get_cell(int32_t i, int32_t j);
-int set_cell(int32_t i, int32_t j, u_int8_t value);
+uint8_t get_cell(uint16_t i, uint16_t j);
+void set_cell(uint16_t i, uint16_t j, uint8_t value);
 
 #endif

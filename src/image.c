@@ -1,11 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <unistd.h>
 
 #include "image.h"
 #include "const.h"
+#include "client.h"
 
-u_int8_t IMAGE[IMG_HEIGHT][IMG_WIDTH];
+uint8_t IMAGE[IMG_HEIGHT][IMG_WIDTH];
+const char *ERR_OUT_OF_BOUNDS = "Index out of bounds exception";
 
 /* For debugging purposes only */
 void print_image() {
@@ -29,19 +32,18 @@ void init_image() {
     }
 }
 
-u_int8_t get_cell(int32_t i, int32_t j) {
+uint8_t get_cell(uint16_t i, uint16_t j) {
     if (i >= IMG_HEIGHT || j >= IMG_WIDTH) {
-        return ERR_OUT_OF_BOUNDS;
+        printf("%s\n", ERR_OUT_OF_BOUNDS);
     }
     return IMAGE[i][j];
 }
 
-int set_cell(int32_t i, int32_t j, u_int8_t value) {
+void set_cell(uint16_t i, uint16_t j, uint8_t value) {
     if (i >= IMG_HEIGHT || j >= IMG_WIDTH) {
-        return ERR_OUT_OF_BOUNDS;
+        printf("%s\n", ERR_OUT_OF_BOUNDS);
     }
     IMAGE[i][j] = value;
-    return 0;
 }
 
 int main() {
