@@ -7,8 +7,8 @@
 #include "const.h"
 #include "client.h"
 
-uint8_t IMAGE[IMG_HEIGHT][IMG_WIDTH];
-const char *ERR_OUT_OF_BOUNDS = "Index out of bounds exception";
+int IMAGE[IMG_HEIGHT][IMG_WIDTH];
+const char *STR_OUT_OF_BOUNDS = "Index out of bounds exception";
 
 /* For debugging purposes only */
 void print_image() {
@@ -32,24 +32,50 @@ void init_image() {
     }
 }
 
-uint8_t get_cell(uint16_t i, uint16_t j) {
-    if (i >= IMG_HEIGHT || j >= IMG_WIDTH) {
-        printf("%s\n", ERR_OUT_OF_BOUNDS);
+int get_cell(uint16_t i, uint16_t j) {
+    if (is_out_of_bounds(i, j)) {
+        printf("%s\n", STR_OUT_OF_BOUNDS);
+        return ERR_OUT_OF_BOUNDS;
     }
     return IMAGE[i][j];
 }
 
-void set_cell(uint16_t i, uint16_t j, uint8_t value) {
-    if (i >= IMG_HEIGHT || j >= IMG_WIDTH) {
-        printf("%s\n", ERR_OUT_OF_BOUNDS);
+int set_cell(uint16_t i, uint16_t j, int value) {
+    if (is_out_of_bounds(i, j)) {
+        printf("%s\n", STR_OUT_OF_BOUNDS);
+        return ERR_OUT_OF_BOUNDS;
     }
     IMAGE[i][j] = value;
+    return 0;
+}
+
+uint16_t coord_to_index(int16_t c) {
+    uint16_t i = (uint16_t) c;
+    return (i - (i % 5)) / 5;
+}
+
+int is_out_of_bounds(uint16_t i, uint16_t j) {
+    return (i >= IMG_HEIGHT || j >= IMG_WIDTH);
+}
+
+void place_obstacle(int16_t x, int16_t y) {
+    uint16_t i, j;
+    i = coord_to_index(y);
+    j = coord_to_index(x);
+    int k, l;
+    for (k = i; k < i + SIZE_OBSTACLE; k++) {
+        for (l = j; l < j + SIZE_OBSTACLE; l++) {
+            if (!is_out_of_bounds(k, l)) {
+                set_cell(k, l, get_cell(k, l) + 1);
+            }
+        }
+    }
 }
 
 int main() {
     init_image();
-    print_image();
-    set_cell(8, 12, 1);
+    set_cell(20, 12, 1);
+    place_obstacle(12, 12);
     print_image();
     printf("La case (8, 12) a pour valeur %d.\n", get_cell(8, 12));
     return 0;

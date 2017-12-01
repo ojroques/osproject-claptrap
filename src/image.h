@@ -3,7 +3,10 @@
 
 void print_image();
 void init_image();
-uint8_t get_cell(uint16_t i, uint16_t j);
-void set_cell(uint16_t i, uint16_t j, uint8_t value);
+int get_cell(uint16_t i, uint16_t j);
+int set_cell(uint16_t i, uint16_t j, int value);
+uint16_t coord_to_index(int16_t c);
+int is_out_of_bounds(uint16_t i, uint16_t j);
+void place_obstacle(int16_t x, int16_t y);
 
 #endif

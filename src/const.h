@@ -3,6 +3,7 @@
 
 /* GENERAL */
 #define Sleep( msec ) usleep(( msec ) * 1000 )
+#define SIZE_OBSTACLE 2
 
 /* USED BY CLIENT.C */
 #define SERV_ADDR        "dc:53:60:ad:61:90"    /* The address of the server */
@@ -20,6 +21,7 @@
 #define START_MESSAGE    2
 
 /* USED BY IMAGE.C */
+#define ERR_OUT_OF_BOUNDS -1
 #define IMG_WIDTH         24
 #define IMG_HEIGHT        40
 
