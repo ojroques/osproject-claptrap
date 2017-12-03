@@ -1,5 +1,5 @@
-#ifndef __CONST_H
-#define __CONST_H
+#ifndef CONST_H
+#define CONST_H
 
 /* GENERAL */
 #define Sleep( msec ) usleep(( msec ) * 1000 )

@@ -1,5 +1,5 @@
-#ifndef __CLIENT_H
-#define __CLIENT_H
+#ifndef CLIENT_H
+#define CLIENT_H
 
 int read_from_server(char *buffer, size_t maxSize);
 int sent_to_server(char *buffer, size_t maxSize);

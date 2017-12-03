@@ -1,5 +1,5 @@
-#ifndef __IMAGE_H
-#define __IMAGE_H
+#ifndef IMAGE_H
+#define IMAGE_H
 
 typedef struct color_t {
     uint8_t red;
