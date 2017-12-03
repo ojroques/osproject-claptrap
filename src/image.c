@@ -10,6 +10,12 @@
 int IMAGE[IMG_HEIGHT][IMG_WIDTH];
 const char *STR_OUT_OF_BOUNDS = "Index out of bounds exception";
 
+const color_t WHITE = {255, 255, 255};
+const color_t BLACK = {0, 0, 0};
+const color_t RED = {255, 0, 0};
+const color_t GREEN = {0, 255, 0};
+const color_t BLUE = {0, 0, 255};
+
 /* For debugging purposes only */
 void print_image() {
     int i, j;
@@ -62,22 +68,53 @@ void place_obstacle(int16_t x, int16_t y) {
     uint16_t i, j;
     i = coord_to_index(y);
     j = coord_to_index(x);
-    int k, l;
+    int k, l, value;
     for (k = i; k < i + SIZE_OBSTACLE; k++) {
         for (l = j; l < j + SIZE_OBSTACLE; l++) {
             if (!is_out_of_bounds(k, l)) {
-                set_cell(k, l, get_cell(k, l) + 1);
+                value = get_cell(k, l);
+                if (value < 2) {
+                    set_cell(k, l, 2);
+                }
+                else {
+                    set_cell(k, l, value + 1);
+                }
             }
         }
     }
 }
 
+/* TODO: Offer a larger choice of colors */
+color_t val_to_color(int value) {
+    switch (value) {
+        case 0:
+            return WHITE;
+        case 1:
+            return WHITE;
+        default:
+            return BLACK;
+    }
+}
+
+void send_image() {
+    color_t col;
+    int16_t i, j;
+    for (i = 0; i < IMG_HEIGHT; i++) {
+        for (j = 0; j < IMG_WIDTH; j++) {
+            col = val_to_color(get_cell(i, j));
+            send_mapdata(i, j, col.red, col.green, col.blue);
+        }
+    }
+    send_mapdone();
+}
+
+/* For test purposes
 int main() {
     init_image();
-    set_cell(20, 12, 1);
+    set_cell(20, 12, 2);
     place_obstacle(12, 12);
     place_obstacle(12, 12);
     print_image();
-    printf("La case (8, 12) a pour valeur %d.\n", get_cell(8, 12));
+    printf("La case (20, 12) a pour valeur %d.\n", get_cell(20, 12));
     return 0;
-}
+} */

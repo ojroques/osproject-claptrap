@@ -133,6 +133,7 @@ void close_connection() {
     close(s);
 }
 
+/* For test purposes
 int main() {
     int16_t x     = 120;
     int16_t y     = 60;
@@ -145,4 +146,4 @@ int main() {
     send_mapdata(x, y, red, green, blue);
     send_mapdone();
     return 0;
-}
+} */

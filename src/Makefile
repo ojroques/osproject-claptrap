@@ -9,8 +9,8 @@ client: client.o
 client.o: client.c client.h
 	$(CC) -std=gnu99 -W $(CFLAGS) client.c -o client.o
 
-image: image.o
-	$(CC) image.o -o image
+image: image.o client.o
+	$(CC) image.o client.o -o image -lm -lbluetooth
 	./image
 
 image.o: image.c image.h
