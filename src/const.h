@@ -28,4 +28,10 @@
 #define IMG_WIDTH         24
 #define IMG_HEIGHT        40
 
+/* USED BY TACHO.C */
+#define LEFT_WHEEL_PORT  66
+#define RIGHT_WHEEL_PORT 67
+#define ROBOT_RADIUS     6.05
+#define WHEEL_PERIMETER  17.5929188601
+
 #endif
