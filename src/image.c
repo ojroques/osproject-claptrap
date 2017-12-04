@@ -1,3 +1,6 @@
+/* Written by Olivier Roques for the OS project.
+Eurecom, 2017 - 2018. */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>

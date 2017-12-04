@@ -1,3 +1,6 @@
+/* Written by Olivier Roques for the OS project.
+Eurecom, 2017 - 2018. */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -8,6 +11,8 @@
 
 #include "client.h"
 #include "const.h"
+
+#define DEBUG 1
 
 int s;
 uint16_t msgId = 1;
@@ -34,13 +39,14 @@ int sent_to_server(char *buffer, size_t maxSize) {
         return CONNECTION_ERROR;
     }
     Sleep ( 500 );
-    printf ("[DEBUG] sent %d bytes\n", bytes_sent);
+    printf("[DEBUG] sent %d bytes\n", bytes_sent);
     return bytes_sent;
 }
 
 /* For debugging purposes */
 void print_message(char *message, size_t message_size) {
     unsigned int i;
+    printf("[DEBUG] message sent:\n");
     for(i = 0; i < message_size; i++) {
         // Prints signed char by default. For unsigned char, use %08hhx.
         printf("%08x ", message[i]);
@@ -56,6 +62,9 @@ void send_position(int16_t x, int16_t y) {
     message[4] = MSG_POSITION;
     *((uint16_t *) &message[5] ) = x;
     *((uint16_t *) &message[7] ) = y;
+    if (DEBUG) {
+        print_message(message, 9);
+    }
     sent_to_server(message, 9);
 }
 
@@ -70,6 +79,9 @@ void send_mapdata(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue
     message[9] = red;
     message[10] = green;
     message[11] = blue;
+    if (DEBUG) {
+        print_message(message, 12);
+    }
     sent_to_server(message, 12);
 }
 
@@ -79,6 +91,9 @@ void send_mapdone() {
     message[2] = TEAM_ID;
     message[3] = 0xFF;
     message[4] = MSG_MAPDONE;
+    if (DEBUG) {
+        print_message(message, 5);
+    }
     sent_to_server(message, 5);
 }
 
@@ -91,6 +106,9 @@ void send_obstacle(int16_t x, int16_t y, uint8_t act) {
     message[5] = act;
     *((uint16_t *) &message[6] ) = x;
     *((uint16_t *) &message[8] ) = y;
+    if (DEBUG) {
+        print_message(message,10);
+    }
     sent_to_server(message, 10);
 }
 
@@ -133,7 +151,6 @@ void close_connection() {
     close(s);
 }
 
-/* For test purposes
 int main() {
     int16_t x     = 120;
     int16_t y     = 60;
@@ -146,4 +163,4 @@ int main() {
     send_mapdata(x, y, red, green, blue);
     send_mapdone();
     return 0;
-} */
+}
