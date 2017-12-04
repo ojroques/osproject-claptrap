@@ -1,6 +1,6 @@
 CC     = gcc
 CFLAGS = -Wall -c
-EXEC   = client image main
+EXEC   = client image main tacho sensors
 
 client: client.o
 	$(CC) -Wall client.o -o client -lm -lbluetooth
@@ -15,6 +15,24 @@ image: image.o client.o
 
 image.o: image.c image.h
 	$(CC) -std=gnu99 -W $(CFLAGS) image.c -o image.o
+
+tacho.o: tacho.c tacho.h
+	$(CC) -std=gnu99 -W $(CFLAGS) tacho.c -o tacho.o
+
+tacho: tacho.o
+	$(CC) -Wall tacho.o -o tacho -lm -lev3dev-c
+	./tacho
+
+sensors.o: sensors.c sensors.h
+	$(CC) -std=gnu99 -W $(CFLAGS) sensors.c -o sensors.o
+
+sensors: sensors.o
+	$(CC) -Wall sensors.o -o sensors -lm -lev3dev-c
+	./sensors
+
+# main: main.o client.o image.o tacho.o sensors.o
+# 	$(CC) main.o image.o client.o tacho.o sensors.o -o main -lm -lbluetooth -lev3dev-c
+# 	./main
 
 main: main.o client.o image.o
 	$(CC) main.o image.o client.o -o main -lm -lbluetooth
