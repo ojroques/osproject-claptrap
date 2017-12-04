@@ -71,7 +71,7 @@ int main(void) {
     } else {
         printf("LEGO_EV3_M_MOTOR is NOT found\n");
     }
-    
+
     ev3_uninit();
     printf("*** ( EV3 ) Bye! ***\n");
     return (0);
