@@ -3,10 +3,13 @@
 
 /* GENERAL */
 #define Sleep( msec ) usleep(( msec ) * 1000 )
-#define SIZE_OBSTACLE 2
+#define SIZE_OBSTACLE 2 /* The size of an obstacle's side */
+
+/* USED BY MAIN.C */
+#define EXPLORATION_TIME 210 /* The duration of exploration, in seconds */
 
 /* USED BY CLIENT.C */
-#define SERV_ADDR        "dc:53:60:ad:61:90"    /* The address of the server */
+#define SERV_ADDR        "00:28:f8:51:71:4b"    /* The address of the server */
 #define TEAM_ID          7                      /* The team ID */
 #define MSG_ACK          0
 #define MSG_START        1

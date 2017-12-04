@@ -158,6 +158,7 @@ int main() {
     uint8_t green = 85;
     uint8_t blue  = 0;
     uint8_t act   = 1;
+    // open_connection();
     send_position(x, y);
     send_obstacle(x, y, act);
     send_mapdata(x, y, red, green, blue);
