@@ -40,7 +40,7 @@ int main( void )
 	uint8_t sn_color;
 	char s[ 256 ];
 	int val;
-	RawRGB rgb;
+	TripleValue rgb;
 
 
 
