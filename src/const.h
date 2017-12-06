@@ -4,9 +4,13 @@
 /* GENERAL */
 #define Sleep( msec ) usleep(( msec ) * 1000 )
 #define SIZE_OBSTACLE 2 /* The size of an obstacle's side */
+#define EXPLORATION_TIME 210 /* The duration of exploration, in seconds */
 
 /* USED BY MAIN.C */
-#define EXPLORATION_TIME 210 /* The duration of exploration, in seconds */
+#define RED           5
+#define NO_OBST      -1
+#define MV_OBST       0
+#define NONMV_OBST    1
 
 /* USED BY CLIENT.C */
 #define SERV_ADDR        "00:28:f8:51:71:4b"    /* The address of the server */

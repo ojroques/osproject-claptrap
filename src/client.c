@@ -159,9 +159,13 @@ int main() {
     uint8_t blue  = 0;
     uint8_t act   = 1;
     // open_connection();
+    printf("\nSENDING POSITION");
     send_position(x, y);
+    printf("\nSENDING OBSTACLE");
     send_obstacle(x, y, act);
+    printf("\nSENDING MAPDATA");
     send_mapdata(x, y, red, green, blue);
+    printf("\nSENDING MAPDONE");
     send_mapdone();
     return 0;
 }

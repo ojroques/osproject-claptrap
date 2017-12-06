@@ -1,4 +1,8 @@
 *.o
-client
-image
 main
+sensors
+tacho
+config
+position
+image
+client
