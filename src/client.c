@@ -56,12 +56,16 @@ void print_message(char *message, size_t message_size) {
 
 void send_position(int16_t x, int16_t y) {
     char message[9];
-    *((uint16_t *) message) = msgId++;
+    message[0] = msgId & 0x00ff;
+    message[1] = (msgId & 0xff00) >> 8;
+    msgId++;
     message[2] = TEAM_ID;
     message[3] = 0xFF;
     message[4] = MSG_POSITION;
-    *((uint16_t *) &message[5] ) = x;
-    *((uint16_t *) &message[7] ) = y;
+    message[5] = x & 0x00ff;
+    message[6] = (x & 0xff00) >> 8;
+    message[7] = y & 0x00ff;
+    message[8] = (y & 0xff00) >> 8;
     if (DEBUG) {
         print_message(message, 9);
     }
@@ -70,12 +74,16 @@ void send_position(int16_t x, int16_t y) {
 
 void send_mapdata(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue) {
     char message[12];
-    *((uint16_t *) message) = msgId++;
+    message[0] = msgId & 0x00ff;
+    message[1] = (msgId & 0xff00) >> 8;
+    msgId++;
     message[2] = TEAM_ID;
     message[3] = 0xFF;
     message[4] = MSG_MAPDATA;
-    *((uint16_t *) &message[5] ) = x;
-    *((uint16_t *) &message[7] ) = y;
+    message[5] = x & 0x00ff;
+    message[6] = (x & 0xff00) >> 8;
+    message[7] = y & 0x00ff;
+    message[8] = (y & 0xff00) >> 8;
     message[9] = red;
     message[10] = green;
     message[11] = blue;
@@ -87,7 +95,9 @@ void send_mapdata(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue
 
 void send_mapdone() {
     char message[5];
-    *((uint16_t *) message) = msgId++;
+    message[0] = msgId & 0x00ff;
+    message[1] = (msgId & 0xff00) >> 8;
+    msgId++;
     message[2] = TEAM_ID;
     message[3] = 0xFF;
     message[4] = MSG_MAPDONE;
@@ -99,13 +109,17 @@ void send_mapdone() {
 
 void send_obstacle(int16_t x, int16_t y, uint8_t act) {
     char message[10];
-    *((uint16_t *) message) = msgId++;
+    message[0] = msgId & 0x00ff;
+    message[1] = (msgId & 0xff00) >> 8;
+    msgId++;
     message[2] = TEAM_ID;
     message[3] = 0xFF;
     message[4] = MSG_OBSTACLE;
     message[5] = act;
-    *((uint16_t *) &message[6] ) = x;
-    *((uint16_t *) &message[8] ) = y;
+    message[6] = x & 0x00ff;
+    message[7] = (x & 0xff00) >> 8;
+    message[8] = y & 0x00ff;
+    message[9] = (y & 0xff00) >> 8;
     if (DEBUG) {
         print_message(message,10);
     }
@@ -152,8 +166,8 @@ void close_connection() {
 }
 
 int main() {
-    int16_t x     = 120;
-    int16_t y     = 60;
+    int16_t x     = 4;
+    int16_t y     = 6;
     uint8_t red   = 204;
     uint8_t green = 85;
     uint8_t blue  = 0;
