@@ -20,6 +20,9 @@ image.o: image.c image.h
 # 	$(CC) main.o image.o client.o tacho.o sensors.o -o main -lm -lbluetooth -lev3dev-c
 # 	./main
 
+sensors.o:
+		gcc -I./../../ev3dev-c-master/source/ev3 -O2 -std=gnu99 -W -Wall -Wno-comment -c sensors.c -o sensors.o
+
 main: main.o
 	$(CC) main.o -o main
 	./main

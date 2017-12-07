@@ -6,6 +6,9 @@ color_test: color_test.c
 	gcc -I./ev3dev-c/source/ev3 -O2 -std=gnu99 -W -Wall -Wno-comment -c color_test.c -o color_test.o
 	gcc color_test.o -Wall -lm -lev3dev-c -o color_test
 
+color_test_nathan:
+	gcc color_test.o sensors.o -Wall -L/home/nathan/workspace/Eurecom/OS_project/ev3dev-c-master/lib -lm -lev3dev-c -o color_test
+
 gyro_test: gyro_test.c
 	gcc -I./ev3dev-c/source/ev3 -O2 -std=gnu99 -W -Wall -Wno-comment -c gyro_test.c -o gyro_test.o
 	gcc gyro_test.o -Wall -lm -lev3dev-c -o gyro_test
