@@ -49,7 +49,7 @@ void print_message(char *message, size_t message_size) {
     printf("[DEBUG] message sent:\n");
     for(i = 0; i < message_size; i++) {
         // Prints signed char by default. For unsigned char, use %08hhx.
-        printf("%08x ", message[i]);
+        printf("%02hhx ", message[i]);
     }
     printf("\n");
 }
@@ -158,14 +158,14 @@ int main() {
     uint8_t green = 85;
     uint8_t blue  = 0;
     uint8_t act   = 1;
-    // open_connection();
-    printf("\nSENDING POSITION");
+    open_connection();
+    printf("\nSENDING POSITION\n");
     send_position(x, y);
-    printf("\nSENDING OBSTACLE");
+    printf("\nSENDING OBSTACLE\n");
     send_obstacle(x, y, act);
-    printf("\nSENDING MAPDATA");
+    printf("\nSENDING MAPDATA\n");
     send_mapdata(x, y, red, green, blue);
-    printf("\nSENDING MAPDONE");
+    printf("\nSENDING MAPDONE\n");
     send_mapdone();
     return 0;
 }
