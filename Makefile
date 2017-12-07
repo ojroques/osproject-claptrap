@@ -6,12 +6,12 @@ tacho_test:
 	gcc -I./ev3dev-c/source/ev3 -O2 -std=gnu99 -W -Wall -Wno-comment -c tests/tacho_test.c -o test/tacho_test.o
 	gcc tests/tacho_test.o -Wall -lm -lev3dev-c -o tests/tacho_test
 
-movements:
-	gcc -I./ev3dev-c/source/ev3 -O2 -std=gnu99 -W -Wall -Wno-comment -c src/robot_movement/movements.c -o src/robot_movement/movements.o
+tacho.o:
+	gcc -I./ev3dev-c/source/ev3 -O2 -std=gnu99 -W -Wall -Wno-comment -c src/tacho.c -o src/tacho.o
 
-test_main: movements
+test_main: tacho.o
 	gcc -I./ev3dev-c/source/ev3 -O2 -std=gnu99 -W -Wall -Wno-comment -c tests/test_main.c -o tests/test_main.o
-	gcc src/robot_movement/movements.o tests/test_main.o -Wall -lm -lev3dev-c -o tests/test_main
+	gcc src/tacho.o tests/test_main.o -Wall -lm -lev3dev-c -o tests/test_main
 
 run_tester:
 	./tester
