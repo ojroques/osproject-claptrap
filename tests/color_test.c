@@ -21,6 +21,8 @@
 const char const *color[] = { "?", "BLACK", "BLUE", "GREEN", "YELLOW", "RED", "WHITE", "BROWN" };
 #define COLOR_COUNT  (( int )( sizeof( color ) / sizeof( color[ 0 ])))
 
+
+//Function to check if the touch sensor is pressed
 static bool _check_pressed( uint8_t sn )
 {
 	int val;
@@ -32,69 +34,87 @@ static bool _check_pressed( uint8_t sn )
 }
 
 
-int main( void )
+//#########MAIN#########
+
+int main(int argc, const char* argv[])
 {
+	if (argc != 1){
+		printf("Wrong number of argument, exiting ! \n");
+		return (0);
+	}
 
+//SOME MORE INITIALISATION
+	#ifndef __ARM_ARCH_4T__
+		/* Disable auto-detection of the brick (you have to set the correct address below) */
+		ev3_brick_addr = "192.168.0.204";
 
+	#endif
+		if ( ev3_init() == -1 ) return ( 1 );
+
+	#ifndef __ARM_ARCH_4T__
+		printf( "The EV3 brick auto-detection is DISABLED,\nwaiting %s online with plugged tacho...\n", ev3_brick_addr );
+
+	#else
+		printf( "Waiting tacho is plugged...\n" );
+
+	#endif
+
+// TOUCH INITIALISATION
 	uint8_t sn_touch;
-	uint8_t sn_color;
-	char s[ 256 ];
-	int val;
-	TripleValue rgb;
-
-
-
-#ifndef __ARM_ARCH_4T__
-	/* Disable auto-detection of the brick (you have to set the correct address below) */
-	ev3_brick_addr = "192.168.0.204";
-
-#endif
-	if ( ev3_init() == -1 ) return ( 1 );
-
-#ifndef __ARM_ARCH_4T__
-	printf( "The EV3 brick auto-detection is DISABLED,\nwaiting %s online with plugged tacho...\n", ev3_brick_addr );
-
-#else
-	printf( "Waiting tacho is plugged...\n" );
-
-#endif
-
-	printf( "*** ( EV3 ) Hello! ***\n" );
-
-//Run all sensors
 	ev3_sensor_init();
 
 	if ( ev3_search_sensor( LEGO_EV3_TOUCH, &sn_touch, 0 )) {
 		printf( "TOUCH sensor is found, press BUTTON for EXIT...\n" );
 	}
+
+printf( "*** ( EV3 ) Hello! ***\n" );
+
+	uint8_t sn_color;
+	char s[ 256 ];
+	int val;
+
+
+//NOTE en gros il faut faire un switch case ugly et récupérer l'argument sur la ligne de commande pour savoir quel sensor on test.
+//		case 'col-color':
+//			uint8_t sn_color;
+//
+//	}
+	TripleValue rgb;
+
+
+
+
+
+
+
+//Run all sensors
     if ( ev3_search_sensor( LEGO_EV3_COLOR, &sn_color, 0 )) {
 
 				printf("COLOR sensor is found\n" );
 				printf("sn number for color sensor is %d \n", sn_color);
         printf("    Port = %s\n", ev3_sensor_port_name(sn_color, s ));
-        set_sensor_mode_inx(sn_color, LEGO_EV3_COLOR_COL_AMBIENT);
+
+				set_sensor_mode_inx(sn_color, LEGO_EV3_COLOR_COL_AMBIENT);
         if (get_sensor_mode(sn_color, s, sizeof(s))) {
-			printf("    Mode = %s\n", s);
-		}
+					printf("    Mode = %s\n", s);
+				}
+
+	    	for ( ; ; ){
+				//get sensor value
+				rgb = get_raw_rgb(sn_color);
+				//print values
+				printf( "\r value 0 = %d, value 1 = %d, value 2 = %d \n", rgb.value0, rgb.value1, rgb.value2);
 
 
+				fflush( stdout );
 
-    	for ( ; ; ){
-			//get sensor value
-			rgb = get_raw_rgb(sn_color);
-			//print values
-			printf( "\r value 0 = %d, value 1 = %d, value 2 = %d \n", rgb.value0, rgb.value1, rgb.value2);
-
-
-			fflush( stdout );
-
-    		if ( _check_pressed( sn_touch )) break;
-    		Sleep( 200 );
-    		printf( "\r        " );
-    		fflush( stdout );
-    		if ( _check_pressed( sn_touch )) break;
-    		Sleep( 200 );
-    	}
+	    	if ( _check_pressed( sn_touch )) break;
+	    	Sleep( 200 );
+	    	printf( "\r        " );
+	    	fflush( stdout );
+	    	if ( _check_pressed( sn_touch )) break;
+	    	Sleep( 200 );
+	    	}
     }
 
 	ev3_uninit();
