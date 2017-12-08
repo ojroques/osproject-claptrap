@@ -67,6 +67,7 @@ void send_position(int16_t x, int16_t y) {
     message[7] = y & 0x00ff;
     message[8] = (y & 0xff00) >> 8;
     if (DEBUG) {
+        printf("SENDING POSITION\n");
         print_message(message, 9);
     }
     sent_to_server(message, 9);
@@ -88,6 +89,7 @@ void send_mapdata(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue
     message[10] = green;
     message[11] = blue;
     if (DEBUG) {
+        printf("SENDING MAPDATA\n");
         print_message(message, 12);
     }
     sent_to_server(message, 12);
@@ -102,6 +104,7 @@ void send_mapdone() {
     message[3] = 0xFF;
     message[4] = MSG_MAPDONE;
     if (DEBUG) {
+        printf("SENDING MAPDONE\n");
         print_message(message, 5);
     }
     sent_to_server(message, 5);
@@ -121,6 +124,7 @@ void send_obstacle(int16_t x, int16_t y, uint8_t act) {
     message[8] = y & 0x00ff;
     message[9] = (y & 0xff00) >> 8;
     if (DEBUG) {
+        printf("SENDING OBSTACLE\n");
         print_message(message,10);
     }
     sent_to_server(message, 10);
@@ -173,13 +177,9 @@ int main() {
     uint8_t blue  = 0;
     uint8_t act   = 1;
     open_connection();
-    printf("\nSENDING POSITION\n");
     send_position(x, y);
-    printf("\nSENDING OBSTACLE\n");
     send_obstacle(x, y, act);
-    printf("\nSENDING MAPDATA\n");
     send_mapdata(x, y, red, green, blue);
-    printf("\nSENDING MAPDONE\n");
     send_mapdone();
     return 0;
 }
