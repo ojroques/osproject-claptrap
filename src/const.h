@@ -11,6 +11,12 @@
 #define NO_OBST      -1
 #define MV_OBST       0
 #define NONMV_OBST    1
+#define NB_DIRECTION  4
+#define NORTH         1
+#define WEST          2
+#define SOUTH         3
+#define EAST          0
+#define DIST_TRESHOLD 20
 
 /* USED BY CLIENT.C */
 #define SERV_ADDR        "00:28:f8:51:71:4b"    /* The address of the server */
