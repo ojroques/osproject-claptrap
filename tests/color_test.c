@@ -106,7 +106,7 @@ switch (tested_sensor){
 		break;
 
 	case 4 :
-		if ( ev3_search_sensor( LEGO_EV3_US, &sn_tested, 0 )) {
+		if ( ev3_search_sensor( HT_NXT_COMPASS, &sn_tested, 0 )) {
 				printf("COMPASS sensor is found\n" );
 				printf("sn number for compass sensor is %d \n", sn_tested);
 				printf("    Port = %s\n", ev3_sensor_port_name(sn_tested, s ));
