@@ -59,7 +59,8 @@ void analyse_env(int mesures[NB_DIRECTION]) {
         sonar_value = get_distance(); //TODO: Pass the correct argument
         // If non-movable obstacle detected, place obstacle
         if (sonar_value < DIST_TRESHOLD && obstacle_type(&sonar_value) == 1) {
-            //TODO: Calculate the obstacle position and update image
+            get_obst_position(sonar_value, ANGLES[current_direction], &x_obstacle, &y_obstacle);
+            place_obstacle(x_obstacle, y_obstacle);
         }
         mesures[current_direction] = sonar_value;
         if (i < NB_DIRECTION - 1) {   // To avoid returning to the initial direction
@@ -91,7 +92,7 @@ void update_history(int new_direction) {
     mv_history[0] = new_direction;
 }
 
-/* Rotate and move 20cm forward according to the given direction */
+/* Rotate and move 20cm forward in the given direction */
 void move(int direction) {
     turn_rigth(ANGLES[(current_direction + direction) % NB_DIRECTION]);
     current_direction = direction;
