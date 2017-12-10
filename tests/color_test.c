@@ -120,6 +120,7 @@ switch (tested_sensor){
 
 
 switch (tested_mode){
+	//########		color		##########################################
 	//################GET COLOR###################################
 	case 11 :
 		printf("Test de get_color \n");
@@ -256,6 +257,234 @@ switch (tested_mode){
 				Sleep( 200 );
 			}
 		break;
+
+  //########		Gyro	##########################################
+	//################GET ANGLE###################################
+	case 21 :
+		printf("Test de get_angle \n");
+		set_sensor_mode_inx(sn_tested, LEGO_EV3_GYRO_GYRO_ANG);
+		if (get_sensor_mode(sn_tested, s, sizeof(s))) {
+			printf("    Mode = %s\n", s);
+		}
+
+			//test du capteur !
+		int angle_value;
+		for ( ; ; ){
+
+			//get sensor value
+			angle_value = get_angle(sn_tested);
+			//print values
+			printf( "\r angle = %d \n", angle_value);
+			fflush( stdout );
+
+			if ( _check_pressed( sn_touch )) break;
+				Sleep( 200 );
+				printf( "\r        " );
+				fflush( stdout );
+			if ( _check_pressed( sn_touch )) break;
+				Sleep( 200 );
+			}
+
+		break;
+
+//################GET ROT SPEED###################################
+	case 22 :
+		printf("Test de get_rot_speed \n");
+		set_sensor_mode_inx(sn_tested, LEGO_EV3_GYRO_GYRO_RATE);
+		if (get_sensor_mode(sn_tested, s, sizeof(s))) {
+			printf("    Mode = %s\n", s);
+		}
+
+		//test du capteur !
+		int rot_speed_value;
+		for ( ; ; ){
+
+			//get sensor value
+			rot_speed_value = get_rot_speed(sn_tested);
+			//print values
+			printf( "\r rot_speed_value = %d \n", rot_speed_value);
+			fflush( stdout );
+
+			if ( _check_pressed( sn_touch )) break;
+				Sleep( 200 );
+				printf( "\r        " );
+				fflush( stdout );
+			if ( _check_pressed( sn_touch )) break;
+				Sleep( 200 );
+			}
+
+		break;
+
+	//################GET RAW GYRO###################################
+	case 23 :
+		printf("Test de get_raw_gyro \n");
+		set_sensor_mode_inx(sn_tested, LEGO_EV3_GYRO_GYRO_FAS);
+		if (get_sensor_mode(sn_tested, s, sizeof(s))) {
+			printf("    Mode = %s\n", s);
+			}
+
+		//test du capteur !
+		int raw_gyro_value;
+		for ( ; ; ){
+
+			//get sensor value
+			raw_gyro_value = get_raw_gyro(sn_tested);
+			//print values
+			printf( "\r raw_gyro_value = %d \n", raw_gyro_value);
+			fflush( stdout );
+
+			if ( _check_pressed( sn_touch )) break;
+			Sleep( 200 );
+			printf( "\r        " );
+			fflush( stdout );
+			if ( _check_pressed( sn_touch )) break;
+			Sleep( 200 );
+			}
+
+			break;
+
+//################GET ANGLE AND ROT SPEED###################################
+	case 24 :
+		printf("Test de get_angle_and_rot_speed \n");
+		set_sensor_mode_inx(sn_tested, LEGO_EV3_GYRO_GYRO_G_AND_A);
+		if (get_sensor_mode(sn_tested, s, sizeof(s))) {
+			printf("    Mode = %s\n", s);
+		}
+
+		//test du capteur !
+		DoubleValue angle_rot_speed_value;
+		for ( ; ; ){
+
+			//get sensor value
+			angle_rot_speed_value = get_angle_and_rot_speed(sn_tested);
+			//print values
+			printf( "\r angle = %d, rot_speed = %d \n", angle_rot_speed_value.value0, angle_rot_speed_value.value1);
+			fflush( stdout );
+
+			if ( _check_pressed( sn_touch )) break;
+				Sleep( 200 );
+				printf( "\r        " );
+				fflush( stdout );
+			if ( _check_pressed( sn_touch )) break;
+				Sleep( 200 );
+			}
+
+		break;
+
+//########		Ultrasonic	##########################################
+//################GET DISTANCE###################################
+	case 31 :
+		printf("Test de get_distance \n");
+		set_sensor_mode_inx(sn_tested, LEGO_EV3_US_US_DIST_CM);
+		if (get_sensor_mode(sn_tested, s, sizeof(s))) {
+			printf("    Mode = %s\n", s);
+			}
+
+		//test du capteur !
+		int distance_value;
+		for ( ; ; ){
+
+			//get sensor value
+			distance_value = get_distance(sn_tested);
+			//print values
+			printf( "\r distance_value = %d \n", distance_value);
+			fflush( stdout );
+
+			if ( _check_pressed( sn_touch )) break;
+			Sleep( 200 );
+			printf( "\r        " );
+			fflush( stdout );
+			if ( _check_pressed( sn_touch )) break;
+	 		Sleep( 200 );
+			}
+
+		break;
+
+	//################GET SINGLE DISTANCE###################################
+		case 32 :
+			printf("Test de get_single_dist \n");
+			set_sensor_mode_inx(sn_tested, LEGO_EV3_US_US_SI_CM);
+			if (get_sensor_mode(sn_tested, s, sizeof(s))) {
+				printf("    Mode = %s\n", s);
+				}
+
+			//test du capteur !
+			int single_distance_value;
+			for ( ; ; ){
+
+				//get sensor value
+				single_distance_value = get_single_dist(sn_tested);
+				//print values
+				printf( "\r single_distance_value = %d \n", single_distance_value);
+				fflush( stdout );
+
+				if ( _check_pressed( sn_touch )) break;
+				Sleep( 200 );
+				printf( "\r        " );
+				fflush( stdout );
+				if ( _check_pressed( sn_touch )) break;
+		 		Sleep( 200 );
+				}
+
+			break;
+
+//################GET CONTINUOUS DISTANCE###################################
+		case 33 :
+			printf("Test de get_single_dist \n");
+			set_sensor_mode_inx(sn_tested, LEGO_EV3_US_US_DC_CM);
+			if (get_sensor_mode(sn_tested, s, sizeof(s))) {
+				printf("    Mode = %s\n", s);
+				}
+
+			//test du capteur !
+			int continuous_distance_value;
+			for ( ; ; ){
+
+				//get sensor value
+				continuous_distance_value = get_continuous_distance(sn_tested);
+				//print values
+				printf( "\r continuous_distance_value = %d \n", continuous_distance_value);
+				fflush( stdout );
+
+				if ( _check_pressed( sn_touch )) break;
+				Sleep( 200 );
+				printf( "\r        " );
+				fflush( stdout );
+				if ( _check_pressed( sn_touch )) break;
+		 		Sleep( 200 );
+				}
+
+			break;
+
+//########		compass	##########################################
+//################GET COMPASS DIRECTION###################################
+	case 41 :
+		printf("Test de get_compass_direction \n");
+		set_sensor_mode_inx(sn_tested, HT_NXT_COMPASS_COMPASS);
+		if (get_sensor_mode(sn_tested, s, sizeof(s))) {
+			printf("    Mode = %s\n", s);
+			}
+
+			//test du capteur !
+			int compass_direction_value;
+			for ( ; ; ){
+
+				//get sensor value
+				compass_direction_value = get_compass_direction(sn_tested);
+				//print values
+				printf( "\r compass_direction_value = %d \n", compass_direction_value);
+				fflush( stdout );
+
+				if ( _check_pressed( sn_touch )) break;
+				Sleep( 200 );
+				printf( "\r        " );
+				fflush( stdout );
+				if ( _check_pressed( sn_touch )) break;
+				Sleep( 200 );
+			}
+
+			break;
+
 
 //################DEFAULT###################################
 	default :
