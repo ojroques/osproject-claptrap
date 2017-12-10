@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <time.h>
+#include <math.h>
 
 #include "main.h"
 #include "const.h"
@@ -13,7 +14,7 @@
 #include "image.h"
 #include "client.h"
 
-// Angles for {EAST, NORTH, WEST, SOUTH}
+// Angles of {EAST, NORTH, WEST, SOUTH}
 const int ANGLES[4] = {0, 90, 180, -90};
 int current_direction = NORTH;
 int mv_history[2] = {-1, -2};
@@ -34,7 +35,7 @@ int obstacle_type(int *sonar_value) {
 
     // Check if there is really an obstacle
     new_distance = get_distance(); //TODO: Pass the correct argument
-    *sonar_value = distance + new_distance;
+    *sonar_value = distance + new_distance; // Update sonar_value with a more reliable value
     if (new_distance > 4) {
         backward((float)distance);
         return NO_OBST;
@@ -52,6 +53,7 @@ int obstacle_type(int *sonar_value) {
 the given array */
 void analyse_env(int mesures[NB_DIRECTION]) {
     int sonar_value, obstacle;
+    int x_obstacle, y_obstacle;
     int i;
     for (i = 0; i < NB_DIRECTION; i++) {
         current_direction = (current_direction + i) % NB_DIRECTION;
@@ -61,7 +63,9 @@ void analyse_env(int mesures[NB_DIRECTION]) {
             //TODO: Calculate the obstacle position and update image
         }
         mesures[current_direction] = sonar_value;
-        turn_rigth(90);
+        if (i < NB_DIRECTION - 1) {   // To avoid returning to the initial direction
+            turn_rigth(90);
+        }
     }
 }
 
@@ -71,9 +75,9 @@ void update_history(int new_direction) {
     mv_history[0] = new_direction;
 }
 
-/* Return the direction with the largest free space, or -1
-if there are none with at least 20cm of free space */
-void choose_direction(int mesures[NB_DIRECTION]) {
+/* Return the direction with the largest free space (> 20cm)
+or -1 if there are none */
+int choose_direction(int mesures[NB_DIRECTION]) {
     int i, direction, is_looping;
     direction = -1;
     for (i = 0; i < NB_DIRECTION; i++) {
@@ -85,33 +89,38 @@ void choose_direction(int mesures[NB_DIRECTION]) {
             }
         }
     }
-    update_history(direction);
     return direction;
 }
 
 
 void move(int direction) {
-    turn_rigth(ANGLES[(current_direction + direction) % NB_DIRECTION];);
+    turn_rigth(ANGLES[(current_direction + direction) % NB_DIRECTION]);
     current_direction = direction;
     forward(DIST_TRESHOLD);
+    update_history(direction);
     // TODO: Update image
 }
 
-void map_area() {
-
-}
-
 int main(int argc, char *argv[]) {
-    int is_stuck;
-    time_t start_time;
+    int chosen_direction;
     int mesures[NB_DIRECTION];
+    time_t start_time;
 
-    is_stuck = 0;
     start_time = time(NULL);
-    /*
-    while (difftime(time(NULL), start_time) < EXPLORATION_TIME && !is_stuck) {
+    printf("***** START OF EXPLORATION  *****\n");
 
+    while (difftime(time(NULL), start_time) < EXPLORATION_TIME) {
+        analyse_env(mesures);
+        chosen_direction = choose_direction(mesures);
+        if (chosen_direction == -1) {
+            printf("Claptrap is stuck !\n");
+            break;
+        }
+        move(chosen_direction);
     }
-    */
+
+    printf("***** END OF EXPLORATION *****\n");
+    printf("Sending image to the server...\n");
+    send_image();
     return 0;
 }
