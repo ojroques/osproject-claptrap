@@ -26,8 +26,8 @@ void graphicsQuit () {}
 
 #define CMTOPXRATIO         1.5
 #define PXBORDER            20
-#define COORD_PER_PLAYER    300
-#define OBS_PER_PLAYER    1000
+#define COORD_PER_PLAYER    3000
+#define OBS_PER_PLAYER    10000
 #define PX(v)               ((int) (v*CMTOPXRATIO))
 
 #define OBSTACLE_WIDTH      15
@@ -65,7 +65,7 @@ struct obstacleCoordinate {
 	int r;
 	int g;
 	int b;
-};
+};	
 
 /* Init SDL */
 int graphicsInit () {
@@ -97,7 +97,7 @@ int nbpositions[15];
 int nbPlayers;
 pthread_mutex_t lock;
 pthread_t tid;
-	/* Arena size: */
+	/* Arena size: */ 
 	int width=200;
 	int height=400;
 
@@ -195,7 +195,7 @@ void drawPath () {
                 drawCurrentPos ((newCoord-1)->x, (newCoord-1)->y);
             }
 
-
+			
         }
     }
 
@@ -482,15 +482,13 @@ void ballAction (int team, int x, int y) {
 }
 
 void addObstacle (int team, int x, int y, int r, int g, int b) {
-    if (!obsCoordinates) {
+    if (!obsCoordinates)
         return;
-    }
-    if (x > width || x < 0 ||  y < 0 || y > height) {
+    if (x > width || x < 0 ||  y < 0 || y > height)
         return;
-    }
-    if (teamIndex[team] == 255 || teamIndex[team]<0 || teamIndex[team]>3) {
+    if (teamIndex[team] == 255 || teamIndex[team]<0 || teamIndex[team]>3)
         return;
-    }
+
 
 	nbpoints[team]++;
 	if (nbpoints[team] >= OBS_PER_PLAYER){
@@ -513,9 +511,8 @@ void addCoordinate (int team, int x, int y) {
         return;
     if (x > width || x < 0 ||  y < 0 || y > height)
         return;
-    if (teamIndex[team] == 255) {
+    if (teamIndex[team] == 255)
         return;
-    }
 
 	nbpositions[team]++;
 	if (nbpositions[team] > COORD_PER_PLAYER){

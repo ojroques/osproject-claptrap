@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <time.h>
-#include <math.h>
 
 #include "main.h"
 #include "const.h"
@@ -53,7 +52,7 @@ int obstacle_type(int *sonar_value) {
 the given array */
 void analyse_env(int mesures[NB_DIRECTION]) {
     int sonar_value, obstacle;
-    int x_obstacle, y_obstacle;
+    int16_t x_obstacle, y_obstacle;
     int i;
     for (i = 0; i < NB_DIRECTION; i++) {
         current_direction = (current_direction + i) % NB_DIRECTION;
@@ -67,12 +66,6 @@ void analyse_env(int mesures[NB_DIRECTION]) {
             turn_rigth(90);
         }
     }
-}
-
-/* Update the last two movements */
-void update_history(int new_direction) {
-    mv_history[1] = mv_history[0];
-    mv_history[0] = new_direction;
 }
 
 /* Return the direction with the largest free space (> 20cm)
@@ -92,7 +85,13 @@ int choose_direction(int mesures[NB_DIRECTION]) {
     return direction;
 }
 
+/* Update the last two movements */
+void update_history(int new_direction) {
+    mv_history[1] = mv_history[0];
+    mv_history[0] = new_direction;
+}
 
+/* Rotate and move 20cm forward according to the given direction */
 void move(int direction) {
     turn_rigth(ANGLES[(current_direction + direction) % NB_DIRECTION]);
     current_direction = direction;
