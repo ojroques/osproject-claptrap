@@ -33,17 +33,22 @@ int obstacle_type(int *sonar_value, uint8_t sonar_id, uint8_t color_id) {
         distance = distance - 40;
     }
     forward((float)distance / 10);
+    Sleep( 1000 );
 
     // Check if there is really an obstacle
     new_distance = get_distance(sonar_id);
+    Sleep( 200 );
     *sonar_value = distance + new_distance; // Update sonar_value with a more reliable value
     if (new_distance > 40) {
         backward((float)distance / 10.);
+        Sleep( 1000 );
         return NO_OBST;
     }
 
     color = get_color(color_id);
+    Sleep( 200 );
     backward((float)distance / 10);
+    Sleep( 1000 );
     if (color == RED_ID) {
         return MV_OBST;
     }
@@ -59,6 +64,7 @@ void analyse_env(int mesures[NB_DIRECTION], uint8_t sonar_id, uint8_t color_id) 
     for (i = 0; i < NB_DIRECTION; i++) {
         current_direction = (current_direction + i) % NB_DIRECTION;
         sonar_value = get_distance(sonar_id);
+        Sleep( 200 );
         // If non-movable obstacle detected, place obstacle
         if (sonar_value < DIST_TRESHOLD && obstacle_type(&sonar_value, sonar_id, color_id) == 1) {
             get_obst_position((float)sonar_value / 10., (float)ANGLES[current_direction], &x_obstacle, &y_obstacle);
@@ -67,6 +73,7 @@ void analyse_env(int mesures[NB_DIRECTION], uint8_t sonar_id, uint8_t color_id) 
         mesures[current_direction] = sonar_value;
         if (i < NB_DIRECTION - 1) {   // To avoid returning to the initial direction
             turn_rigth(90.);
+            Sleep( 1000 );
         }
     }
 }
@@ -97,8 +104,10 @@ void update_history(int new_direction) {
 /* Rotate and move 20cm forward in the given direction */
 void move(int direction) {
     turn_rigth((float)ANGLES[(current_direction + direction) % NB_DIRECTION]);
+    Sleep( 1000 );
     current_direction = direction;
     forward(DIST_TRESHOLD);
+    Sleep( 1000 );
     update_history(direction);
     // TODO: Update image
 }
