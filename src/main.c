@@ -13,6 +13,7 @@
 #include "image.h"
 #include "client.h"
 
+coordinate_t coordinate = {0,0,90,PTHREAD_MUTEX_INITIALIZER};
 // Angles of {EAST, NORTH, WEST, SOUTH}
 const int ANGLES[4] = {0, 90, 180, -90};
 int current_direction = NORTH;
@@ -105,6 +106,11 @@ int main(int argc, char *argv[]) {
     int chosen_direction;
     int mesures[NB_DIRECTION];
     time_t start_time;
+    pthread_t pos_thread;
+
+    if(pthread_create(&pos_thread, NULL, position_thread, NULL) == -1) {
+        return EXIT_FAILURE;
+    }
 
     start_time = time(NULL);
     printf("***** START OF EXPLORATION  *****\n");

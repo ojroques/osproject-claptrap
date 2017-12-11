@@ -26,8 +26,7 @@ extern coordinate_t coordinate;
 void *position_thread(void *arg){
   while(1){
     pthread_mutex_lock(&(coordinate.coordinate_lock));
-    //send_position((int16_t)(coordinate.x),(int16_t)(coordinate.x));
-    printf("coordonnée X = %d, coordonnée Y = %d\n",(int16_t)(coordinate.x),(int16_t)(coordinate.y));
+    send_position((int16_t)(coordinate.x), (int16_t)(coordinate.y));
     pthread_mutex_unlock(&(coordinate.coordinate_lock));
     Sleep(1000);
   }
@@ -45,8 +44,6 @@ void update_theta(float angle){
 void update_coordinate(float distance){
   pthread_mutex_lock(&(coordinate.coordinate_lock));
   double rad = M_PI*coordinate.theta/180 ;
-  printf("rad = %f\n",rad);
-  printf("sin = %f\n",sin(rad));
   coordinate.x = coordinate.x + distance*cos(rad);
   coordinate.y = coordinate.y + distance*sin(rad);
   pthread_mutex_unlock(&(coordinate.coordinate_lock));
