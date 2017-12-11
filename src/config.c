@@ -1,23 +1,11 @@
 #include <stdlib.h>
 #include <math.h>
-#include "config.h"
-#include "../robot_movement/configuration.h"
-#include "ev3.h"
-#include "ev3_port.h"
-#include "ev3_tacho.h"
-// WIN32 /////////////////////////////////////////
-#ifdef __WIN32__
-
-#include <windows.h>
-
-// UNIX //////////////////////////////////////////
-#else
-
 #include <unistd.h>
-#define Sleep( msec ) usleep(( msec ) * 1000 )
-
-//////////////////////////////////////////////////
-#endif
+#include "config.h"
+#include "ev3.h"
+#include "ev3_tacho.h"
+#include "ev3_port.h"
+#include "const.h"
 
 //Nathan
 void search_sensor( uint8_t sensor_type, uint8_t sensor_id ){

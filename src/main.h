@@ -1,6 +1,8 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#include "const.h"
+
 int obstacle_type(int *sonar_value);
 void analyse_env(int mesures[NB_DIRECTION]);
 int choose_direction(int mesures[NB_DIRECTION])

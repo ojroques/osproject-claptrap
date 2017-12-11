@@ -1,24 +1,11 @@
 #include <stdlib.h>
-#include "const.h"
-#include <pthread.h>
-//#include "client.h"
-#include "position.h"
 #include <stdint.h>
-#include <stdio.h>
-#include <math.h>
-// WIN32 /////////////////////////////////////////
-#ifdef __WIN32__
-
-#include <windows.h>
-
-// UNIX //////////////////////////////////////////
-#else
-
 #include <unistd.h>
-#define Sleep( msec ) usleep(( msec ) * 1000 )
-
-//////////////////////////////////////////////////
-#endif
+#include <pthread.h>
+#include <math.h>
+#include "const.h"
+#include "client.h"
+#include "position.h"
 
 extern coordinate_t coordinate;
 

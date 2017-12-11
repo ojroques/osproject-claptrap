@@ -6,7 +6,7 @@
 
 #include "main.h"
 #include "const.h"
-#include "config.g"
+#include "config.h"
 #include "tacho.h"
 #include "sensors.h"
 #include "position.h"
