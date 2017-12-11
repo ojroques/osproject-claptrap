@@ -27,21 +27,21 @@ int obstacle_type(int *sonar_value) {
     distance = *sonar_value;
 
     // Move forward and stop at about 4cm of the obstacle
-    if (distance > 4) {
-        distance = distance - 4;
+    if (distance > 40) {
+        distance = distance - 40;
     }
-    forward((float)distance);
+    forward((float)distance / 10);
 
     // Check if there is really an obstacle
     new_distance = get_distance(); //TODO: Pass the correct argument
     *sonar_value = distance + new_distance; // Update sonar_value with a more reliable value
-    if (new_distance > 4) {
-        backward((float)distance);
+    if (new_distance > 40) {
+        backward((float)distance / 10.);
         return NO_OBST;
     }
 
     color = get_color(); //TODO: Pass the correct argument
-    backward((float)distance);
+    backward((float)distance / 10);
     if (color == RED) {
         return MV_OBST;
     }
@@ -59,12 +59,12 @@ void analyse_env(int mesures[NB_DIRECTION]) {
         sonar_value = get_distance(); //TODO: Pass the correct argument
         // If non-movable obstacle detected, place obstacle
         if (sonar_value < DIST_TRESHOLD && obstacle_type(&sonar_value) == 1) {
-            get_obst_position(sonar_value, ANGLES[current_direction], &x_obstacle, &y_obstacle);
+            get_obst_position((float)sonar_value / 10., (float)ANGLES[current_direction], &x_obstacle, &y_obstacle);
             place_obstacle(x_obstacle, y_obstacle);
         }
         mesures[current_direction] = sonar_value;
         if (i < NB_DIRECTION - 1) {   // To avoid returning to the initial direction
-            turn_rigth(90);
+            turn_rigth(90.);
         }
     }
 }
@@ -94,7 +94,7 @@ void update_history(int new_direction) {
 
 /* Rotate and move 20cm forward in the given direction */
 void move(int direction) {
-    turn_rigth(ANGLES[(current_direction + direction) % NB_DIRECTION]);
+    turn_rigth((float)ANGLES[(current_direction + direction) % NB_DIRECTION]);
     current_direction = direction;
     forward(DIST_TRESHOLD);
     update_history(direction);

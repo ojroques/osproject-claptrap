@@ -16,7 +16,7 @@
 #define WEST          2
 #define SOUTH         3
 #define EAST          0
-#define DIST_TRESHOLD 20
+#define DIST_TRESHOLD 200
 
 /* USED BY CLIENT.C */
 #define SERV_ADDR        "00:28:f8:51:71:4b"    /* The address of the server */
