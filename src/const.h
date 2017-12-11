@@ -7,7 +7,7 @@
 #define EXPLORATION_TIME 210 /* The duration of exploration, in seconds */
 
 /* USED BY MAIN.C */
-#define RED           5
+#define RED_ID        5
 #define NO_OBST      -1
 #define MV_OBST       0
 #define NONMV_OBST    1

@@ -169,6 +169,7 @@ void close_connection() {
     close(s);
 }
 
+/*
 int main() {
     int16_t x     = 4;
     int16_t y     = 6;
@@ -183,3 +184,4 @@ int main() {
     send_mapdone();
     return 0;
 }
+*/

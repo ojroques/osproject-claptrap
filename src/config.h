@@ -1,6 +1,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <stdint.h>
+
 //Nathan
 //Struct with the id of each sensors
 typedef struct _sensors_t {

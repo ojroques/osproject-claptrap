@@ -1,20 +1,21 @@
 #include <stdlib.h>
-#include <math.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <unistd.h>
+#include <math.h>
 #include "config.h"
 #include "ev3.h"
 #include "ev3_tacho.h"
 #include "ev3_port.h"
+#include "ev3_sensor.h"
 #include "const.h"
 
 //Nathan
-void search_sensor( uint8_t sensor_type, uint8_t sensor_id ){
-  if ( ev3_search_sensor( sensor_type, &sensor_id, 0 )) {
-      printf("sensor of type %d found \n", sensor_type);
-      printf("sensor number for sensor is %d \n", sensor_id);
-      printf("    Port = %s\n", ev3_sensor_port_name(sensor_id, s ));
+void search_sensor( uint8_t sensor_type, uint8_t *sensor_id ){
+  if ( ev3_search_sensor (sensor_type, sensor_id, 0 )) {
+      printf("Sensor found!\n");
   } else {
-      printf("no sensor of type %d found\n", sensor_type);
+      printf("no sensor found\n");
   }
 }
 
@@ -34,12 +35,12 @@ void config_tacho(){
 sensors_t config(){
   config_tacho();
   //Nathan
-  sensors_t sensors;
+  sensors_t sensors = {0, 0, 0, 0, 0};
   ev3_sensor_init();
-  search_sensor(LEGO_EV3_COLOR, Sensors.color_sensor);
-  search_sensor(LEGO_EV3_GYRO, Sensors.gyro_sensor);
-  search_sensor(LEGO_EV3_US, Sensors.ultrasonic_sensor);
-  search_sensor(HT_NXT_COMPASS, Sensors.compass_sensor);
-  search_sensor(LEGO_EV3_TOUCH, Sensors.touch_sensor);
+  search_sensor(LEGO_EV3_COLOR, &(sensors.color_sensor));
+  search_sensor(LEGO_EV3_GYRO, &(sensors.gyro_sensor));
+  search_sensor(LEGO_EV3_US, &(sensors.ultrasonic_sensor));
+  search_sensor(HT_NXT_COMPASS, &(sensors.compass_sensor));
+  search_sensor(LEGO_EV3_TOUCH, &(sensors.touch_sensor));
   return sensors;
 }

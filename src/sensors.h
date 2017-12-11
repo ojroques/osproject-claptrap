@@ -3,6 +3,9 @@
 #ifndef SENSORS_H
 #define SENSORS_H
 
+#include "ev3.h"
+#include "ev3_port.h"
+#include "ev3_tacho.h"
 #include "ev3_sensor.h"
 
 typedef struct _DoubleValue{

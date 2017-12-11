@@ -44,7 +44,7 @@ int obstacle_type(int *sonar_value, uint8_t sonar_id, uint8_t color_id) {
 
     color = get_color(color_id);
     backward((float)distance / 10);
-    if (color == RED) {
+    if (color == RED_ID) {
         return MV_OBST;
     }
     return NONMV_OBST;
