@@ -1,7 +1,9 @@
 #include <stdlib.h>
 #include <math.h>
-#include "../src/robot_movement/tacho.h"
-#include "../src/robot_movement/const.h"
+#include <pthread.h>
+#include "../src/tacho.h"
+#include "../src/const.h"
+#include "../src/position.h"
 #include "ev3.h"
 #include "ev3_port.h"
 #include "ev3_tacho.h"
@@ -19,15 +21,26 @@
 //////////////////////////////////////////////////
 #endif
 
+coordinate_t coordinate = {0,0,90,PTHREAD_MUTEX_INITIALIZER};
+
 //Erwan
 int main(void){
+
+  pthread_t pos_thread;
+
+  if(pthread_create(&pos_thread, NULL, position_thread, NULL) == -1) {
+
+    return EXIT_FAILURE;
+
+    }
+
   forward(15);
-  Sleep (2000);
+  Sleep (3000);
   backward(15);
-  Sleep(2000);
+  Sleep(3000);
   turn_left(180);
-  Sleep (1000);
+  Sleep (2000);
   turn_rigth(180);
-  Sleep (1000);
+  Sleep (2000);
   return 0;
 }

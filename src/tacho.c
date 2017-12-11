@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <math.h>
+#include "position.h"
 #include "tacho.h"
 #include "const.h"
 #include "ev3.h"
@@ -45,6 +46,7 @@ void turn_left(float angle){
       set_tacho_position_sp( rsn, rel_pos );
       set_tacho_command_inx( lsn, TACHO_RUN_TO_REL_POS );
       set_tacho_command_inx( rsn, TACHO_RUN_TO_REL_POS );
+      update_theta(angle);
     }
   }
 
@@ -76,6 +78,7 @@ void turn_rigth(float angle){
       set_tacho_position_sp( rsn, -rel_pos );
       set_tacho_command_inx( lsn, TACHO_RUN_TO_REL_POS );
       set_tacho_command_inx( rsn, TACHO_RUN_TO_REL_POS );
+      update_theta(-angle);
     }
   }
 
@@ -106,6 +109,7 @@ void forward(float distance){
       set_tacho_position_sp( rsn, rel_pos );
       set_tacho_command_inx( lsn, TACHO_RUN_TO_REL_POS );
       set_tacho_command_inx( rsn, TACHO_RUN_TO_REL_POS );
+      update_coordinate(distance);
     }
   }
 
@@ -136,6 +140,7 @@ void backward(float distance){
       set_tacho_position_sp( rsn, -rel_pos );
       set_tacho_command_inx( lsn, TACHO_RUN_TO_REL_POS );
       set_tacho_command_inx( rsn, TACHO_RUN_TO_REL_POS );
+      update_coordinate(-distance);
     }
   }
 

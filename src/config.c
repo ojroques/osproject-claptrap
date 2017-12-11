@@ -19,8 +19,13 @@
 //////////////////////////////////////////////////
 #endif
 
-//Erwan
+void config_tacho();
+
 void config(){
+  config_tacho();
+}
+//Erwan
+void config_tacho(){
 
   uint8_t lsn;
   uint8_t rsn;
