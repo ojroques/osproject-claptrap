@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <time.h>
+#include <pthread.h>
 
 #include "main.h"
 #include "const.h"
@@ -13,7 +14,7 @@
 #include "image.h"
 #include "client.h"
 
-coordinate_t coordinate = {0,0,90,PTHREAD_MUTEX_INITIALIZER};
+coordinate_t coordinate = {60, 30, 90, PTHREAD_MUTEX_INITIALIZER};
 // Angles of {EAST, NORTH, WEST, SOUTH}
 const int ANGLES[4] = {0, 90, 180, -90};
 int current_direction = NORTH;
@@ -23,7 +24,7 @@ int mv_history[2] = {-1, -2};
 * NO_OBST: No obstacle, sonar_value is updated accordingly
 * MV_OBST: Movable obstacle
 * NONMV_OBST: Non-movable obstacle */
-int obstacle_type(int *sonar_value) {
+int obstacle_type(int *sonar_value, uint8_t sonar_id, uint8_t color_id) {
     int distance, new_distance, color;
     distance = *sonar_value;
 
@@ -34,14 +35,14 @@ int obstacle_type(int *sonar_value) {
     forward((float)distance / 10);
 
     // Check if there is really an obstacle
-    new_distance = get_distance(); //TODO: Pass the correct argument
+    new_distance = get_distance(sonar_id);
     *sonar_value = distance + new_distance; // Update sonar_value with a more reliable value
     if (new_distance > 40) {
         backward((float)distance / 10.);
         return NO_OBST;
     }
 
-    color = get_color(); //TODO: Pass the correct argument
+    color = get_color(color_id);
     backward((float)distance / 10);
     if (color == RED) {
         return MV_OBST;
@@ -51,15 +52,15 @@ int obstacle_type(int *sonar_value) {
 
 /* Analyse all four directions and write the corresponding sonar value into
 the given array */
-void analyse_env(int mesures[NB_DIRECTION]) {
-    int sonar_value, obstacle;
+void analyse_env(int mesures[NB_DIRECTION], uint8_t sonar_id, uint8_t color_id) {
+    int sonar_value;
     int16_t x_obstacle, y_obstacle;
     int i;
     for (i = 0; i < NB_DIRECTION; i++) {
         current_direction = (current_direction + i) % NB_DIRECTION;
-        sonar_value = get_distance(); //TODO: Pass the correct argument
+        sonar_value = get_distance(sonar_id);
         // If non-movable obstacle detected, place obstacle
-        if (sonar_value < DIST_TRESHOLD && obstacle_type(&sonar_value) == 1) {
+        if (sonar_value < DIST_TRESHOLD && obstacle_type(&sonar_value, sonar_id, color_id) == 1) {
             get_obst_position((float)sonar_value / 10., (float)ANGLES[current_direction], &x_obstacle, &y_obstacle);
             place_obstacle(x_obstacle, y_obstacle);
         }
@@ -102,11 +103,12 @@ void move(int direction) {
     // TODO: Update image
 }
 
-int main(int argc, char *argv[]) {
+int main() {
     int chosen_direction;
     int mesures[NB_DIRECTION];
     time_t start_time;
     pthread_t pos_thread;
+    sensors_t sensors_id = config();
 
     if(pthread_create(&pos_thread, NULL, position_thread, NULL) == -1) {
         return EXIT_FAILURE;
@@ -116,7 +118,7 @@ int main(int argc, char *argv[]) {
     printf("***** START OF EXPLORATION  *****\n");
 
     while (difftime(time(NULL), start_time) < EXPLORATION_TIME) {
-        analyse_env(mesures);
+        analyse_env(mesures, sensors_id.ultrasonic_sensor, sensors_id.color_sensor);
         chosen_direction = choose_direction(mesures);
         if (chosen_direction == -1) {
             printf("Claptrap is stuck !\n");
