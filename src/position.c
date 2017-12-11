@@ -51,3 +51,12 @@ void update_coordinate(float distance){
   coordinate.y = coordinate.y + distance*sin(rad);
   pthread_mutex_unlock(&(coordinate.coordinate_lock));
 }
+
+//Erwan
+void get_obst_position(float r, float theta, int16_t *x_obst, int16_t *y_obst){
+  double rad = M_PI*coordinate.theta/180 ;
+  pthread_mutex_lock(&(coordinate.coordinate_lock));
+  *x_obst = coordinate.x + r*cos(rad);
+  *y_obst = coordinate.y + r*sin(rad);
+  pthread_mutex_unlock(&(coordinate.coordinate_lock));
+}
