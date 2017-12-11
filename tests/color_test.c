@@ -76,7 +76,8 @@ printf( "*** ( EV3 ) Hello! ***\n" );
 //take the parameter on the command line
 // first paramet = sensor tested
 //{color = 1, gyro = 2, ultrasonic = 3, compass = 4}
-//
+//mode in the same order as in sensor.h and with the number of the sensor
+//and the number of the mode so first mode of first sensor is 11 , second mode 12 ...
 int tested_sensor = atoi(argv[1]);
 int tested_mode = atoi(argv[2]);
 

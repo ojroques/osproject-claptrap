@@ -21,7 +21,13 @@ image.o: image.c image.h
 # 	./main
 
 sensors.o:
+	$(CC) -std=gnu99 -W $(CFLAGS) sensors.c -o sensors.o
+
+sensors.o_local:
 		gcc -I./../../ev3dev-c-master/source/ev3 -O2 -std=gnu99 -W -Wall -Wno-comment -c sensors.c -o sensors.o
+
+config.o:
+	$(CC) -std=gnu99 -W $(CFLAGS) config.c -o config.o
 
 main: main.o
 	$(CC) main.o -o main
