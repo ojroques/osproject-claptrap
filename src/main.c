@@ -119,25 +119,33 @@ int main() {
     pthread_t pos_thread;
     sensors_t sensors_id = config();
 
+    if (sensors_id == NULL) {
+        printf("ERROR: Initialization has failed\n");
+        return EXIT_FAILURE;
+    }
+
     if(pthread_create(&pos_thread, NULL, position_thread, NULL) == -1) {
+        printf("ERROR: Could not start the position thread\n");
         return EXIT_FAILURE;
     }
 
     start_time = time(NULL);
-    printf("***** START OF EXPLORATION  *****\n");
+    printf("********** START OF EXPLORATION  **********\n");
 
     while (difftime(time(NULL), start_time) < EXPLORATION_TIME) {
         analyse_env(mesures, sensors_id.ultrasonic_sensor, sensors_id.color_sensor);
         chosen_direction = choose_direction(mesures);
         if (chosen_direction == -1) {
-            printf("Claptrap is stuck !\n");
+            printf("Claptrap is stuck!\n");
             break;
         }
         move(chosen_direction);
     }
 
-    printf("***** END OF EXPLORATION *****\n");
+    printf("********** END OF EXPLORATION **********\n\n");
     printf("Sending image to the server...\n");
     send_image();
-    return 0;
+    printf("Done.\n");
+    printf("See you later!\n", );
+    return EXIT_SUCCESS;
 }

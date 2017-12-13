@@ -39,7 +39,7 @@ int sent_to_server(char *buffer, size_t maxSize) {
         close_connection(s);
         return CONNECTION_ERROR;
     }
-    Sleep ( 500 );
+    Sleep( 500 );
     if (DEBUG) {
         printf("[DEBUG] sent %d bytes\n", bytes_sent);
     }
@@ -70,7 +70,7 @@ void send_position(int16_t x, int16_t y) {
     message[7] = y & 0x00ff;
     message[8] = (y & 0xff00) >> 8;
     if (DEBUG) {
-        printf("SENDING POSITION\n");
+        printf("[DEBUG] SENDING POSITION\n");
         print_message(message, 9);
     }
     sent_to_server(message, 9);
@@ -92,7 +92,7 @@ void send_mapdata(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue
     message[10] = green;
     message[11] = blue;
     if (DEBUG) {
-        printf("SENDING MAPDATA\n");
+        printf("[DEBUG] SENDING MAPDATA\n");
         print_message(message, 12);
     }
     sent_to_server(message, 12);
@@ -107,7 +107,7 @@ void send_mapdone() {
     message[3] = 0xFF;
     message[4] = MSG_MAPDONE;
     if (DEBUG) {
-        printf("SENDING MAPDONE\n");
+        printf("[DEBUG] SENDING MAPDONE\n");
         print_message(message, 5);
     }
     sent_to_server(message, 5);
@@ -127,7 +127,7 @@ void send_obstacle(int16_t x, int16_t y, uint8_t act) {
     message[8] = y & 0x00ff;
     message[9] = (y & 0xff00) >> 8;
     if (DEBUG) {
-        printf("SENDING OBSTACLE\n");
+        printf("[DEBUG] SENDING OBSTACLE\n");
         print_message(message,10);
     }
     sent_to_server(message, 10);
@@ -146,6 +146,7 @@ int open_connection() {
     str2ba(SERV_ADDR, &addr.rc_bdaddr);
 
     /* connect to server */
+    printf("Connecting to the server... ");
     status = connect(s, (struct sockaddr *)&addr, sizeof(addr));
 
     /* if connected */
@@ -155,15 +156,15 @@ int open_connection() {
         /* Wait for START message */
         read_from_server(string, 9);
         if (string[4] == MSG_START) {
-            printf ("Received start message!\n");
+            printf("Start message received!\n");
             Sleep(2000);
             return START_MESSAGE;
         }
-        printf("Connected, but wrong start message\n");
+        printf("Connected, but wrong start message.\n");
         close_connection();
         return WRONG_MESSAGE;
     }
-    printf("Failed to connect to the server\n");
+    printf("Failed to connect to the server.\n");
     return CONNECTION_ERROR;
 }
 
