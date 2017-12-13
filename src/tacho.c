@@ -20,6 +20,24 @@
 //////////////////////////////////////////////////
 #endif
 
+/* By Olivier.
+Wait for the tachos to stop. */
+void wait_tachos() {
+    int *lsn_speed, *rsn_speed;
+    uint8_t lsn, rsn;
+
+    while (ev3_tacho_init() < 1) Sleep(1000);
+    if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
+        if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
+            do {
+                get_tacho_speed(lsn, lsn_speed);
+                get_tacho_speed(rsn, rsn_speed);
+                Sleep(100);
+            } while (lsn_speed || rsn_speed);
+        }
+    }
+}
+
 //Erwan
 void turn_left(float angle){
   uint8_t lsn;

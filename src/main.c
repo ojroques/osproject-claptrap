@@ -34,7 +34,7 @@ int obstacle_type(int *sonar_value, uint8_t sonar_id, uint8_t color_id) {
         distance = distance - 40;
     }
     forward(((float)distance) / 10.0);
-    Sleep( DELAY_TACHO );
+    wait_tachos();
 
     // Check if there is really an obstacle
     new_distance = get_distance(sonar_id);
@@ -42,7 +42,7 @@ int obstacle_type(int *sonar_value, uint8_t sonar_id, uint8_t color_id) {
     *sonar_value = distance + new_distance; // Update sonar_value with a more reliable value
     if (new_distance > 40) {
         backward(((float)distance) / 10.0);
-        Sleep( DELAY_TACHO );
+        wait_tachos();
         printf("No obstacle\n");
         return NO_OBST;
     }
@@ -50,7 +50,7 @@ int obstacle_type(int *sonar_value, uint8_t sonar_id, uint8_t color_id) {
     color = get_color(color_id);
     Sleep( DELAY_SENSOR );
     backward(((float)distance) / 10.0);
-    Sleep( DELAY_TACHO );
+    wait_tachos();
     if (color == RED_ID) {
         printf("Movable obstacle\n");
         return MV_OBST;
@@ -79,8 +79,8 @@ void analyse_env(int mesures[NB_DIRECTION], uint8_t sonar_id, uint8_t color_id) 
         }
         mesures[current_direction] = sonar_value;
         if (i < NB_DIRECTION - 1) {   // To avoid returning to the initial direction
-            turn_rigth(90.);
-            Sleep( DELAY_TACHO );
+            turn_rigth(90.0);
+            wait_tachos();
         }
     }
 }
@@ -118,12 +118,12 @@ void update_history(int new_direction) {
 void move(int direction) {
     printf("    - Rotating by %d deg... ", ANGLES[(current_direction + direction)) % NB_DIRECTION]);
     turn_rigth(((float)ANGLES[(current_direction + direction)) % NB_DIRECTION]);
-    Sleep( DELAY_TACHO );
+    wait_tachos();
     printf("Done.\n");
     current_direction = direction;
     printf("    - Moving by 20cm and updating history... ");
     forward(DIST_TRESHOLD / 10);
-    Sleep( DELAY_TACHO );
+    wait_tachos();
     update_history(direction);
     printf("Done.\n", );
     // TODO: Update image
