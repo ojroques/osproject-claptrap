@@ -1,6 +1,6 @@
 CC     = gcc
 CFLAGS = -std=gnu99 -Wall -Wextra -c
-EXEC   = client image main
+EXEC   = client image main main_local
 
 run:
 	./main
@@ -10,7 +10,13 @@ main: main.o client.o config.o image.o position.o sensors.o tacho.o
 	$(CC) main.o client.o config.o image.o position.o sensors.o tacho.o -o main -lm -lbluetooth -lpthread -lev3dev-c
 
 main.o: main.c main.h const.h config.h tacho.h sensors.h position.h image.h client.h
-	$(CC) -I./../../ev3dev-c/source/ev3 $(CFLAGS) main.c -o main.o
+	$(CC) -I./ev3dev-c/source/ev3 -O2 -Wno-comment $(CFLAGS) main.c -o main.o
+
+main_local: main.o_local client.o config.o_local image.o position.o sensors.o_local tacho.o_local
+	$(CC) main.o_local client.o config.o_local image.o position.o sensors.o_local tacho.o_local -o main_local -lm -lbluetooth -lpthread
+
+main.o_local: main.c main.h const.h config.h tacho.h sensors.h position.h image.h client.h
+	$(CC) -I./../../ev3dev-c/source/ev3 $(CFLAGS) main.c -o main.o_local
 
 #################### CLIENT ####################
 client: client.o
