@@ -14,6 +14,8 @@
 #include "image.h"
 #include "client.h"
 
+#define MAIN_DEBUG 0
+
 coordinate_t coordinate = {60, 30, 90, PTHREAD_MUTEX_INITIALIZER};
 // Angles of {EAST, NORTH, WEST, SOUTH}
 const int ANGLES[4] = {0, 90, 180, -90};
@@ -32,23 +34,23 @@ int obstacle_type(int *sonar_value, uint8_t sonar_id, uint8_t color_id) {
     if (distance > 40) {
         distance = distance - 40;
     }
-    forward((float)distance / 10);
-    Sleep( 1000 );
+    forward(((float)distance) / 10.0);
+    Sleep( DELAY_TACHO );
 
     // Check if there is really an obstacle
     new_distance = get_distance(sonar_id);
-    Sleep( 200 );
+    Sleep( DELAY_SENSOR );
     *sonar_value = distance + new_distance; // Update sonar_value with a more reliable value
     if (new_distance > 40) {
-        backward((float)distance / 10.);
-        Sleep( 1000 );
+        backward(((float)distance) / 10.0);
+        Sleep( DELAY_TACHO );
         return NO_OBST;
     }
 
     color = get_color(color_id);
-    Sleep( 200 );
-    backward((float)distance / 10);
-    Sleep( 1000 );
+    Sleep( DELAY_SENSOR );
+    backward(((float)distance) / 10.0);
+    Sleep( DELAY_TACHO );
     if (color == RED_ID) {
         return MV_OBST;
     }
@@ -64,7 +66,7 @@ void analyse_env(int mesures[NB_DIRECTION], uint8_t sonar_id, uint8_t color_id) 
     for (i = 0; i < NB_DIRECTION; i++) {
         current_direction = (current_direction + i) % NB_DIRECTION;
         sonar_value = get_distance(sonar_id);
-        Sleep( 200 );
+        Sleep( DELAY_SENSOR );
         // If non-movable obstacle detected, place obstacle
         if (sonar_value < DIST_TRESHOLD && obstacle_type(&sonar_value, sonar_id, color_id) == 1) {
             get_obst_position((float)sonar_value / 10., (float)ANGLES[current_direction], &x_obstacle, &y_obstacle);
@@ -73,7 +75,7 @@ void analyse_env(int mesures[NB_DIRECTION], uint8_t sonar_id, uint8_t color_id) 
         mesures[current_direction] = sonar_value;
         if (i < NB_DIRECTION - 1) {   // To avoid returning to the initial direction
             turn_rigth(90.);
-            Sleep( 1000 );
+            Sleep( DELAY_TACHO );
         }
     }
 }
@@ -103,11 +105,11 @@ void update_history(int new_direction) {
 
 /* Rotate and move 20cm forward in the given direction */
 void move(int direction) {
-    turn_rigth((float)ANGLES[(current_direction + direction) % NB_DIRECTION]);
-    Sleep( 1000 );
+    turn_rigth(((float)ANGLES[(current_direction + direction)) % NB_DIRECTION]);
+    Sleep( DELAY_TACHO );
     current_direction = direction;
-    forward(DIST_TRESHOLD);
-    Sleep( 1000 );
+    forward(DIST_TRESHOLD / 10);
+    Sleep( DELAY_TACHO );
     update_history(direction);
     // TODO: Update image
 }
@@ -130,16 +132,19 @@ int main() {
     }
 
     start_time = time(NULL);
-    printf("********** START OF EXPLORATION  **********\n");
-
+    printf("********** START OF EXPLORATION  **********\n\n");
     while (difftime(time(NULL), start_time) < EXPLORATION_TIME) {
+        printf("[1] ENVIRONMENT ANALYSIS\n");
         analyse_env(mesures, sensors_id.ultrasonic_sensor, sensors_id.color_sensor);
+        printf("[2] DECISION\n");
         chosen_direction = choose_direction(mesures);
         if (chosen_direction == -1) {
-            printf("Claptrap is stuck!\n");
+            printf("- Claptrap is stuck!\n");
             break;
         }
+        printf("[3] MOVEMENT\n");
         move(chosen_direction);
+        printf("\n");
     }
 
     printf("********** END OF EXPLORATION **********\n\n");

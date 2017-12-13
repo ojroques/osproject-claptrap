@@ -8,7 +8,7 @@
 #include "ev3_sensor.h"
 #include "sensors.h"
 
-const int DEBUG = 0;
+#define SENSORS_DEBUG 0
 
 /**
 Set of function which control the sensors.
@@ -75,7 +75,7 @@ TripleValue retrieve_triple_value(uint8_t sensor_id, uint8_t sensor_mode){
 int get_color(uint8_t sensor_id){
   int color = retrieve_single_value(sensor_id, LEGO_EV3_COLOR_COL_COLOR);
   if (color < 0 || color > 7){
-    if(DEBUG){
+    if(SENSORS_DEBUG){
       printf("color out of range : %d \n", color);
     }
     color = 0;

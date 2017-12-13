@@ -12,7 +12,7 @@ Eurecom, 2017 - 2018. */
 #include "client.h"
 #include "const.h"
 
-#define DEBUG 0
+#define CLIENT_DEBUG 0
 
 int s;
 uint16_t msgId = 1;
@@ -25,7 +25,7 @@ int read_from_server(char *buffer, size_t maxSize) {
         close_connection(s);
         return CONNECTION_ERROR;
     }
-    if (DEBUG) {
+    if (CLIENT_DEBUG) {
         printf ("[DEBUG] received %d bytes\n", bytes_read);
     }
     return bytes_read;
@@ -40,7 +40,7 @@ int sent_to_server(char *buffer, size_t maxSize) {
         return CONNECTION_ERROR;
     }
     Sleep( 500 );
-    if (DEBUG) {
+    if (CLIENT_DEBUG) {
         printf("[DEBUG] sent %d bytes\n", bytes_sent);
     }
     return bytes_sent;
@@ -69,7 +69,7 @@ void send_position(int16_t x, int16_t y) {
     message[6] = (x & 0xff00) >> 8;
     message[7] = y & 0x00ff;
     message[8] = (y & 0xff00) >> 8;
-    if (DEBUG) {
+    if (CLIENT_DEBUG) {
         printf("[DEBUG] SENDING POSITION\n");
         print_message(message, 9);
     }
@@ -91,7 +91,7 @@ void send_mapdata(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue
     message[9] = red;
     message[10] = green;
     message[11] = blue;
-    if (DEBUG) {
+    if (CLIENT_DEBUG) {
         printf("[DEBUG] SENDING MAPDATA\n");
         print_message(message, 12);
     }
@@ -106,7 +106,7 @@ void send_mapdone() {
     message[2] = TEAM_ID;
     message[3] = 0xFF;
     message[4] = MSG_MAPDONE;
-    if (DEBUG) {
+    if (CLIENT_DEBUG) {
         printf("[DEBUG] SENDING MAPDONE\n");
         print_message(message, 5);
     }
@@ -126,7 +126,7 @@ void send_obstacle(int16_t x, int16_t y, uint8_t act) {
     message[7] = (x & 0xff00) >> 8;
     message[8] = y & 0x00ff;
     message[9] = (y & 0xff00) >> 8;
-    if (DEBUG) {
+    if (CLIENT_DEBUG) {
         printf("[DEBUG] SENDING OBSTACLE\n");
         print_message(message,10);
     }
