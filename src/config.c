@@ -5,6 +5,7 @@
 #include <math.h>
 #include "const.h"
 #include "config.h"
+#include "client.h"
 #include "image.h"
 #include "ev3.h"
 #include "ev3_tacho.h"
@@ -41,8 +42,8 @@ int config_tacho(){
 sensors_t config(){
     printf("---------- CLAPTRAP INITIALIZATION ----------\n");
     //Nathan
-    sensors_t sensors = {0, 0, 0, 0, 0};
-    printf("Initializing the sensors...\n", );
+    sensors_t sensors = {0, 0, 0, 0, 0, 0};
+    printf("Initializing the sensors...\n");
     ev3_sensor_init();
     search_sensor(LEGO_EV3_COLOR, &(sensors.color_sensor), "Color sensor");
     search_sensor(LEGO_EV3_GYRO, &(sensors.gyro_sensor), "Gyro sensor");
@@ -51,11 +52,11 @@ sensors_t config(){
     search_sensor(LEGO_EV3_TOUCH, &(sensors.touch_sensor), "Touch sensor");
     printf("Done.\n");
     if (!config_tacho()) {
-        sensors = NULL;
+        sensors.is_null = 1;
     }
     init_image();
     if (open_connection() != START_MESSAGE) {
-        sensors = NULL;
+        sensors.is_null = 1;
     }
     printf("-----_----- END OF INITIALIZATION -------_---\n\n");
     return sensors;

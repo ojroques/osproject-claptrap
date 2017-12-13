@@ -26,11 +26,11 @@ client.o: client.c client.h const.h
 	$(CC) $(CFLAGS) client.c -o client.o
 
 #################### CONFIG ####################
-config.o: config.c config.h const.h image.h
+config.o: config.c config.h const.h client.h image.h
 	$(CC) $(CFLAGS) config.c -o config.o
 
-config.o_local: config.c config.h const.h image.h
-	$(CC) -I./../../ev3dev-c/source/ev3 $CFLAGS config.c -o config.o
+config.o_local: config.c config.h const.h client.h image.h
+	$(CC) -I./../../ev3dev-c/source/ev3 $(CFLAGS) config.c -o config.o_local
 
 #################### IMAGE ####################
 image: image.o client.o
@@ -48,17 +48,17 @@ sensors.o: sensors.c sensors.h
 	$(CC) $(CFLAGS) sensors.c -o sensors.o
 
 sensors.o_local: sensors.c sensors.h
-	gcc -I./../../ev3dev-c/source/ev3 $CFLAGS sensors.c -o sensors.o
+	gcc -I./../../ev3dev-c/source/ev3 $(CFLAGS) sensors.c -o sensors.o_local
 
 #################### TACHO ####################
 tacho.o: tacho.c tacho.h const.h position.h
 	$(CC) $(CFLAGS) tacho.c -o tacho.o
 
 tacho.o_local: tacho.c tacho.h const.h position.h
-	gcc -I./../../ev3dev-c/source/ev3 $CFLAGS tacho.c -o tacho.o
+	gcc -I./../../ev3dev-c/source/ev3 $(CFLAGS) tacho.c -o tacho.o_local
 
 clean:
-	rm -f *.o
+	rm -f *.o *.o_local
 
 ultraclean:
-	rm -f *.o $(EXEC)
+	rm -f *.o *.o_local $(EXEC)

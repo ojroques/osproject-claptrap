@@ -116,8 +116,8 @@ void update_history(int new_direction) {
 
 /* Rotate and move 20cm forward in the given direction */
 void move(int direction) {
-    printf("    - Rotating by %d deg... ", ANGLES[(current_direction + direction)) % NB_DIRECTION]);
-    turn_rigth(((float)ANGLES[(current_direction + direction)) % NB_DIRECTION]);
+    printf("    - Rotating by %d deg... ", ANGLES[(current_direction + direction) % NB_DIRECTION]);
+    turn_rigth((float)ANGLES[(current_direction + direction) % NB_DIRECTION]);
     wait_tachos();
     printf("Done.\n");
     current_direction = direction;
@@ -125,7 +125,7 @@ void move(int direction) {
     forward(DIST_TRESHOLD / 10);
     wait_tachos();
     update_history(direction);
-    printf("Done.\n", );
+    printf("Done.\n");
     // TODO: Update image
 }
 
@@ -136,7 +136,7 @@ int main() {
     pthread_t pos_thread;
     sensors_t sensors_id = config();
 
-    if (sensors_id == NULL) {
+    if (sensors_id.is_null) {
         printf("ERROR: Initialization has failed\n");
         return EXIT_FAILURE;
     }
@@ -165,6 +165,6 @@ int main() {
     printf("Sending image to the server...\n");
     send_image();
     printf("Done.\n");
-    printf("See you later!\n", );
+    printf("See you later!\n");
     return EXIT_SUCCESS;
 }
