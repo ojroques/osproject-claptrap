@@ -120,4 +120,5 @@ int main() {
     print_image();
     printf("La case (20, 12) a pour valeur %d.\n", get_cell(20, 12));
     return 0;
-} */
+}
+*/

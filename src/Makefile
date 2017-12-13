@@ -20,10 +20,10 @@ client.o: client.c client.h const.h
 	$(CC) $(CFLAGS) client.c -o client.o
 
 #################### CONFIG ####################
-config.o: config.h const.h
+config.o: config.c config.h const.h image.h
 	$(CC) $(CFLAGS) config.c -o config.o
 
-config.o_local: config.h const.h
+config.o_local: config.c config.h const.h image.h
 	$(CC) -I./../../ev3dev-c/source/ev3 $CFLAGS config.c -o config.o
 
 #################### IMAGE ####################

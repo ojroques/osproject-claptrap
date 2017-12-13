@@ -12,7 +12,7 @@ Eurecom, 2017 - 2018. */
 #include "client.h"
 #include "const.h"
 
-#define DEBUG 1
+#define DEBUG 0
 
 int s;
 uint16_t msgId = 1;
@@ -25,8 +25,9 @@ int read_from_server(char *buffer, size_t maxSize) {
         close_connection(s);
         return CONNECTION_ERROR;
     }
-
-    printf ("[DEBUG] received %d bytes\n", bytes_read);
+    if (DEBUG) {
+        printf ("[DEBUG] received %d bytes\n", bytes_read);
+    }
     return bytes_read;
 }
 
@@ -39,7 +40,9 @@ int sent_to_server(char *buffer, size_t maxSize) {
         return CONNECTION_ERROR;
     }
     Sleep ( 500 );
-    printf("[DEBUG] sent %d bytes\n", bytes_sent);
+    if (DEBUG) {
+        printf("[DEBUG] sent %d bytes\n", bytes_sent);
+    }
     return bytes_sent;
 }
 

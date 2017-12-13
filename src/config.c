@@ -3,12 +3,13 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <math.h>
+#include "const.h"
 #include "config.h"
+#include "image.h"
 #include "ev3.h"
 #include "ev3_tacho.h"
 #include "ev3_port.h"
 #include "ev3_sensor.h"
-#include "const.h"
 
 //Nathan
 void search_sensor( uint8_t sensor_type, uint8_t *sensor_id ){
@@ -34,6 +35,7 @@ void config_tacho(){
 
 sensors_t config(){
   config_tacho();
+  init_image();
   //Nathan
   sensors_t sensors = {0, 0, 0, 0, 0};
   ev3_sensor_init();
