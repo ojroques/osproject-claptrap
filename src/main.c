@@ -14,11 +14,10 @@
 #include "image.h"
 #include "client.h"
 
-#define MAIN_DEBUG 0
-
 coordinate_t coordinate = {60, 30, 90, PTHREAD_MUTEX_INITIALIZER};
 // Angles of {EAST, NORTH, WEST, SOUTH}
-const int ANGLES[4] = {0, 90, 180, -90};
+const int ANGLES[NB_DIRECTION] = {0, 90, 180, -90};
+const char *DIRECTIONS_NAME[NB_DIRECTION] = {"E", "N", "W", "S"};
 int current_direction = NORTH;
 int mv_history[2] = {-1, -2};
 
@@ -44,6 +43,7 @@ int obstacle_type(int *sonar_value, uint8_t sonar_id, uint8_t color_id) {
     if (new_distance > 40) {
         backward(((float)distance) / 10.0);
         Sleep( DELAY_TACHO );
+        printf("No obstacle\n");
         return NO_OBST;
     }
 
@@ -52,23 +52,28 @@ int obstacle_type(int *sonar_value, uint8_t sonar_id, uint8_t color_id) {
     backward(((float)distance) / 10.0);
     Sleep( DELAY_TACHO );
     if (color == RED_ID) {
+        printf("Movable obstacle\n");
         return MV_OBST;
     }
+    printf("Non-movable obstacle\n");
     return NONMV_OBST;
 }
 
 /* Analyse all four directions and write the corresponding sonar value into
 the given array */
 void analyse_env(int mesures[NB_DIRECTION], uint8_t sonar_id, uint8_t color_id) {
-    int sonar_value;
+    int sonar_value, i;
     int16_t x_obstacle, y_obstacle;
-    int i;
+
+    printf("    Mesures:\n");
     for (i = 0; i < NB_DIRECTION; i++) {
         current_direction = (current_direction + i) % NB_DIRECTION;
         sonar_value = get_distance(sonar_id);
+        printf("    - %s: %dmm", DIRECTIONS_NAME[current_direction], sonar_value);
         Sleep( DELAY_SENSOR );
         // If non-movable obstacle detected, place obstacle
         if (sonar_value < DIST_TRESHOLD && obstacle_type(&sonar_value, sonar_id, color_id) == 1) {
+            printf(", OBST: ");
             get_obst_position((float)sonar_value / 10., (float)ANGLES[current_direction], &x_obstacle, &y_obstacle);
             place_obstacle(x_obstacle, y_obstacle);
         }
@@ -94,6 +99,12 @@ int choose_direction(int mesures[NB_DIRECTION]) {
             }
         }
     }
+    if (direction != -1) {
+        printf("    - DIRECTION: %s\n", DIRECTIONS_NAME[direction]);
+    }
+    else {
+        printf("    - Claptrap is stuck!\n");
+    }
     return direction;
 }
 
@@ -105,12 +116,16 @@ void update_history(int new_direction) {
 
 /* Rotate and move 20cm forward in the given direction */
 void move(int direction) {
+    printf("    - Rotating by %d deg... ", ANGLES[(current_direction + direction)) % NB_DIRECTION]);
     turn_rigth(((float)ANGLES[(current_direction + direction)) % NB_DIRECTION]);
     Sleep( DELAY_TACHO );
+    printf("Done.\n");
     current_direction = direction;
+    printf("    - Moving by 20cm and updating history... ");
     forward(DIST_TRESHOLD / 10);
     Sleep( DELAY_TACHO );
     update_history(direction);
+    printf("Done.\n", );
     // TODO: Update image
 }
 
@@ -139,7 +154,6 @@ int main() {
         printf("[2] DECISION\n");
         chosen_direction = choose_direction(mesures);
         if (chosen_direction == -1) {
-            printf("- Claptrap is stuck!\n");
             break;
         }
         printf("[3] MOVEMENT\n");
