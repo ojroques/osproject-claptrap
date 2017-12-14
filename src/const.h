@@ -17,8 +17,8 @@
 #define SOUTH         3
 #define EAST          0
 #define DIST_TRESHOLD 200   // In millimeters
-#define DELAY_SENSOR  200   // The time to fetch a value, in ms
-#define DELAY_TACHO   1000  // The time to move, in ms
+#define DELAY_SENSOR  100   // The time to fetch a value, in ms
+#define DELAY_TACHO   500  // The time to move, in ms
 
 /* USED BY CLIENT.C */
 #define SERV_ADDR        "00:28:f8:51:71:4b"    /* The address of the server */

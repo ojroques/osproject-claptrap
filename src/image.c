@@ -15,9 +15,9 @@ const char *STR_OUT_OF_BOUNDS = "Index out of bounds exception";
 
 const color_t WHITE = {255, 255, 255};
 const color_t BLACK = {0, 0, 0};
-const color_t RED = {255, 0, 0};
+const color_t RED   = {255, 0, 0};
 const color_t GREEN = {0, 255, 0};
-const color_t BLUE = {0, 0, 255};
+const color_t BLUE  = {0, 0, 255};
 
 /* For debugging purposes only */
 void print_image() {

@@ -33,6 +33,7 @@ int obstacle_type(int *sonar_value, uint8_t sonar_id, uint8_t color_id) {
     if (distance > 40) {
         distance = distance - 40;
     }
+
     forward(((float)distance) / 10.0);
     Sleep(DELAY_TACHO);
 
@@ -100,8 +101,9 @@ int choose_direction(int mesures[NB_DIRECTION]) {
             }
         }
     }
+    printf("    - CURRENT DIRECTION: %s\n", DIRECTIONS_NAME[current_direction]);
     if (direction != -1) {
-        printf("    - DIRECTION: %s\n", DIRECTIONS_NAME[direction]);
+        printf("    - CHOSEN DIRECTION: %s\n", DIRECTIONS_NAME[direction]);
     }
     else {
         printf("    - Claptrap is stuck!\n");
