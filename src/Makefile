@@ -48,14 +48,14 @@ sensors.o: sensors.c sensors.h
 	$(CC) $(CFLAGS) sensors.c -o sensors.o
 
 sensors.o_local: sensors.c sensors.h
-	gcc -I./../../ev3dev-c/source/ev3 $(CFLAGS) sensors.c -o sensors.o_local
+	$(CC) -I./../../ev3dev-c/source/ev3 $(CFLAGS) sensors.c -o sensors.o_local
 
 #################### TACHO ####################
 tacho.o: tacho.c tacho.h const.h position.h
 	$(CC) $(CFLAGS) tacho.c -o tacho.o
 
 tacho.o_local: tacho.c tacho.h const.h position.h
-	gcc -I./../../ev3dev-c/source/ev3 $(CFLAGS) tacho.c -o tacho.o_local
+	$(CC) -I./../../ev3dev-c/source/ev3 $(CFLAGS) tacho.c -o tacho.o_local
 
 clean:
 	rm -f *.o *.o_local
