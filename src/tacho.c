@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
-
+#include <string.h>
 #include "position.h"
 #include "tacho.h"
 #include "const.h"
@@ -25,7 +25,7 @@ void wait_tachos() {
                 get_tacho_state(lsn, lsn_state, TACHO_BUFFER_SIZE);
                 get_tacho_state(rsn, rsn_state, TACHO_BUFFER_SIZE);
                 Sleep(200);
-            } while (1);
+            } while ((strcmp("holding",lsn_state) != 0) && (strcmp("holding",rsn_state) != 0));
         }
     }
 }
