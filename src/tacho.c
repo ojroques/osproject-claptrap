@@ -1,39 +1,31 @@
 #include <stdlib.h>
+#include <unistd.h>
 #include <math.h>
+
 #include "position.h"
 #include "tacho.h"
 #include "const.h"
 #include "ev3.h"
 #include "ev3_port.h"
 #include "ev3_tacho.h"
-// WIN32 /////////////////////////////////////////
-#ifdef __WIN32__
 
-#include <windows.h>
-
-// UNIX //////////////////////////////////////////
-#else
-
-#include <unistd.h>
-#define Sleep( msec ) usleep(( msec ) * 1000 )
-
-//////////////////////////////////////////////////
-#endif
+#define TACHO_BUFFER_SIZE 256
 
 /* By Olivier.
 Wait for the tachos to stop. */
 void wait_tachos() {
-    int lsn_speed, rsn_speed;
+    char lsn_state[TACHO_BUFFER_SIZE];
+    char rsn_state[TACHO_BUFFER_SIZE];
     uint8_t lsn, rsn;
 
     while (ev3_tacho_init() < 1) Sleep(1000);
     if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
         if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
             do {
-                get_tacho_speed(lsn, &lsn_speed);
-                get_tacho_speed(rsn, &rsn_speed);
-                Sleep(100);
-            } while (lsn_speed || rsn_speed);
+                get_tacho_state(lsn, lsn_state, TACHO_BUFFER_SIZE);
+                get_tacho_state(rsn, rsn_state, TACHO_BUFFER_SIZE);
+                Sleep(200);
+            } while (1);
         }
     }
 }

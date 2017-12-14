@@ -14,6 +14,9 @@ typedef struct _sensors_t {
     uint8_t touch_sensor;
 } sensors_t;
 
+void search_sensor(uint8_t sensor_type, uint8_t *sensor_id, char *sensor_name);
+int config_tacho();
 sensors_t config();
+void clean_exit();
 
 #endif

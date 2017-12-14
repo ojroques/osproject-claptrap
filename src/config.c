@@ -58,6 +58,12 @@ sensors_t config(){
     if (open_connection() != START_MESSAGE) {
         sensors.is_null = 1;
     }
-    printf("-----_----- END OF INITIALIZATION -------_---\n\n");
+    printf("----------- END OF INITIALIZATION -----------\n\n");
     return sensors;
+}
+
+void clean_exit() {
+    printf("Freeing the sensors... ");
+    ev3_uninit();
+    printf("Done.\n");
 }

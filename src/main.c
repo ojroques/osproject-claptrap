@@ -34,7 +34,7 @@ int obstacle_type(int *sonar_value, uint8_t sonar_id, uint8_t color_id) {
         distance = distance - 40;
     }
     forward(((float)distance) / 10.0);
-    wait_tachos();
+    Sleep(DELAY_TACHO);
 
     // Check if there is really an obstacle
     new_distance = get_distance(sonar_id);
@@ -42,7 +42,7 @@ int obstacle_type(int *sonar_value, uint8_t sonar_id, uint8_t color_id) {
     *sonar_value = distance + new_distance; // Update sonar_value with a more reliable value
     if (new_distance > 40) {
         backward(((float)distance) / 10.0);
-        wait_tachos();
+        Sleep(DELAY_TACHO);
         printf("No obstacle\n");
         return NO_OBST;
     }
@@ -50,7 +50,7 @@ int obstacle_type(int *sonar_value, uint8_t sonar_id, uint8_t color_id) {
     color = get_color(color_id);
     Sleep(DELAY_SENSOR);
     backward(((float)distance) / 10.0);
-    wait_tachos();
+    Sleep(DELAY_TACHO);
     if (color == RED_ID) {
         printf("Movable obstacle\n");
         return MV_OBST;
@@ -69,18 +69,19 @@ void analyse_env(int mesures[NB_DIRECTION], uint8_t sonar_id, uint8_t color_id) 
     for (i = 0; i < NB_DIRECTION; i++) {
         current_direction = (current_direction + i) % NB_DIRECTION;
         sonar_value = get_distance(sonar_id);
-        printf("    - %s: %dmm", DIRECTIONS_NAME[current_direction], sonar_value);
+        printf("    - %s: %dmm, OBST: ", DIRECTIONS_NAME[current_direction], sonar_value);
         Sleep(DELAY_SENSOR);
         // If non-movable obstacle detected, place obstacle
         if (sonar_value < DIST_TRESHOLD && obstacle_type(&sonar_value, sonar_id, color_id) == 1) {
-            printf(", OBST: ");
             get_obst_position((float)sonar_value / 10., (float)ANGLES[current_direction], &x_obstacle, &y_obstacle);
             place_obstacle(x_obstacle, y_obstacle);
+        } else {
+            printf("None\n");
         }
         mesures[current_direction] = sonar_value;
         if (i < NB_DIRECTION - 1) {   // To avoid returning to the initial direction
             turn_rigth(90.0);
-            wait_tachos();
+            Sleep(DELAY_TACHO);
         }
     }
 }
@@ -118,12 +119,12 @@ void update_history(int new_direction) {
 void move(int direction) {
     printf("    - Rotating by %d deg... ", ANGLES[(current_direction + direction) % NB_DIRECTION]);
     turn_rigth((float)ANGLES[(current_direction + direction) % NB_DIRECTION]);
-    wait_tachos();
+    Sleep(DELAY_TACHO);
     printf("Done.\n");
     current_direction = direction;
     printf("    - Moving by 20cm and updating history... ");
     forward(DIST_TRESHOLD / 10);
-    wait_tachos();
+    Sleep(DELAY_TACHO);
     update_history(direction);
     printf("Done.\n");
     // TODO: Update image
@@ -165,6 +166,7 @@ int main() {
     printf("Sending image to the server...\n");
     send_image();
     printf("Done.\n");
+    clean_exit();
     printf("See you later!\n");
     return EXIT_SUCCESS;
 }
