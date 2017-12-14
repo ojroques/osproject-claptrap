@@ -1,8 +1,6 @@
 *.o
+*.o_local
 main
-sensors
-tacho
-config
-position
+main_local
 image
 client

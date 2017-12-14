@@ -38,7 +38,7 @@ int obstacle_type(int *sonar_value, uint8_t sonar_id, uint8_t color_id) {
 
     // Check if there is really an obstacle
     new_distance = get_distance(sonar_id);
-    Sleep( DELAY_SENSOR );
+    Sleep(DELAY_SENSOR);
     *sonar_value = distance + new_distance; // Update sonar_value with a more reliable value
     if (new_distance > 40) {
         backward(((float)distance) / 10.0);
@@ -48,7 +48,7 @@ int obstacle_type(int *sonar_value, uint8_t sonar_id, uint8_t color_id) {
     }
 
     color = get_color(color_id);
-    Sleep( DELAY_SENSOR );
+    Sleep(DELAY_SENSOR);
     backward(((float)distance) / 10.0);
     wait_tachos();
     if (color == RED_ID) {
@@ -70,7 +70,7 @@ void analyse_env(int mesures[NB_DIRECTION], uint8_t sonar_id, uint8_t color_id) 
         current_direction = (current_direction + i) % NB_DIRECTION;
         sonar_value = get_distance(sonar_id);
         printf("    - %s: %dmm", DIRECTIONS_NAME[current_direction], sonar_value);
-        Sleep( DELAY_SENSOR );
+        Sleep(DELAY_SENSOR);
         // If non-movable obstacle detected, place obstacle
         if (sonar_value < DIST_TRESHOLD && obstacle_type(&sonar_value, sonar_id, color_id) == 1) {
             printf(", OBST: ");
