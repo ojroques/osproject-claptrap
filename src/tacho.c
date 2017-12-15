@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <unistd.h>
-#include <math.h>
 #include <string.h>
 #include "position.h"
 #include "tacho.h"
@@ -45,7 +44,7 @@ void turn_left(float angle) {
             set_tacho_stop_action_inx(rsn,TACHO_HOLD);
             get_tacho_max_speed(lsn, &max_speed);
             get_tacho_count_per_rot(lsn, &count_per_rot);
-            rel_pos = floor(ROBOT_RADIUS*rad/WHEEL_PERIMETER * count_per_rot);
+            rel_pos = (int)((ROBOT_RADIUS * rad / WHEEL_PERIMETER) * count_per_rot + 0.5);
             set_tacho_speed_sp( lsn, max_speed / 2 );
             set_tacho_speed_sp( rsn, max_speed / 2 );
             set_tacho_ramp_up_sp( lsn, 50 );
@@ -76,7 +75,7 @@ void turn_right(float angle){
             set_tacho_stop_action_inx(rsn,TACHO_HOLD);
             get_tacho_max_speed(lsn, &max_speed);
             get_tacho_count_per_rot(lsn, &count_per_rot);
-            rel_pos = floor(ROBOT_RADIUS*rad/WHEEL_PERIMETER * count_per_rot);
+            rel_pos = (int)((ROBOT_RADIUS * rad / WHEEL_PERIMETER) * count_per_rot + 0.5);
             set_tacho_speed_sp( lsn, max_speed / 2 );
             set_tacho_speed_sp( rsn, max_speed / 2 );
             set_tacho_ramp_up_sp( lsn, 50 );
@@ -106,7 +105,7 @@ void forward(float distance){
             set_tacho_stop_action_inx(rsn,TACHO_HOLD);
             get_tacho_max_speed(lsn, &max_speed);
             get_tacho_count_per_rot(lsn, &count_per_rot);
-            rel_pos = floor(distance/WHEEL_PERIMETER * count_per_rot);
+            rel_pos = (int)((distance / WHEEL_PERIMETER) * count_per_rot + 0.5);
             set_tacho_speed_sp( lsn, max_speed / 2 );
             set_tacho_speed_sp( rsn, max_speed / 2 );
             set_tacho_ramp_up_sp( lsn, 50 );
@@ -136,7 +135,7 @@ void backward(float distance){
             set_tacho_stop_action_inx(rsn,TACHO_HOLD);
             get_tacho_max_speed(lsn, &max_speed);
             get_tacho_count_per_rot(lsn, &count_per_rot);
-            rel_pos = floor(distance/WHEEL_PERIMETER * count_per_rot);
+            rel_pos = (int)((distance / WHEEL_PERIMETER) * count_per_rot + 0.5);
             set_tacho_speed_sp( lsn, max_speed / 2 );
             set_tacho_speed_sp( rsn, max_speed / 2 );
             set_tacho_ramp_up_sp( lsn, 50 );

@@ -42,13 +42,13 @@
 #define IMG_HEIGHT        40
 
 /* USED BY TACHO.C */
-#define LEFT_WHEEL_PORT  66
-#define RIGHT_WHEEL_PORT 67
-#define UP_DOWN_TONG_PORT 65
-#define OPEN_CLOSE_TONG_PORT 69
-#define ROBOT_RADIUS     6.05
-#define WHEEL_PERIMETER  17.5929188601
-#define TONGS_UP_DOWN_DISTANCE 42
+#define LEFT_WHEEL_PORT           66
+#define RIGHT_WHEEL_PORT          67
+#define UP_DOWN_TONG_PORT         65
+#define OPEN_CLOSE_TONG_PORT      69
+#define ROBOT_RADIUS              6.05
+#define WHEEL_PERIMETER           17.593
+#define TONGS_UP_DOWN_DISTANCE    42
 #define TONGS_OPEN_CLOSE_DISTANCE 42
 
 /* USED BY SENSORS.C */
