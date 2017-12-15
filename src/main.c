@@ -15,6 +15,8 @@
 #include "image.h"
 #include "client.h"
 
+#define MAIN_DEBUG 0
+
 coordinate_t coordinate = {60, 30, 90, PTHREAD_MUTEX_INITIALIZER};
 // Angles of {EAST, NORTH, WEST, SOUTH}
 const int ANGLES[NB_DIRECTION] = {0, 90, 180, -90};
@@ -36,27 +38,27 @@ int obstacle_type(int *sonar_value, uint8_t sonar_id, uint8_t color_id) {
     }
 
     forward(((float)distance) / 10.0);
-    Sleep(DELAY_TRANSLATION);
-    getchar();
+    wait_tachos();
+    if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
 
     // Check if there is really an obstacle
     new_distance = get_avg_distance(sonar_id, NB_SENSOR_MESURE);
     *sonar_value = distance + new_distance; // Update sonar_value with a more reliable value
     if (new_distance > 40) {
         backward(((float)distance) / 10.0);
-        Sleep(DELAY_TRANSLATION);
-        printf("No obstacle\n");
+        wait_tachos();
+        printf("No obstacle (dist: %d)\n", new_distance);
         return NO_OBST;
     }
 
     color = get_avg_color(color_id, NB_SENSOR_MESURE);
     backward(((float)distance) / 10.0);
-    Sleep(DELAY_TRANSLATION);
+    wait_tachos();
     if (color == RED_ID) {
-        printf("Movable obstacle\n");
+        printf("Movable obstacle (color: %d)\n", color);
         return MV_OBST;
     }
-    printf("Non-movable obstacle\n");
+    printf("Non-movable obstacle (color: %d)\n", color);
     return NONMV_OBST;
 }
 
@@ -81,11 +83,11 @@ void analyse_env(int mesures[NB_DIRECTION], uint8_t sonar_id, uint8_t color_id) 
             printf("None\n");
         }
         mesures[current_direction] = sonar_value;
+        if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
         if (i < NB_DIRECTION - 1) {   // To avoid returning to the initial direction
             turn_left(90.0);
-            Sleep(DELAY_ROTATION);
+            wait_tachos();
         }
-        getchar();  // PAUSE PROGRAM
     }
 }
 
@@ -110,32 +112,40 @@ int choose_direction(int mesures[NB_DIRECTION]) {
     else {
         printf("    - Claptrap is stuck!\n");
     }
-    getchar();  // PAUSE PROGRAM
+    if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
     return direction;
 }
 
 /* Update the last two movements */
 void update_history(int new_direction) {
+    current_direction = new_direction;
     mv_history[1] = mv_history[0];
     mv_history[0] = new_direction;
 }
 
 /* Rotate and move 20cm forward in the given direction */
 void move(int direction, int mesures[NB_DIRECTION]) {
-    printf("    - Rotating by %d deg... ", ANGLES[(current_direction - direction) % NB_DIRECTION]);
-    turn_left((float)ANGLES[(current_direction + direction) % NB_DIRECTION]);
-    Sleep(DELAY_ROTATION);
+    int travel_distance, rotation;
+
+    rotation = direction - current_direction;
+    if (rotation < 0) {
+        rotation = rotation + NB_DIRECTION;
+    }
+    printf("    - Rotating by %d deg... ", ANGLES[rotation]);
+    turn_left((float)ANGLES[rotation]);
+    wait_tachos();
     printf("Done.\n");
-    getchar();
-    current_direction = direction;
-    printf("    - Moving by 20cm and updating history... ");
-    // forward(mesures[direction] / 10);
-    forward(DIST_TRESHOLD / 10);
-    Sleep(DELAY_TRANSLATION);
+    if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
+
+    travel_distance = mesures[direction] - DIST_TRESHOLD;
+    printf("    - Moving by %dmm and updating history... ", travel_distance);
+    forward((float)travel_distance / 10.0);
+    //forward(DIST_TRESHOLD / 10);
+    wait_tachos();
     update_history(direction);
     printf("Done.\n");
-    getchar();
-    // TODO: Update image
+    if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
+    // TODO: Update image accordingly
 }
 
 int main() {
@@ -155,6 +165,8 @@ int main() {
         return EXIT_FAILURE;
     }
 
+    printf("Press any key to begin exploration\n");
+    getchar();
     start_time = time(NULL);
     printf("********** START OF EXPLORATION  **********\n\n");
     while (difftime(time(NULL), start_time) < EXPLORATION_TIME) {

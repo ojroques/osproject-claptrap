@@ -20,8 +20,6 @@
 #define EAST              0
 #define DIST_TRESHOLD     200   // In millimeters
 #define NB_SENSOR_MESURE  5
-#define DELAY_ROTATION    1000
-#define DELAY_TRANSLATION 3000  // The time to move, in ms
 
 /* USED BY CLIENT.C */
 #define SERV_ADDR        "00:28:f8:51:71:4b"    /* The address of the server */
@@ -50,6 +48,6 @@
 #define WHEEL_PERIMETER  17.5929188601
 
 /* USED BY SENSORS.C */
-#define DELAY_SENSOR 150   // The time to fetch a value, in ms
+#define DELAY_SENSOR 200   // The time to fetch a value, in ms
 
 #endif
