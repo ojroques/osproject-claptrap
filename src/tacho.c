@@ -63,7 +63,7 @@ void turn_left(float angle){
 }
 
 //Erwan
-void turn_rigth(float angle){
+void turn_right(float angle){
   uint8_t lsn;
   uint8_t rsn;
   float rad = angle/360 * 2*M_PI;

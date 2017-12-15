@@ -20,7 +20,7 @@
 #define EAST              0
 #define DIST_TRESHOLD     200   // In millimeters
 #define NB_SENSOR_MESURE  5
-#define DELAY_ROTATION    800
+#define DELAY_ROTATION    1000
 #define DELAY_TRANSLATION 3000  // The time to move, in ms
 
 /* USED BY CLIENT.C */

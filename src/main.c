@@ -63,12 +63,14 @@ int obstacle_type(int *sonar_value, uint8_t sonar_id, uint8_t color_id) {
 /* Analyse all four directions and write the corresponding sonar value into
 the given array */
 void analyse_env(int mesures[NB_DIRECTION], uint8_t sonar_id, uint8_t color_id) {
-    int sonar_value, i;
+    int sonar_value, initial_direction, i;
     int16_t x_obstacle, y_obstacle;
 
     printf("    Mesures:\n");
+
+    initial_direction = current_direction;
     for (i = 0; i < NB_DIRECTION; i++) {
-        current_direction = (current_direction + i) % NB_DIRECTION;
+        current_direction = (initial_direction + i) % NB_DIRECTION;
         sonar_value = get_avg_distance(sonar_id, NB_SENSOR_MESURE);
         printf("    - %s: %dmm, OBST: ", DIRECTIONS_NAME[current_direction], sonar_value);
         // If non-movable obstacle detected, place obstacle
@@ -80,7 +82,7 @@ void analyse_env(int mesures[NB_DIRECTION], uint8_t sonar_id, uint8_t color_id) 
         }
         mesures[current_direction] = sonar_value;
         if (i < NB_DIRECTION - 1) {   // To avoid returning to the initial direction
-            turn_rigth(90.0);
+            turn_left(90.0);
             Sleep(DELAY_ROTATION);
         }
         getchar();  // PAUSE PROGRAM
@@ -120,8 +122,8 @@ void update_history(int new_direction) {
 
 /* Rotate and move 20cm forward in the given direction */
 void move(int direction, int mesures[NB_DIRECTION]) {
-    printf("    - Rotating by %d deg... ", ANGLES[(current_direction + direction) % NB_DIRECTION]);
-    turn_rigth((float)ANGLES[(current_direction + direction) % NB_DIRECTION]);
+    printf("    - Rotating by %d deg... ", ANGLES[(current_direction - direction) % NB_DIRECTION]);
+    turn_left((float)ANGLES[(current_direction + direction) % NB_DIRECTION]);
     Sleep(DELAY_ROTATION);
     printf("Done.\n");
     getchar();
@@ -138,7 +140,7 @@ void move(int direction, int mesures[NB_DIRECTION]) {
 
 int main() {
     int chosen_direction;
-    int mesures[NB_DIRECTION];
+    int mesures[NB_DIRECTION] = {0};
     time_t start_time;
     pthread_t pos_thread;
     sensors_t sensors_id = config();

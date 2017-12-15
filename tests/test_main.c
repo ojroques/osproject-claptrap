@@ -40,7 +40,7 @@ int main(void){
   Sleep(3000);
   turn_left(180);
   Sleep (2000);
-  turn_rigth(180);
+  turn_right(180);
   Sleep (2000);
   return 0;
 }
