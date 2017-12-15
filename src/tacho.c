@@ -25,7 +25,7 @@ void wait_tachos() {
                 get_tacho_state(lsn, lsn_state, TACHO_BUFFER_SIZE);
                 get_tacho_state(rsn, rsn_state, TACHO_BUFFER_SIZE);
                 Sleep(200);
-            } while ((strcmp("holding",lsn_state) != 0) && (strcmp("holding",rsn_state) != 0));
+            } while ((strcmp("holding", lsn_state) != 0) && (strcmp("holding", rsn_state) != 0));
         }
     }
 }

@@ -44,10 +44,10 @@ position.o: position.c position.h const.h client.h
 	$(CC) $(CFLAGS) position.c -o position.o
 
 #################### SENSORS ####################
-sensors.o: sensors.c sensors.h
+sensors.o: sensors.c sensors.h const.h
 	$(CC) $(CFLAGS) sensors.c -o sensors.o
 
-sensors.o_local: sensors.c sensors.h
+sensors.o_local: sensors.c sensors.h const.h
 	$(CC) -I./../../ev3dev-c/source/ev3 $(CFLAGS) sensors.c -o sensors.o_local
 
 #################### TACHO ####################

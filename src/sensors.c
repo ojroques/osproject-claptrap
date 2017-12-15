@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "const.h"
 #include "ev3.h"
 #include "ev3_port.h"
 #include "ev3_tacho.h"
@@ -84,6 +85,22 @@ int get_color(uint8_t sensor_id){
 }
 
 /**
+ *Function which gives the average color detected over N mesures
+ *by the color sensor.
+ *Returns an int between 0 and ?
+ **/
+int get_avg_color(uint8_t sensor_id, int nb_mesure) {
+    int i, average;
+    average = 0;
+    Sleep(DELAY_SENSOR);
+    for (i = 0; i < nb_mesure; i++) {
+        average += get_color(sensor_id);
+        fflush(stdout);
+    }
+    return (int)( ((float)average / (float)nb_mesure) + 0.5 );
+}
+
+/**
  *Function which gives the percentage of reflected ligth.
  *Returns an int between 0 and 100.
  **/
@@ -155,17 +172,34 @@ DoubleValue get_angle_and_rot_speed(uint8_t sensor_id){
 //--> maybe we should be aware of reading too many times the mode get_color
 
 /**
- *Function which gives the distance in cm detected by the gyro sensor.
+ *Function which gives the distance in cm detected by the ultrasonic sensor.
  *Returns an int between 0 and 2550
  *Doesn't poweroff the ultrasonic sensor
  **/
+
 int get_distance(uint8_t sensor_id){
   return retrieve_single_value(sensor_id, LEGO_EV3_US_US_DIST_CM);
 }
 
 /**
+ *Function which gives the average distance over N mesures
+ *by the ultrasonic sensor.
+ *Returns an int between 0 and 2550
+**/
+int get_avg_distance(uint8_t sensor_id, int nb_mesure) {
+    int i, average;
+    average = 0;
+    Sleep(DELAY_SENSOR);
+    for (i = 0; i < nb_mesure; i++) {
+        average += get_distance(sensor_id);
+        fflush(stdout);
+    }
+    return (average / nb_mesure);
+}
+
+/**
  *Function which gives a single distance measurement in cm
- *detected by the gyro sensor and then power off the sensor
+ *detected by the ultrasonic sensor and then power off the sensor
  *Returns an int between 0 and 2550
  **/
 int get_single_dist(uint8_t sensor_id){
@@ -173,7 +207,7 @@ int get_single_dist(uint8_t sensor_id){
 }
 
 /**
- *Function which gives continuously the distance in cm detected by the gyro sensor.
+ *Function which gives continuously the distance in cm detected by the ultrasonic sensor.
  *Returns an int between 0 and 2550
  **/
 int get_continuous_distance(uint8_t sensor_id){

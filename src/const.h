@@ -1,24 +1,27 @@
 #ifndef CONST_H
 #define CONST_H
 
+#include <unistd.h>
+
 /* GENERAL */
 #define Sleep( msec ) usleep(( msec ) * 1000 )
 #define SIZE_OBSTACLE 2 /* The size of an obstacle's side */
 #define EXPLORATION_TIME 210 /* The duration of exploration, in seconds */
 
 /* USED BY MAIN.C */
-#define RED_ID        5
-#define NO_OBST      -1
-#define MV_OBST       0
-#define NONMV_OBST    1
-#define NB_DIRECTION  4
-#define NORTH         1
-#define WEST          2
-#define SOUTH         3
-#define EAST          0
-#define DIST_TRESHOLD 200   // In millimeters
-#define DELAY_SENSOR  100   // The time to fetch a value, in ms
-#define DELAY_TACHO   500  // The time to move, in ms
+#define RED_ID            5
+#define NO_OBST          -1
+#define MV_OBST           0
+#define NONMV_OBST        1
+#define NB_DIRECTION      4
+#define NORTH             1
+#define WEST              2
+#define SOUTH             3
+#define EAST              0
+#define DIST_TRESHOLD     200   // In millimeters
+#define NB_SENSOR_MESURE  5
+#define DELAY_ROTATION    800
+#define DELAY_TRANSLATION 3000  // The time to move, in ms
 
 /* USED BY CLIENT.C */
 #define SERV_ADDR        "00:28:f8:51:71:4b"    /* The address of the server */
@@ -45,5 +48,8 @@
 #define RIGHT_WHEEL_PORT 67
 #define ROBOT_RADIUS     6.05
 #define WHEEL_PERIMETER  17.5929188601
+
+/* USED BY SENSORS.C */
+#define DELAY_SENSOR 150   // The time to fetch a value, in ms
 
 #endif

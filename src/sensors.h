@@ -21,6 +21,7 @@ typedef struct _TripleValue{
 
 //Color sensor access functions
 int get_color(uint8_t sensor_id);
+int get_avg_color(uint8_t sensor_id, int nb_mesure);
 int get_reflection(uint8_t sensor_id);
 int get_ambient(uint8_t sensor_id);
 DoubleValue get_raw_reflected(uint8_t sensor_id);
@@ -32,6 +33,7 @@ int get_raw_gyro(uint8_t sensor_id);
 DoubleValue get_angle_and_rot_speed(uint8_t sensor_id);
 //Ultra sonic sensor access functions
 int get_distance(uint8_t sensor_id);
+int get_avg_distance(uint8_t sensor_id, int nb_mesure);
 int get_single_dist(uint8_t sensor_id);
 int get_continuous_distance(uint8_t sensor_id);
 //Compass sensor access functions
