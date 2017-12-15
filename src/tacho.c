@@ -32,6 +32,9 @@ void wait_tachos() {
 
 //Erwan
 void turn_left(float angle) {
+    if (angle == 0) {
+        return;
+    }
     uint8_t lsn;
     uint8_t rsn;
     float rad = angle/360 * 2*M_PI;
@@ -63,6 +66,9 @@ void turn_left(float angle) {
 
 //Erwan
 void turn_right(float angle){
+    if (angle == 0) {
+        return;
+    }
     uint8_t lsn;
     uint8_t rsn;
     float rad = angle/360 * 2*M_PI;
