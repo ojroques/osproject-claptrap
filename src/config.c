@@ -22,7 +22,7 @@ void search_sensor(uint8_t sensor_type, uint8_t *sensor_id, char *sensor_name) {
 }
 
 //Erwan
-int config_tacho(){
+int config_tacho() {
     uint8_t lsn;
     uint8_t rsn;
     printf("Initializing tachos... ");
@@ -39,7 +39,7 @@ int config_tacho(){
     return 0;
 }
 
-sensors_t config(){
+sensors_t config() {
     printf("---------- CLAPTRAP INITIALIZATION ----------\n");
     //Nathan
     sensors_t sensors = {0, 0, 0, 0, 0, 0};

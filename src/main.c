@@ -18,6 +18,7 @@
 #define MAIN_DEBUG 0
 
 coordinate_t coordinate = {60, 30, 90, PTHREAD_MUTEX_INITIALIZER};
+sensors_t sensors_id;
 // Angles of {EAST, NORTH, WEST, SOUTH}
 const int ANGLES[NB_DIRECTION] = {0, 90, 180, -90};
 const char *DIRECTIONS_NAME[NB_DIRECTION] = {"E", "N", "W", "S"};
@@ -28,7 +29,7 @@ int mv_history[2] = {-1, -2};
 * NO_OBST: No obstacle, sonar_value is updated accordingly
 * MV_OBST: Movable obstacle
 * NONMV_OBST: Non-movable obstacle */
-int obstacle_type(int *sonar_value, uint8_t sonar_id, uint8_t color_id) {
+int obstacle_type(int *sonar_value) {
     int distance, new_distance, color;
     distance = *sonar_value;
 
@@ -42,7 +43,7 @@ int obstacle_type(int *sonar_value, uint8_t sonar_id, uint8_t color_id) {
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
 
     // Check if there is really an obstacle
-    new_distance = get_avg_distance(sonar_id, NB_SENSOR_MESURE);
+    new_distance = get_avg_distance(sensors_id.ultrasonic_sensor, NB_SENSOR_MESURE);
     *sonar_value = distance + new_distance; // Update sonar_value with a more reliable value
     if (new_distance > 40) {
         backward(((float)distance) / 10.0);
@@ -51,7 +52,7 @@ int obstacle_type(int *sonar_value, uint8_t sonar_id, uint8_t color_id) {
         return NO_OBST;
     }
 
-    color = get_avg_color(color_id, NB_SENSOR_MESURE);
+    color = get_avg_color(sensors_id.color_sensor, NB_SENSOR_MESURE);
     backward(((float)distance) / 10.0);
     wait_tachos();
     if (color == RED_ID) {
@@ -64,7 +65,7 @@ int obstacle_type(int *sonar_value, uint8_t sonar_id, uint8_t color_id) {
 
 /* Analyse all four directions and write the corresponding sonar value into
 the given array */
-void analyse_env(int mesures[NB_DIRECTION], uint8_t sonar_id, uint8_t color_id) {
+void analyse_env(int mesures[NB_DIRECTION]) {
     int sonar_value, initial_direction, i;
     int16_t x_obstacle, y_obstacle;
 
@@ -73,10 +74,10 @@ void analyse_env(int mesures[NB_DIRECTION], uint8_t sonar_id, uint8_t color_id) 
     initial_direction = current_direction;
     for (i = 0; i < NB_DIRECTION; i++) {
         current_direction = (initial_direction + i) % NB_DIRECTION;
-        sonar_value = get_avg_distance(sonar_id, NB_SENSOR_MESURE);
+        sonar_value = get_avg_distance(sensors_id.ultrasonic_sensor, NB_SENSOR_MESURE);
         printf("    - %s: %dmm, OBST: ", DIRECTIONS_NAME[current_direction], sonar_value);
         // If non-movable obstacle detected, place obstacle
-        if (sonar_value < DIST_TRESHOLD && obstacle_type(&sonar_value, sonar_id, color_id) == 1) {
+        if (sonar_value < DIST_TRESHOLD && obstacle_type(&sonar_value) == 1) {
             get_obst_position((float)sonar_value / 10., (float)ANGLES[current_direction], &x_obstacle, &y_obstacle);
             place_obstacle(x_obstacle, y_obstacle);
         } else {
@@ -153,7 +154,7 @@ int main() {
     int mesures[NB_DIRECTION] = {0};
     time_t start_time;
     pthread_t pos_thread;
-    sensors_t sensors_id = config();
+    sensors_id = config();
 
     if (sensors_id.is_null) {
         printf("ERROR: Initialization has failed\n");
@@ -171,7 +172,7 @@ int main() {
     printf("********** START OF EXPLORATION  **********\n\n");
     while (difftime(time(NULL), start_time) < EXPLORATION_TIME) {
         printf("[1] ENVIRONMENT ANALYSIS\n");
-        analyse_env(mesures, sensors_id.ultrasonic_sensor, sensors_id.color_sensor);
+        analyse_env(mesures);
         printf("[2] DECISION\n");
         chosen_direction = choose_direction(mesures);
         if (chosen_direction == -1) {
