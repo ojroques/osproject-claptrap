@@ -10,8 +10,6 @@
 #include "ev3_port.h"
 #include "ev3_tacho.h"
 
-#define TACHO_BUFFER_SIZE 256
-
 /* By Olivier.
    Wait for the tachos to stop. */
 void wait_tachos() {

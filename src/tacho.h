@@ -11,6 +11,7 @@
 #define WHEEL_PERIMETER            17.593
 #define TONGS_UP_DOWN_DISTANCE     42
 #define TONGS_OPEN_CLOSE_DISTANCE  42
+#define TACHO_BUFFER_SIZE          256
 
 void wait_tachos();
 void wait_tongs();
