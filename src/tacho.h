@@ -3,6 +3,8 @@
 
 #define ROTATION_SPEED             25   // A percentage of max_speed
 #define TRANSLATION_SPEED          50   // A percentage of max_speed
+#define UP_DOWN_SPEED              10
+#define OPEN_CLOSE_SPEED           20
 #define LEFT_WHEEL_PORT            66
 #define RIGHT_WHEEL_PORT           67
 #define UP_DOWN_TONG_PORT          65

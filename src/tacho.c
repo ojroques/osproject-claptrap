@@ -198,11 +198,12 @@ void down_tongs(){
   uint8_t dsn;
   while (ev3_tacho_init() < 1) Sleep(1000);
   if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT,0, &dsn, 0 )){
-      int max_speed;
+      int max_speed, speed;
       int rel_pos = TONGS_UP_DOWN_DISTANCE;
       set_tacho_stop_action_inx(dsn,TACHO_HOLD);
       get_tacho_max_speed(dsn, &max_speed);
-      set_tacho_speed_sp( dsn, max_speed / 2 );
+      speed = (int)((float)max_speed * UP_DOWN_SPEED / 100.0 + 0.5);
+      set_tacho_speed_sp( dsn, speed );
       set_tacho_ramp_up_sp( dsn, 25 );
       set_tacho_ramp_down_sp( dsn, 100 );
       set_tacho_position_sp( dsn, rel_pos );
@@ -215,11 +216,12 @@ void up_tongs(){
   uint8_t usn;
   while (ev3_tacho_init() < 1) Sleep(1000);
   if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT,0, &usn, 0 )){
-      int max_speed;
+      int max_speed, speed;
       int rel_pos = TONGS_UP_DOWN_DISTANCE;
       set_tacho_stop_action_inx(usn,TACHO_HOLD);
       get_tacho_max_speed(usn, &max_speed);
-      set_tacho_speed_sp( usn, max_speed / 2 );
+      speed = (int)((float)max_speed * UP_DOWN_SPEED / 100.0 + 0.5);
+      set_tacho_speed_sp( usn, speed );
       set_tacho_ramp_up_sp( usn, 25 );
       set_tacho_ramp_down_sp( usn, 100 );
       set_tacho_position_sp( usn, rel_pos );
@@ -232,11 +234,12 @@ void close_tongs(){
   uint8_t csn;
   while (ev3_tacho_init() < 1) Sleep(1000);
   if (ev3_search_tacho_plugged_in(OPEN_CLOSE_TONG_PORT,0, &csn, 0 )){
-      int max_speed;
+      int max_speed, speed;
       int rel_pos = TONGS_OPEN_CLOSE_DISTANCE;
       set_tacho_stop_action_inx(csn,TACHO_HOLD);
       get_tacho_max_speed(csn, &max_speed);
-      set_tacho_speed_sp( csn, max_speed / 2 );
+      speed = (int)((float)max_speed * OPEN_CLOSE_SPEED / 100.0 + 0.5);
+      set_tacho_speed_sp( csn, speed );
       set_tacho_ramp_up_sp( csn, 25 );
       set_tacho_ramp_down_sp( csn, 100 );
       set_tacho_position_sp( csn, rel_pos );
@@ -249,11 +252,12 @@ void open_tongs(){
   uint8_t osn;
   while (ev3_tacho_init() < 1) Sleep(1000);
   if (ev3_search_tacho_plugged_in(OPEN_CLOSE_TONG_PORT,0, &osn, 0 )){
-      int max_speed;
+      int max_speed, speed;
       int rel_pos = TONGS_OPEN_CLOSE_DISTANCE;
       set_tacho_stop_action_inx(osn,TACHO_HOLD);
       get_tacho_max_speed(osn, &max_speed);
-      set_tacho_speed_sp( osn, max_speed / 2 );
+      speed = (int)((float)max_speed * OPEN_CLOSE_SPEED / 100.0 + 0.5);
+      set_tacho_speed_sp( osn, speed );
       set_tacho_ramp_up_sp( osn, 25 );
       set_tacho_ramp_down_sp( osn, 100 );
       set_tacho_position_sp( osn, rel_pos );
