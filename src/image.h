@@ -1,6 +1,11 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
+#define SIZE_OBSTACLE      2                     /* The size of an obstacle's side */
+#define IMG_WIDTH          24
+#define IMG_HEIGHT         40
+#define ERR_OUT_OF_BOUNDS  -1
+
 typedef struct color_t {
     uint8_t red;
     uint8_t green;

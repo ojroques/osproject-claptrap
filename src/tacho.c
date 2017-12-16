@@ -2,9 +2,10 @@
 #include <unistd.h>
 #include <string.h>
 #include <math.h>
+
+#include "const.h"
 #include "position.h"
 #include "tacho.h"
-#include "const.h"
 #include "ev3.h"
 #include "ev3_port.h"
 #include "ev3_tacho.h"
@@ -12,7 +13,7 @@
 #define TACHO_BUFFER_SIZE 256
 
 /* By Olivier.
-Wait for the tachos to stop. */
+   Wait for the tachos to stop. */
 void wait_tachos() {
     char lsn_state[TACHO_BUFFER_SIZE];
     char rsn_state[TACHO_BUFFER_SIZE];
@@ -30,6 +31,8 @@ void wait_tachos() {
     }
 }
 
+/* By Olivier.
+   Wait for the tongs to stop. */
 void wait_tongs() {
     char tsn_state[TACHO_BUFFER_SIZE];
     uint8_t tsn;

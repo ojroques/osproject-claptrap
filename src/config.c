@@ -3,8 +3,10 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <math.h>
+
 #include "const.h"
 #include "config.h"
+#include "tacho.h"
 #include "client.h"
 #include "image.h"
 #include "ev3.h"

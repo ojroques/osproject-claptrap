@@ -1,7 +1,19 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include "const.h"
+#define EXPLORATION_TIME  210 /* The duration of exploration, in seconds */
+#define RED_ID            5
+#define NO_OBST          -1
+#define MV_OBST           0
+#define NONMV_OBST        1
+#define NB_DIRECTION      4
+#define NORTH             1
+#define WEST              2
+#define SOUTH             3
+#define EAST              0
+#define DIST_TRESHOLD     200   // In millimeters
+#define DIST_COLOR        45    // In millimeters
+#define NB_SENSOR_MESURE  5
 
 void grab_obstacle();
 int obstacle_type(int *sonar_value);

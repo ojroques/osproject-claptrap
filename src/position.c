@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <math.h>
+
 #include "const.h"
 #include "client.h"
 #include "position.h"

@@ -8,6 +8,8 @@
 #include "ev3_tacho.h"
 #include "ev3_sensor.h"
 
+#define DELAY_SENSOR 200   // The time to fetch a value, in ms
+
 typedef struct _DoubleValue{
   int value0;
   int value1;

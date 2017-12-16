@@ -1,10 +1,24 @@
 #ifndef __TACHO_H
 #define __TACHO_H
 
+#define LEFT_WHEEL_PORT            66
+#define RIGHT_WHEEL_PORT           67
+#define UP_DOWN_TONG_PORT          65
+#define OPEN_CLOSE_TONG_PORT       69
+#define ROBOT_RADIUS               6.525
+#define WHEEL_PERIMETER            17.593
+#define TONGS_UP_DOWN_DISTANCE     42
+#define TONGS_OPEN_CLOSE_DISTANCE  42
+
 void wait_tachos();
+void wait_tongs();
 void turn_left(float angle);
 void turn_right(float angle);
 void forward(float distance);
 void backward(float distance);
+void down_tongs();
+void up_tongs();
+void close_tongs();
+void open_tongs();
 
 #endif
