@@ -2,7 +2,7 @@
 #define __TACHO_H
 
 #define ROTATION_SPEED             25   // A percentage of max_speed
-#define TRANSLATION_SPEED          50
+#define TRANSLATION_SPEED          50   // A percentage of max_speed
 #define LEFT_WHEEL_PORT            66
 #define RIGHT_WHEEL_PORT           67
 #define UP_DOWN_TONG_PORT          65
@@ -18,6 +18,7 @@ void turn_left(float angle);
 void turn_right(float angle);
 void forward(float distance);
 void backward(float distance);
+void stop_moving();
 void down_tongs();
 void up_tongs();
 void close_tongs();

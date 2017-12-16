@@ -181,6 +181,19 @@ void backward(float distance){
         }
     }
 }
+/* By Olivier
+  Stop both tachos. */
+void stop_moving() {
+    uint8_t lsn;
+    uint8_t rsn;
+    while (ev3_tacho_init() < 1) Sleep(1000);
+    if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
+        if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
+            set_tacho_command_inx( lsn, TACHO_STOP );
+            set_tacho_command_inx( rsn, TACHO_STOP );
+        }
+    }
+}
 
 //Erwan
 void down_tongs(){

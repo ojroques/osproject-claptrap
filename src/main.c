@@ -1,3 +1,6 @@
+/* Written by Olivier Roques for the OS project.
+Eurecom, 2017 - 2018. */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -26,6 +29,7 @@ const char *DIRECTIONS_NAME[NB_DIRECTION] = {"E", "N", "W", "S"};
 int current_direction = NORTH;
 int mv_history[2] = {-1, -2};
 
+/* Grab non-movable obstacle. */
 void grab_obstacle() {
     printf("    Grabbing non-movable obstacle... ");
     down_tongs();
