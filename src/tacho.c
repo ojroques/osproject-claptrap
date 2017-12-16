@@ -297,6 +297,8 @@ void turn_left_gyro(float angle, uint_t gyro_id) {
                 set_tacho_polarity( rsn, TACHO_INVERSED );
               }
             }
+            set_tacho_command_inx( lsn, TACHO_STOP );
+            set_tacho_command_inx( rsn, TACHO_STOP );
             set_tacho_polarity( lsn, TACHO_NORMAL );
             set_tacho_polarity( rsn, TACHO_NORMAL );
         }
