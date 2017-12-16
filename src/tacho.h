@@ -26,5 +26,6 @@ void down_tongs();
 void up_tongs();
 void close_tongs();
 void open_tongs();
+void turn_left_gyro(float angle, uint_t gyro_id);
 
 #endif
