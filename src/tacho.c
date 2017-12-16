@@ -61,7 +61,7 @@ void turn_left(float angle) {
     while (ev3_tacho_init() < 1) Sleep(1000);
     if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
         if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
-            int max_speed;
+            int max_speed, speed;
             int count_per_rot;
             int rel_pos;
             set_tacho_stop_action_inx(lsn,TACHO_HOLD);
@@ -69,8 +69,9 @@ void turn_left(float angle) {
             get_tacho_max_speed(lsn, &max_speed);
             get_tacho_count_per_rot(lsn, &count_per_rot);
             rel_pos = (int)((ROBOT_RADIUS * rad / WHEEL_PERIMETER) * count_per_rot + 0.5);
-            set_tacho_speed_sp( lsn, max_speed / 2 );
-            set_tacho_speed_sp( rsn, max_speed / 2 );
+            speed = (int)((float)max_speed * ROTATION_SPEED / 100.0 + 0.5);
+            set_tacho_speed_sp( lsn, speed );
+            set_tacho_speed_sp( rsn, speed );
             set_tacho_ramp_up_sp( lsn, 50 );
             set_tacho_ramp_up_sp( rsn, 50 );
             set_tacho_ramp_down_sp( lsn, 50 );
@@ -95,7 +96,7 @@ void turn_right(float angle){
     while (ev3_tacho_init() < 1) Sleep(1000);
     if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
         if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
-            int max_speed;
+            int max_speed, speed;
             int count_per_rot;
             int rel_pos;
             set_tacho_stop_action_inx(lsn,TACHO_HOLD);
@@ -103,8 +104,9 @@ void turn_right(float angle){
             get_tacho_max_speed(lsn, &max_speed);
             get_tacho_count_per_rot(lsn, &count_per_rot);
             rel_pos = (int)((ROBOT_RADIUS * rad / WHEEL_PERIMETER) * count_per_rot + 0.5);
-            set_tacho_speed_sp( lsn, max_speed / 2 );
-            set_tacho_speed_sp( rsn, max_speed / 2 );
+            speed = (int)((float)max_speed * ROTATION_SPEED / 100.0 + 0.5);
+            set_tacho_speed_sp( lsn, speed );
+            set_tacho_speed_sp( rsn, speed );
             set_tacho_ramp_up_sp( lsn, 50 );
             set_tacho_ramp_up_sp( rsn, 50 );
             set_tacho_ramp_down_sp( lsn, 50 );
@@ -125,7 +127,7 @@ void forward(float distance){
     while (ev3_tacho_init() < 1) Sleep(1000);
     if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
         if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
-            int max_speed;
+            int max_speed, speed;
             int count_per_rot;
             int rel_pos;
             set_tacho_stop_action_inx(lsn,TACHO_HOLD);
@@ -133,8 +135,9 @@ void forward(float distance){
             get_tacho_max_speed(lsn, &max_speed);
             get_tacho_count_per_rot(lsn, &count_per_rot);
             rel_pos = (int)((distance / WHEEL_PERIMETER) * count_per_rot + 0.5);
-            set_tacho_speed_sp( lsn, max_speed / 2 );
-            set_tacho_speed_sp( rsn, max_speed / 2 );
+            speed = (int)((float)max_speed * TRANSLATION_SPEED / 100.0 + 0.5);
+            set_tacho_speed_sp( lsn, speed );
+            set_tacho_speed_sp( rsn, speed );
             set_tacho_ramp_up_sp( lsn, 50 );
             set_tacho_ramp_up_sp( rsn, 50 );
             set_tacho_ramp_down_sp( lsn, 50 );
@@ -155,7 +158,7 @@ void backward(float distance){
     while (ev3_tacho_init() < 1) Sleep(1000);
     if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
         if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
-            int max_speed;
+            int max_speed, speed;
             int count_per_rot;
             int rel_pos;
             set_tacho_stop_action_inx(lsn,TACHO_HOLD);
@@ -163,8 +166,9 @@ void backward(float distance){
             get_tacho_max_speed(lsn, &max_speed);
             get_tacho_count_per_rot(lsn, &count_per_rot);
             rel_pos = (int)((distance / WHEEL_PERIMETER) * count_per_rot + 0.5);
-            set_tacho_speed_sp( lsn, max_speed / 2 );
-            set_tacho_speed_sp( rsn, max_speed / 2 );
+            speed = (int)((float)max_speed * TRANSLATION_SPEED / 100.0 + 0.5);
+            set_tacho_speed_sp( lsn, speed );
+            set_tacho_speed_sp( rsn, speed );
             set_tacho_ramp_up_sp( lsn, 50 );
             set_tacho_ramp_up_sp( rsn, 50 );
             set_tacho_ramp_down_sp( lsn, 50 );

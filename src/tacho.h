@@ -1,6 +1,8 @@
 #ifndef __TACHO_H
 #define __TACHO_H
 
+#define ROTATION_SPEED             25   // A percentage of max_speed
+#define TRANSLATION_SPEED          50
 #define LEFT_WHEEL_PORT            66
 #define RIGHT_WHEEL_PORT           67
 #define UP_DOWN_TONG_PORT          65
