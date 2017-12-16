@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdint.h>
@@ -311,6 +312,66 @@ void turn_left_gyro(float angle, uint8_t gyro_id) {
     }
 }
 
-int main() {
+/* For test purposes
+int main(int argc, char *argv[]) {
+    uint8_t udsn;
+    uint8_t ocsn;
+    int max_speed, speed, rel_pos;
+    int ud_distance = atoi(argv[1]);
+    int oc_distance = atoi(argv[2]);
 
+    if (argc != 3) {
+        printf("Usage: ./tacho ud_distance oc_distance\n");
+        exit(-1);
+    }
+
+    printf("Up / Down distance: %d\n", ud_distance);
+    printf("Open / Close distance: %d\n", oc_distance);
+    if (ud_distance > 200 || oc_distance > 200) {
+        printf("One of these values seems a little high, continue anyway ? (CTRL + C to quit) ");
+        getchar();
+    }
+
+    printf("Initializing tachos...\n");
+    for (int i = 0; i < 5 && ev3_tacho_init() < 1; i++) Sleep(1000);
+    if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT, 0, &udsn, 0)) {
+        printf("    Up / Down tacho OK\n");
+        if (ev3_search_tacho_plugged_in(OPEN_CLOSE_TONG_PORT, 0, &ocsn, 0)) {
+            printf("    Open / Close tacho OK\n");
+            set_tacho_stop_action_inx(udsn, TACHO_HOLD);
+            set_tacho_stop_action_inx(ocsn, TACHO_HOLD);
+            printf("Done.\n");
+        } else {
+            printf("Error.\n");
+            exit(-1);
+        }
+    } else {
+        printf("Error.\n");
+        exit(-1);
+    }
+
+    //UP TONGS
+    printf("Raising tongs... ");
+    rel_pos = ud_distance;
+    get_tacho_max_speed(udsn, &max_speed);
+    speed = (int)((float)max_speed * UP_DOWN_SPEED / 100.0 + 0.5);
+    set_tacho_speed_sp( udsn, speed );
+    set_tacho_ramp_up_sp( udsn, 25 );
+    set_tacho_ramp_down_sp( udsn, 100 );
+    set_tacho_position_sp( udsn, rel_pos );
+    set_tacho_command_inx( udsn, TACHO_RUN_TO_REL_POS );
+    printf("Done.\n");
+
+    // OPEN TONGS
+    printf("Opening tongs... ");
+    rel_pos = oc_distance;
+    get_tacho_max_speed(ocsn, &max_speed);
+    speed = (int)((float)max_speed * OPEN_CLOSE_SPEED / 100.0 + 0.5);
+    set_tacho_speed_sp( ocsn, speed );
+    set_tacho_ramp_up_sp( ocsn, 25 );
+    set_tacho_ramp_down_sp( ocsn, 100 );
+    set_tacho_position_sp( ocsn, rel_pos );
+    set_tacho_command_inx( ocsn, TACHO_RUN_TO_REL_POS );
+    printf("Done.");
 }
+*/

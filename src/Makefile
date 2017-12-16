@@ -1,6 +1,6 @@
 CC     = gcc
 CFLAGS = -std=gnu99 -Wall -Wextra -c
-EXEC   = client image main main_local
+EXEC   = client image tacho tacho_local main main_local
 
 run:
 	./main
@@ -51,6 +51,12 @@ sensors.o_local: sensors.c sensors.h const.h
 	$(CC) -I./../../ev3dev-c/source/ev3 $(CFLAGS) sensors.c -o sensors.o_local
 
 #################### TACHO ####################
+tacho: tacho.o position.o sensors.o
+	$(CC) tacho.o position.o sensors.o -o tacho -lm -lpthread -lev3dev-c
+
+tacho_local: tacho.o_local position.o sensors.o_local
+	$(CC) tacho.o_local position.o sensors.o_local -o tacho_local -lm -lpthread
+
 tacho.o: tacho.c tacho.h const.h position.h sensors.h
 	$(CC) $(CFLAGS) tacho.c -o tacho.o
 
