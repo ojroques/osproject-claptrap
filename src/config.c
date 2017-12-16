@@ -27,14 +27,22 @@ void search_sensor(uint8_t sensor_type, uint8_t *sensor_id, char *sensor_name) {
 int config_tacho() {
     uint8_t lsn;
     uint8_t rsn;
+    uint8_t udsn;
+    uint8_t ocsn;
     printf("Initializing tachos... ");
     for (int i = 0; i < 5 && ev3_tacho_init() < 1; i++) Sleep(1000);
-    if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT,0, &lsn, 0)) {
+    if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
         if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
-            set_tacho_stop_action_inx(lsn,TACHO_HOLD);
-            set_tacho_stop_action_inx(rsn,TACHO_HOLD);
-            printf("Done.\n");
-            return 1;
+            if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT, 0, &udsn, 0)) {
+                if (ev3_search_tacho_plugged_in(OPEN_CLOSE_TONG_PORT, 0, &ocsn, 0)) {
+                    set_tacho_stop_action_inx(lsn, TACHO_HOLD);
+                    set_tacho_stop_action_inx(rsn, TACHO_HOLD);
+                    up_tongs();
+                    set_tacho_stop_action_inx(ocsn, TACHO_HOLD);
+                    printf("Done.\n");
+                    return 1;
+                }
+            }
         }
     }
     printf("ERROR.\n");
