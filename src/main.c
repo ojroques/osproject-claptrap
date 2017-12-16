@@ -30,12 +30,27 @@ const char *DIRECTIONS_NAME[NB_DIRECTION] = {"E", "N", "W", "S"};
 int current_direction = NORTH;
 int mv_history[2] = {-1, -2};
 
-/* Grab non-movable obstacle. */
-void grab_obstacle() {
-    printf("    Grabbing non-movable obstacle... ");
+/* Drop non-movable obstacle. */
+void drop_obstacle() {
+    printf("    Dropping non-movable obstacle... ");
     down_tongs();
     wait_tongs();
     open_tongs();
+    wait_tongs();
+    Sleep(1000);    // Wait for the ball to stop moving
+    up_tongs();
+    wait_tongs();
+    close_tongs();
+    wait_tongs();
+    printf("Done.\n");
+}
+
+/* Grab non-movable obstacle. */
+void grab_obstacle() {
+    printf("    Grabbing non-movable obstacle... ");
+    open_tongs();
+    wait_tongs();
+    down_tongs();
     wait_tongs();
     close_tongs();
     wait_tongs();
@@ -76,7 +91,7 @@ int obstacle_type(int *sonar_value) {
     wait_tachos();
     if (color == RED_ID) {
         printf("Movable obstacle (color: %d)\n", color);
-        grab_obstacle();
+        // grab_obstacle();
         return MV_OBST;
     }
     printf("Non-movable obstacle (color: %d)\n", color);
@@ -210,6 +225,7 @@ int main() {
 
     printf("Press any key to begin exploration\n");
     getchar();
+    drop_obstacle();
     start_time = time(NULL);
     printf("********** START OF EXPLORATION  **********\n\n");
     while (difftime(time(NULL), start_time) < EXPLORATION_TIME) {
