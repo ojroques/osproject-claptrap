@@ -201,7 +201,7 @@ void down_tongs(){
   while (ev3_tacho_init() < 1) Sleep(1000);
   if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT,0, &dsn, 0 )){
       int max_speed, speed;
-      int rel_pos = TONGS_UP_DOWN_DISTANCE;
+      int rel_pos = -TONGS_UP_DOWN_DISTANCE;
       set_tacho_stop_action_inx(dsn,TACHO_HOLD);
       get_tacho_max_speed(dsn, &max_speed);
       speed = (int)((float)max_speed * UP_DOWN_SPEED / 100.0 + 0.5);
@@ -309,4 +309,8 @@ void turn_left_gyro(float angle, uint8_t gyro_id) {
             set_tacho_polarity_inx( rsn, TACHO_NORMAL );
         }
     }
+}
+
+int main() {
+
 }

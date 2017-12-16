@@ -29,12 +29,16 @@ int config_tacho() {
     uint8_t rsn;
     uint8_t udsn;
     uint8_t ocsn;
-    printf("Initializing tachos... ");
+    printf("Initializing tachos...\n");
     for (int i = 0; i < 5 && ev3_tacho_init() < 1; i++) Sleep(1000);
     if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
+        printf("    Left tacho OK\n");
         if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
+            printf("    Right tacho OK\n");
             if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT, 0, &udsn, 0)) {
+                printf("    Up / Down tacho OK\n");
                 if (ev3_search_tacho_plugged_in(OPEN_CLOSE_TONG_PORT, 0, &ocsn, 0)) {
+                    printf("    Open / Close tacho OK\n");
                     set_tacho_stop_action_inx(lsn, TACHO_HOLD);
                     set_tacho_stop_action_inx(rsn, TACHO_HOLD);
                     up_tongs();
