@@ -1,10 +1,12 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdint.h>
 #include <math.h>
 
 #include "const.h"
 #include "position.h"
+#include "sensors.h"
 #include "tacho.h"
 #include "ev3.h"
 #include "ev3_port.h"
@@ -265,7 +267,7 @@ void open_tongs(){
     }
 }
 
-void turn_left_gyro(float angle, uint_t gyro_id) {
+void turn_left_gyro(float angle, uint8_t gyro_id) {
     if (angle == 0) {
         return;
     }
@@ -285,26 +287,26 @@ void turn_left_gyro(float angle, uint_t gyro_id) {
             set_tacho_ramp_up_sp( rsn, 50 );
             set_tacho_ramp_down_sp( lsn, 50 );
             set_tacho_ramp_down_sp( rsn, 50 );
-            set_tacho_polarity( lsn, TACHO_INVERSED );
-            set_tacho_polarity( rsn, TACHO_NORMAL );
+            set_tacho_polarity_inx( lsn, TACHO_INVERSED );
+            set_tacho_polarity_inx( rsn, TACHO_NORMAL );
             int angle_start = get_angle(gyro_id);
             int current_angle = get_angle(gyro_id);
             set_tacho_command_inx( lsn, TACHO_RUN_FOREVER );
             set_tacho_command_inx( rsn, TACHO_RUN_FOREVER );
             while ((abs(abs(angle_start - current_angle) - angle)) < 2){
               if (abs(angle_start - current_angle) - angle < 0){
-                set_tacho_polarity( lsn, TACHO_INVERSED );
-                set_tacho_polarity( rsn, TACHO_NORMAL );
+                set_tacho_polarity_inx( lsn, TACHO_INVERSED );
+                set_tacho_polarity_inx( rsn, TACHO_NORMAL );
               }
               else{
-                set_tacho_polarity( lsn, TACHO_NORMAL );
-                set_tacho_polarity( rsn, TACHO_INVERSED );
+                set_tacho_polarity_inx( lsn, TACHO_NORMAL );
+                set_tacho_polarity_inx( rsn, TACHO_INVERSED );
               }
             }
             set_tacho_command_inx( lsn, TACHO_STOP );
             set_tacho_command_inx( rsn, TACHO_STOP );
-            set_tacho_polarity( lsn, TACHO_NORMAL );
-            set_tacho_polarity( rsn, TACHO_NORMAL );
+            set_tacho_polarity_inx( lsn, TACHO_NORMAL );
+            set_tacho_polarity_inx( rsn, TACHO_NORMAL );
         }
     }
 }

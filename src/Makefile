@@ -51,10 +51,10 @@ sensors.o_local: sensors.c sensors.h const.h
 	$(CC) -I./../../ev3dev-c/source/ev3 $(CFLAGS) sensors.c -o sensors.o_local
 
 #################### TACHO ####################
-tacho.o: tacho.c tacho.h const.h position.h
+tacho.o: tacho.c tacho.h const.h position.h sensors.h
 	$(CC) $(CFLAGS) tacho.c -o tacho.o
 
-tacho.o_local: tacho.c tacho.h const.h position.h
+tacho.o_local: tacho.c tacho.h const.h position.h sensors.h
 	$(CC) -I./../../ev3dev-c/source/ev3 $(CFLAGS) tacho.c -o tacho.o_local
 
 clean:

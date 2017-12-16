@@ -1,6 +1,8 @@
 #ifndef __TACHO_H
 #define __TACHO_H
 
+#include <stdint.h>
+
 #define ROTATION_SPEED             25   // A percentage of max_speed
 #define TRANSLATION_SPEED          50   // A percentage of max_speed
 #define UP_DOWN_SPEED              10
@@ -26,6 +28,6 @@ void down_tongs();
 void up_tongs();
 void close_tongs();
 void open_tongs();
-void turn_left_gyro(float angle, uint_t gyro_id);
+void turn_left_gyro(float angle, uint8_t gyro_id);
 
 #endif
