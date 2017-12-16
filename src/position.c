@@ -9,11 +9,12 @@
 #include "position.h"
 
 extern coordinate_t coordinate;
+extern volatile int quit_request;
 
 //Erwan
 void *position_thread(void *arg) {
-  (void) arg;
-  while(1){
+  (void) arg;   // To avoid the warning message
+  while (!quit_request) {
     pthread_mutex_lock(&(coordinate.coordinate_lock));
     send_position((int16_t)(coordinate.x), (int16_t)(coordinate.y));
     pthread_mutex_unlock(&(coordinate.coordinate_lock));

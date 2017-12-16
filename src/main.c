@@ -18,6 +18,7 @@
 #define MAIN_DEBUG 0
 
 coordinate_t coordinate = {60, 30, 90, PTHREAD_MUTEX_INITIALIZER};
+volatile int quit_request = 0;   // To stop the position thread
 sensors_t sensors_id;
 // Angles of {EAST, NORTH, WEST, SOUTH}
 const int ANGLES[NB_DIRECTION] = {0, 90, 180, -90};
@@ -199,7 +200,8 @@ int main() {
 
     printf("********** END OF EXPLORATION **********\n\n");
     printf("Killing position thread...");
-    if (pthread_kill(pos_thread, SIGTERM) == 0) {
+    quit_request = 1;
+    if (!pthread_join(pos_thread, NULL)) {
         printf("Done.\n");
     } else {
         printf("Error.\n");

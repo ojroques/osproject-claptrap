@@ -35,14 +35,18 @@ void wait_tachos() {
    Wait for the tongs to stop. */
 void wait_tongs() {
     char tsn_state[TACHO_BUFFER_SIZE];
-    uint8_t tsn;
+    char udsn_state[TACHO_BUFFER_SIZE];
+    uint8_t tsn, udsn;
 
     while (ev3_tacho_init() < 1) Sleep(1000);
     if (ev3_search_tacho_plugged_in(OPEN_CLOSE_TONG_PORT, 0, &tsn, 0)) {
-        do {
-            get_tacho_state(tsn, tsn_state, TACHO_BUFFER_SIZE);
-            Sleep(200);
-        } while (strcmp("holding", tsn_state));
+        if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT, 0, &udsn, 0)) {
+            do {
+                get_tacho_state(tsn, tsn_state, TACHO_BUFFER_SIZE);
+                get_tacho_state(udsn, udsn_state, TACHO_BUFFER_SIZE);
+                Sleep(200);
+            } while (strcmp("holding", tsn_state) && strcmp("holding", udsn_state));
+        }
     }
 }
 
