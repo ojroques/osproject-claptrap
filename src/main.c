@@ -25,6 +25,19 @@ const char *DIRECTIONS_NAME[NB_DIRECTION] = {"E", "N", "W", "S"};
 int current_direction = NORTH;
 int mv_history[2] = {-1, -2};
 
+void grab_obstacle() {
+    printf("    Grabbing non-movable obstacle... ");
+    down_tongs();
+    wait_tongs();
+    open_tongs();
+    wait_tongs();
+    close_tongs();
+    wait_tongs();
+    up_tongs();
+    wait_tongs();
+    printf("Done.\n");
+}
+
 /* Return the type of obstacle detectd:
 * NO_OBST: No obstacle, sonar_value is updated accordingly
 * MV_OBST: Movable obstacle
@@ -34,8 +47,8 @@ int obstacle_type(int *sonar_value) {
     distance = *sonar_value;
 
     // Move forward and stop at about 4cm of the obstacle
-    if (distance > 40) {
-        distance = distance - 40;
+    if (distance > DIST_COLOR) {
+        distance = distance - DIST_COLOR;
     }
 
     forward(((float)distance) / 10.0);
@@ -45,7 +58,7 @@ int obstacle_type(int *sonar_value) {
     // Check if there is really an obstacle
     new_distance = get_avg_distance(sensors_id.ultrasonic_sensor, NB_SENSOR_MESURE);
     *sonar_value = distance + new_distance; // Update sonar_value with a more reliable value
-    if (new_distance > 40) {
+    if (new_distance > DIST_COLOR) {
         backward(((float)distance) / 10.0);
         wait_tachos();
         printf("No obstacle (dist: %d)\n", new_distance);
@@ -57,6 +70,7 @@ int obstacle_type(int *sonar_value) {
     wait_tachos();
     if (color == RED_ID) {
         printf("Movable obstacle (color: %d)\n", color);
+        grab_obstacle();
         return MV_OBST;
     }
     printf("Non-movable obstacle (color: %d)\n", color);

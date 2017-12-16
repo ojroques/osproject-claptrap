@@ -25,8 +25,21 @@ void wait_tachos() {
                 get_tacho_state(lsn, lsn_state, TACHO_BUFFER_SIZE);
                 get_tacho_state(rsn, rsn_state, TACHO_BUFFER_SIZE);
                 Sleep(200);
-            } while ((strcmp("holding", lsn_state) != 0) && (strcmp("holding", rsn_state) != 0));
+            } while (strcmp("holding", lsn_state) && strcmp("holding", rsn_state));
         }
+    }
+}
+
+void wait_tongs() {
+    char tsn_state[TACHO_BUFFER_SIZE];
+    uint8_t tsn;
+
+    while (ev3_tacho_init() < 1) Sleep(1000);
+    if (ev3_search_tacho_plugged_in(OPEN_CLOSE_TONG_PORT, 0, &tsn, 0)) {
+        do {
+            get_tacho_state(tsn, tsn_state, TACHO_BUFFER_SIZE);
+            Sleep(200);
+        } while (strcmp("holding", tsn_state));
     }
 }
 
