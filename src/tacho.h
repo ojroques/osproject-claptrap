@@ -2,7 +2,7 @@
 #define __TACHO_H
 
 #define ROTATION_SPEED             25   // A percentage of max_speed
-#define TRANSLATION_SPEED          50
+#define TRANSLATION_SPEED          50   // A percentage of max_speed
 #define LEFT_WHEEL_PORT            66
 #define RIGHT_WHEEL_PORT           67
 #define UP_DOWN_TONG_PORT          65
@@ -11,6 +11,7 @@
 #define WHEEL_PERIMETER            17.593
 #define TONGS_UP_DOWN_DISTANCE     42
 #define TONGS_OPEN_CLOSE_DISTANCE  42
+#define TACHO_BUFFER_SIZE          256
 
 void wait_tachos();
 void wait_tongs();
@@ -18,6 +19,7 @@ void turn_left(float angle);
 void turn_right(float angle);
 void forward(float distance);
 void backward(float distance);
+void stop_moving();
 void down_tongs();
 void up_tongs();
 void close_tongs();

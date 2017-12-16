@@ -1,7 +1,11 @@
+/* Written by Olivier Roques for the OS project.
+Eurecom, 2017 - 2018. */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <string.h>
 #include <time.h>
 #include <signal.h>
 #include <pthread.h>
@@ -26,6 +30,7 @@ const char *DIRECTIONS_NAME[NB_DIRECTION] = {"E", "N", "W", "S"};
 int current_direction = NORTH;
 int mv_history[2] = {-1, -2};
 
+/* Grab non-movable obstacle. */
 void grab_obstacle() {
     printf("    Grabbing non-movable obstacle... ");
     down_tongs();
@@ -139,6 +144,29 @@ void update_history(int new_direction) {
     mv_history[0] = new_direction;
 }
 
+/* While moving, this function checks if there is an obstacle and stop tachos
+   if indeed there is one. */
+void check_obstacle() {
+    int dist_available;
+    char lsn_state[TACHO_BUFFER_SIZE];
+    char rsn_state[TACHO_BUFFER_SIZE];
+    uint8_t lsn, rsn;
+
+    ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0);
+    ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0);
+
+    do {
+        dist_available = get_avg_distance(sensors_id.ultrasonic_sensor, NB_SENSOR_MESURE);
+        if (dist_available < DIST_TRESHOLD) {
+            stop_moving();
+            break;
+        }
+        get_tacho_state(lsn, lsn_state, TACHO_BUFFER_SIZE);
+        get_tacho_state(rsn, rsn_state, TACHO_BUFFER_SIZE);
+        Sleep(200);
+    } while (strcmp("holding", lsn_state) && strcmp("holding", rsn_state));
+}
+
 /* Rotate and move 20cm forward in the given direction */
 void move(int direction, int mesures[NB_DIRECTION]) {
     int travel_distance, rotation;
@@ -156,8 +184,7 @@ void move(int direction, int mesures[NB_DIRECTION]) {
     travel_distance = mesures[direction] - DIST_TRESHOLD;
     printf("    - Moving by %dmm and updating history... ", travel_distance);
     forward((float)travel_distance / 10.0);
-    //forward(DIST_TRESHOLD / 10);
-    wait_tachos();
+    check_obstacle();
     update_history(direction);
     printf("Done.\n");
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
