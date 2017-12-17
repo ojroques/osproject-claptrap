@@ -332,7 +332,7 @@ void turn_left_gyro(float angle, uint8_t gyro_id) {
 }
 
 
-//nathan
+//Erwan
 //Make the robot turn based on angle from gyro sensor
 void turn_gyro_left(float angle, uint8_t gyro_id) {
     if (angle == 0) {
