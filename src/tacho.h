@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define ROTATION_SPEED             10   // A percentage of max_speed
+#define ROTATION_SPEED             15   // A percentage of max_speed
 #define TRANSLATION_SPEED          50   // A percentage of max_speed
 #define UP_DOWN_SPEED              10
 #define OPEN_CLOSE_SPEED           20

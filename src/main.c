@@ -37,7 +37,7 @@ void drop_obstacle() {
     wait_tongs();
     open_tongs();
     wait_tongs();
-    Sleep(500);    // Wait for the ball to stop moving
+    Sleep(1000);    // Wait for the ball to stop moving
     up_tongs(sensors_id.ultrasonic_sensor);
     wait_tongs();
     close_tongs();

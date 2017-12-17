@@ -15,7 +15,7 @@ typedef struct _sensors_t {
 } sensors_t;
 
 void search_sensor(uint8_t sensor_type, uint8_t *sensor_id, char *sensor_name);
-int config_tacho();
+int config_tacho(uint8_t sonar_id);
 sensors_t config();
 void clean_exit();
 

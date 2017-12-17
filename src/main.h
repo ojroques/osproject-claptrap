@@ -1,7 +1,7 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#define EXPLORATION_TIME  210 /* The duration of exploration, in seconds */
+#define EXPLORATION_TIME  225 /* The duration of exploration, in seconds */
 #define RED_ID            5
 #define NO_OBST          -1
 #define MV_OBST           0

@@ -24,7 +24,7 @@ void search_sensor(uint8_t sensor_type, uint8_t *sensor_id, char *sensor_name) {
 }
 
 //Erwan
-int config_tacho() {
+int config_tacho(uint8_t sonar_id) {
     uint8_t lsn;
     uint8_t rsn;
     uint8_t udsn;
@@ -41,7 +41,7 @@ int config_tacho() {
                     printf("    Open / Close tacho OK\n");
                     set_tacho_stop_action_inx(lsn, TACHO_HOLD);
                     set_tacho_stop_action_inx(rsn, TACHO_HOLD);
-                    up_tongs();
+                    up_tongs(sonar_id);
                     set_tacho_stop_action_inx(ocsn, TACHO_HOLD);
                     printf("Done.\n");
                     return 1;
@@ -65,7 +65,7 @@ sensors_t config() {
     search_sensor(HT_NXT_COMPASS, &(sensors.compass_sensor), "Compass sensor");
     search_sensor(LEGO_EV3_TOUCH, &(sensors.touch_sensor), "Touch sensor");
     printf("Done.\n");
-    if (!config_tacho()) {
+    if (!config_tacho(sensors.ultrasonic_sensor)) {
         sensors.is_null = 1;
     }
     init_image();
