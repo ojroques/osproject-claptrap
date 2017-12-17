@@ -347,13 +347,18 @@ void turn_gyro_left(float angle, uint8_t gyro_id) {
     //config it once and for all !!!
     if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
         if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
-            int max_speed, speed;
+            int max_speed, rspeed, lspeed;
             set_tacho_stop_action_inx(lsn,TACHO_HOLD);
             set_tacho_stop_action_inx(rsn,TACHO_HOLD);
 
             //init tacho's speed
             get_tacho_max_speed(lsn, &max_speed);
-            rspeed = (int)((float)sign(angle)*max_speed * ROTATION_SPEED / 100.0 + 0.5);
+            if (angle > 0) {
+                rspeed = (int)((float)max_speed * ROTATION_SPEED / 100.0 + 0.5);
+            }
+            else {
+                rspeed = (int)((float)(-1)*max_speed * ROTATION_SPEED / 100.0 + 0.5);
+            }
             lspeed = -rspeed;
             set_tacho_speed_sp( lsn, lspeed );
             set_tacho_speed_sp( rsn, rspeed );
@@ -381,8 +386,8 @@ void turn_gyro_left(float angle, uint8_t gyro_id) {
                 set_tacho_command_inx( rsn, TACHO_RUN_FOREVER );
               }
               //update current angle
+              Sleep(100);
               current_angle = get_angle(gyro_id);
-              sleep(100);
             }
             set_tacho_command_inx( lsn, TACHO_STOP );
             set_tacho_command_inx( rsn, TACHO_STOP );
@@ -472,7 +477,7 @@ int main(int argc, char *argv[]) {
 
     Sleep(500);
     printf("Angle before: %d\n", get_angle(gyro_id));
-    turn_gyro(90.0, gyro_id);
+    turn_gyro_left(90.0, gyro_id);
     wait_tachos();
     Sleep(500);
     printf("Angle after: %d\n", get_angle(gyro_id));
