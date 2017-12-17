@@ -374,12 +374,22 @@ void turn_gyro_left(float angle, uint8_t gyro_id) {
             //launch tacho
             set_tacho_command_inx( lsn, TACHO_RUN_FOREVER );
             set_tacho_command_inx( rsn, TACHO_RUN_FOREVER );
-
+            int inverse = 0;
             while ((abs(abs(angle_start - current_angle) - abs(angle))) > 2){
               //if the robot goes beyond the the asked angle value go back
-              if (abs(angle_start - current_angle) - abs(angle) > 0){
+              if (abs(angle_start - current_angle) - abs(angle) > 0 && inverse == 0){
                 rspeed = -rspeed/2;
                 lspeed = -lspeed/2;
+                inverse = 1;
+                set_tacho_speed_sp( lsn, lspeed );
+                set_tacho_speed_sp( rsn, rspeed );
+                set_tacho_command_inx( lsn, TACHO_RUN_FOREVER );
+                set_tacho_command_inx( rsn, TACHO_RUN_FOREVER );
+              }
+              else if (abs(angle_start - current_angle) - abs(angle) < 0 && inverse == 1){
+                rspeed = -rspeed/2;
+                lspeed = -lspeed/2;
+                inverse = 0;
                 set_tacho_speed_sp( lsn, lspeed );
                 set_tacho_speed_sp( rsn, rspeed );
                 set_tacho_command_inx( lsn, TACHO_RUN_FOREVER );
