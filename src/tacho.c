@@ -334,7 +334,7 @@ void turn_left_gyro(float angle, uint8_t gyro_id) {
 
 //nathan
 //Make the robot turn based on angle from gyro sensor
-void turn_gyro(float angle, uint8_t gyro_id) {
+void turn_gyro_left(float angle, uint8_t gyro_id) {
     if (angle == 0) {
         return;
     }
@@ -353,23 +353,16 @@ void turn_gyro(float angle, uint8_t gyro_id) {
 
             //init tacho's speed
             get_tacho_max_speed(lsn, &max_speed);
-            speed = (int)((float)max_speed * ROTATION_SPEED / 100.0 + 0.5);
-            set_tacho_speed_sp( lsn, speed );
-            set_tacho_speed_sp( rsn, speed );
+            rspeed = (int)((float)sign(angle)*max_speed * ROTATION_SPEED / 100.0 + 0.5);
+            lspeed = -rspeed;
+            set_tacho_speed_sp( lsn, lspeed );
+            set_tacho_speed_sp( rsn, rspeed );
             //init tacho's speed curve shape
             set_tacho_ramp_up_sp( lsn, 50 );
             set_tacho_ramp_up_sp( rsn, 50 );
-            set_tacho_ramp_down_sp( lsn, 50 );
-            set_tacho_ramp_down_sp( rsn, 50 );
+            set_tacho_ramp_down_sp( lsn, 500 );
+            set_tacho_ramp_down_sp( rsn, 500 );
 
-            //set the tacho's rotation
-            if (angle > 0 ){
-              set_tacho_polarity_inx( lsn, TACHO_INVERSED );
-              set_tacho_polarity_inx( rsn, TACHO_NORMAL );
-            } else {
-              set_tacho_polarity_inx( lsn, TACHO_NORMAL );
-              set_tacho_polarity_inx( rsn, TACHO_INVERSED );
-            }
             //init angle start angle
             angle_start = get_angle(gyro_id);
             current_angle = get_angle(gyro_id);
@@ -377,19 +370,15 @@ void turn_gyro(float angle, uint8_t gyro_id) {
             set_tacho_command_inx( lsn, TACHO_RUN_FOREVER );
             set_tacho_command_inx( rsn, TACHO_RUN_FOREVER );
 
-            while ((abs(abs(angle_start - current_angle) - angle)) > 2){
+            while ((abs(abs(angle_start - current_angle) - abs(angle))) > 2){
               //if the robot goes beyond the the asked angle value go back
-              if (abs(angle_start - current_angle) - angle > 0 && angle > 0){
-                set_tacho_polarity_inx( lsn, TACHO_INVERSED );
-                set_tacho_polarity_inx( rsn, TACHO_NORMAL );
-                set_tacho_speed_sp( lsn, speed/2 );
-                set_tacho_speed_sp( rsn, speed/2 );
-              }
-              if (abs(angle_start - current_angle) + angle > 0 && angle < 0){
-                set_tacho_polarity_inx( lsn, TACHO_NORMAL );
-                set_tacho_polarity_inx( rsn, TACHO_INVERSED );
-                set_tacho_speed_sp( lsn, speed/2 );
-                set_tacho_speed_sp( rsn, speed/2 );
+              if (abs(angle_start - current_angle) - abs(angle) > 0){
+                rspeed = -rspeed/2;
+                lspeed = -lspeed/2;
+                set_tacho_speed_sp( lsn, lspeed );
+                set_tacho_speed_sp( rsn, rspeed );
+                set_tacho_command_inx( lsn, TACHO_RUN_FOREVER );
+                set_tacho_command_inx( rsn, TACHO_RUN_FOREVER );
               }
               //update current angle
               current_angle = get_angle(gyro_id);
@@ -397,8 +386,6 @@ void turn_gyro(float angle, uint8_t gyro_id) {
             }
             set_tacho_command_inx( lsn, TACHO_STOP );
             set_tacho_command_inx( rsn, TACHO_STOP );
-            set_tacho_polarity_inx( lsn, TACHO_NORMAL );
-            set_tacho_polarity_inx( rsn, TACHO_NORMAL );
         }
     }
 }
