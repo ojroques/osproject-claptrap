@@ -13,6 +13,12 @@
 #include "ev3_port.h"
 #include "ev3_tacho.h"
 
+/* For test purpose
+#include <pthread.h>
+coordinate_t coordinate = {60, 30, 90, PTHREAD_MUTEX_INITIALIZER};
+volatile int quit_request = 0;   // To stop the position thread
+*/
+
 /* By Olivier.
    Wait for the tachos to stop. */
 void wait_tachos() {
@@ -268,6 +274,7 @@ void open_tongs(){
     }
 }
 
+//Erwan
 void turn_left_gyro(float angle, uint8_t gyro_id) {
     if (angle == 0) {
         return;
@@ -312,18 +319,18 @@ void turn_left_gyro(float angle, uint8_t gyro_id) {
     }
 }
 
-/* For test purposes
+/*For test purposes
 int main(int argc, char *argv[]) {
     uint8_t udsn;
     uint8_t ocsn;
     int max_speed, speed, rel_pos;
-    int ud_distance = atoi(argv[1]);
-    int oc_distance = atoi(argv[2]);
 
     if (argc != 3) {
         printf("Usage: ./tacho ud_distance oc_distance\n");
         exit(-1);
     }
+    int ud_distance = atoi(argv[1]);
+    int oc_distance = atoi(argv[2]);
 
     printf("Up / Down distance: %d\n", ud_distance);
     printf("Open / Close distance: %d\n", oc_distance);

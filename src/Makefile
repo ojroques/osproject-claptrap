@@ -51,8 +51,8 @@ sensors.o_local: sensors.c sensors.h const.h
 	$(CC) -I./../../ev3dev-c/source/ev3 $(CFLAGS) sensors.c -o sensors.o_local
 
 #################### TACHO ####################
-tacho: tacho.o position.o sensors.o
-	$(CC) tacho.o position.o sensors.o -o tacho -lm -lpthread -lev3dev-c
+tacho: tacho.o position.o sensors.o client.o
+	$(CC) tacho.o position.o sensors.o client.o -o tacho -lm -lbluetooth -lpthread -lev3dev-c
 
 tacho_local: tacho.o_local position.o sensors.o_local
 	$(CC) tacho.o_local position.o sensors.o_local -o tacho_local -lm -lpthread

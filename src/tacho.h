@@ -13,8 +13,8 @@
 #define OPEN_CLOSE_TONG_PORT       68
 #define ROBOT_RADIUS               6.525
 #define WHEEL_PERIMETER            17.593
-#define TONGS_UP_DOWN_DISTANCE     140
-#define TONGS_OPEN_CLOSE_DISTANCE  10
+#define TONGS_UP_DOWN_DISTANCE     200
+#define TONGS_OPEN_CLOSE_DISTANCE  110
 #define TACHO_BUFFER_SIZE          256
 
 void wait_tachos();
