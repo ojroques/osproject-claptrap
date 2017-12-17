@@ -83,6 +83,8 @@ void clean_exit(int signum) {
     ev3_uninit();
     printf("Done.\n");
     printf("Freeing the tachos... ");
+    stop_moving();
+    Sleep(500);
     if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
         if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
             if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT, 0, &udsn, 0)) {
