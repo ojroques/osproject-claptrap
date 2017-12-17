@@ -14,8 +14,10 @@
 #include "ev3_port.h"
 #include "ev3_tacho.h"
 
+/* For test purposes
 coordinate_t coordinate = {60, 30, 90, PTHREAD_MUTEX_INITIALIZER};
 volatile int quit_request = 0;   // To stop the position thread
+*/
 
 /* By Olivier.
    Wait for the tachos to stop. */
@@ -202,39 +204,43 @@ void stop_moving() {
 
 //Erwan
 // Down: negative value
-void down_tongs(){
-  uint8_t dsn;
-  while (ev3_tacho_init() < 1) Sleep(1000);
-  if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT,0, &dsn, 0 )){
-      int max_speed, speed;
-      int rel_pos = -TONGS_UP_DOWN_DISTANCE;
-      set_tacho_stop_action_inx(dsn,TACHO_HOLD);
-      get_tacho_max_speed(dsn, &max_speed);
-      speed = (int)((float)max_speed * UP_DOWN_SPEED / 100.0 + 0.5);
-      set_tacho_speed_sp( dsn, speed );
-      set_tacho_ramp_up_sp( dsn, 25 );
-      set_tacho_ramp_down_sp( dsn, 100 );
-      set_tacho_position_sp( dsn, rel_pos );
-      set_tacho_command_inx( dsn, TACHO_RUN_TO_REL_POS );
+void down_tongs(uint8_t sonar_id){
+    int max_speed, speed;
+    uint8_t dsn;
+    // Check that the tongs can indeed move down
+    if (get_avg_distance(sonar_id, 5) < 40) return;
+
+    while (ev3_tacho_init() < 1) Sleep(1000);
+    if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT,0, &dsn, 0 )){
+        set_tacho_stop_action_inx(dsn,TACHO_HOLD);
+        get_tacho_max_speed(dsn, &max_speed);
+        speed = (int)((float)max_speed * UP_DOWN_SPEED / 100.0 + 0.5);
+        set_tacho_speed_sp( dsn, speed );
+        set_tacho_ramp_up_sp( dsn, 25 );
+        set_tacho_ramp_down_sp( dsn, 100 );
+        set_tacho_position_sp( dsn, -TONGS_UP_DOWN_DISTANCE );
+        set_tacho_command_inx( dsn, TACHO_RUN_TO_REL_POS );
     }
 }
 
 //Erwan
 // Up: positive value
-void up_tongs(){
-  uint8_t usn;
-  while (ev3_tacho_init() < 1) Sleep(1000);
-  if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT,0, &usn, 0 )){
-      int max_speed, speed;
-      int rel_pos = TONGS_UP_DOWN_DISTANCE;
-      set_tacho_stop_action_inx(usn,TACHO_HOLD);
-      get_tacho_max_speed(usn, &max_speed);
-      speed = (int)((float)max_speed * UP_DOWN_SPEED / 100.0 + 0.5);
-      set_tacho_speed_sp( usn, speed );
-      set_tacho_ramp_up_sp( usn, 25 );
-      set_tacho_ramp_down_sp( usn, 100 );
-      set_tacho_position_sp( usn, rel_pos );
-      set_tacho_command_inx( usn, TACHO_RUN_TO_REL_POS );
+void up_tongs(uint8_t sonar_id){
+    int max_speed, speed;
+    uint8_t usn;
+    // Check that the tongs can indeed move up
+    if (get_avg_distance(sonar_id, 5) > 40) return;
+
+    while (ev3_tacho_init() < 1) Sleep(1000);
+    if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT,0, &usn, 0 )){
+        set_tacho_stop_action_inx(usn,TACHO_HOLD);
+        get_tacho_max_speed(usn, &max_speed);
+        speed = (int)((float)max_speed * UP_DOWN_SPEED / 100.0 + 0.5);
+        set_tacho_speed_sp( usn, speed );
+        set_tacho_ramp_up_sp( usn, 25 );
+        set_tacho_ramp_down_sp( usn, 100 );
+        set_tacho_position_sp( usn, TONGS_UP_DOWN_DISTANCE );
+        set_tacho_command_inx( usn, TACHO_RUN_TO_REL_POS );
     }
 }
 
@@ -322,7 +328,7 @@ void turn_left_gyro(float angle, uint8_t gyro_id) {
     }
 }
 
-
+/* For test purposes
 int main(int argc, char *argv[]) {
     uint8_t udsn;
     uint8_t ocsn;
@@ -407,3 +413,4 @@ int main(int argc, char *argv[]) {
 
     ev3_uninit();
 }
+*/

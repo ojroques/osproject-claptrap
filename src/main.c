@@ -33,12 +33,12 @@ int mv_history[2] = {-1, -2};
 /* Drop non-movable obstacle. */
 void drop_obstacle() {
     printf("    Dropping non-movable obstacle... ");
-    down_tongs();
+    down_tongs(sensors_id.ultrasonic_sensor);
     wait_tongs();
     open_tongs();
     wait_tongs();
-    Sleep(1000);    // Wait for the ball to stop moving
-    up_tongs();
+    Sleep(500);    // Wait for the ball to stop moving
+    up_tongs(sensors_id.ultrasonic_sensor);
     wait_tongs();
     close_tongs();
     wait_tongs();
@@ -50,11 +50,11 @@ void grab_obstacle() {
     printf("    Grabbing non-movable obstacle... ");
     open_tongs();
     wait_tongs();
-    down_tongs();
+    down_tongs(sensors_id.ultrasonic_sensor);
     wait_tongs();
     close_tongs();
     wait_tongs();
-    up_tongs();
+    up_tongs(sensors_id.ultrasonic_sensor);
     wait_tongs();
     printf("Done.\n");
 }
@@ -86,6 +86,7 @@ int obstacle_type(int *sonar_value) {
         return NO_OBST;
     }
 
+    // Get the obstacle color
     color = get_avg_color(sensors_id.color_sensor, NB_SENSOR_MESURE);
     backward(((float)distance) / 10.0);
     wait_tachos();
@@ -112,14 +113,14 @@ void analyse_env(int mesures[NB_DIRECTION]) {
         sonar_value = get_avg_distance(sensors_id.ultrasonic_sensor, NB_SENSOR_MESURE);
         printf("    - %s: %dmm, OBST: ", DIRECTIONS_NAME[current_direction], sonar_value);
         // If non-movable obstacle detected, place obstacle
-        if (sonar_value < DIST_TRESHOLD && obstacle_type(&sonar_value) == 1) {
+        if (sonar_value < DIST_TRESHOLD && obstacle_type(&sonar_value) == NONMV_OBST) {
             get_obst_position((float)sonar_value / 10., (float)ANGLES[current_direction], &x_obstacle, &y_obstacle);
             place_obstacle(x_obstacle, y_obstacle);
         } else {
             printf("None\n");
         }
         mesures[current_direction] = sonar_value;
-        if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
+        if (MAIN_DEBUG) getchar();    // PAUSE PROGRAM
         if (i < NB_DIRECTION - 1) {   // To avoid returning to the initial direction
             turn_left(90.0);
             wait_tachos();
