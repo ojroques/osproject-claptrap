@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define ROTATION_SPEED             25   // A percentage of max_speed
+#define ROTATION_SPEED             10   // A percentage of max_speed
 #define TRANSLATION_SPEED          50   // A percentage of max_speed
 #define UP_DOWN_SPEED              10
 #define OPEN_CLOSE_SPEED           20
@@ -13,8 +13,8 @@
 #define OPEN_CLOSE_TONG_PORT       68
 #define ROBOT_RADIUS               6.525
 #define WHEEL_PERIMETER            17.593
-#define TONGS_UP_DOWN_DISTANCE     200
-#define TONGS_OPEN_CLOSE_DISTANCE  110
+#define TONGS_UP_DOWN_DISTANCE     220
+#define TONGS_OPEN_CLOSE_DISTANCE  120
 #define TACHO_BUFFER_SIZE          256
 
 void wait_tachos();

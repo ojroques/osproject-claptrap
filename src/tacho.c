@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <math.h>
+#include <pthread.h>
 
 #include "const.h"
 #include "position.h"
@@ -13,11 +14,8 @@
 #include "ev3_port.h"
 #include "ev3_tacho.h"
 
-/* For test purpose
-#include <pthread.h>
 coordinate_t coordinate = {60, 30, 90, PTHREAD_MUTEX_INITIALIZER};
 volatile int quit_request = 0;   // To stop the position thread
-*/
 
 /* By Olivier.
    Wait for the tachos to stop. */
@@ -203,6 +201,7 @@ void stop_moving() {
 }
 
 //Erwan
+// Down: negative value
 void down_tongs(){
   uint8_t dsn;
   while (ev3_tacho_init() < 1) Sleep(1000);
@@ -221,6 +220,7 @@ void down_tongs(){
 }
 
 //Erwan
+// Up: positive value
 void up_tongs(){
   uint8_t usn;
   while (ev3_tacho_init() < 1) Sleep(1000);
@@ -239,6 +239,7 @@ void up_tongs(){
 }
 
 //Erwan
+// Close: positive value
 void close_tongs(){
   uint8_t csn;
   while (ev3_tacho_init() < 1) Sleep(1000);
@@ -257,12 +258,13 @@ void close_tongs(){
 }
 
 //Erwan
+// Open: negative value
 void open_tongs(){
   uint8_t osn;
   while (ev3_tacho_init() < 1) Sleep(1000);
   if (ev3_search_tacho_plugged_in(OPEN_CLOSE_TONG_PORT,0, &osn, 0 )){
       int max_speed, speed;
-      int rel_pos = TONGS_OPEN_CLOSE_DISTANCE;
+      int rel_pos = -TONGS_OPEN_CLOSE_DISTANCE;
       set_tacho_stop_action_inx(osn,TACHO_HOLD);
       get_tacho_max_speed(osn, &max_speed);
       speed = (int)((float)max_speed * OPEN_CLOSE_SPEED / 100.0 + 0.5);
@@ -279,8 +281,10 @@ void turn_left_gyro(float angle, uint8_t gyro_id) {
     if (angle == 0) {
         return;
     }
+    int angle_start, current_angle;
     uint8_t lsn;
     uint8_t rsn;
+    angle_start = get_angle(gyro_id);
     while (ev3_tacho_init() < 1) Sleep(1000);
     if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
         if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
@@ -297,8 +301,7 @@ void turn_left_gyro(float angle, uint8_t gyro_id) {
             set_tacho_ramp_down_sp( rsn, 50 );
             set_tacho_polarity_inx( lsn, TACHO_INVERSED );
             set_tacho_polarity_inx( rsn, TACHO_NORMAL );
-            int angle_start = get_angle(gyro_id);
-            int current_angle = get_angle(gyro_id);
+            current_angle = get_angle(gyro_id);
             set_tacho_command_inx( lsn, TACHO_RUN_FOREVER );
             set_tacho_command_inx( rsn, TACHO_RUN_FOREVER );
             while ((abs(abs(angle_start - current_angle) - angle)) < 2){
@@ -319,18 +322,23 @@ void turn_left_gyro(float angle, uint8_t gyro_id) {
     }
 }
 
-/*For test purposes
+
 int main(int argc, char *argv[]) {
     uint8_t udsn;
     uint8_t ocsn;
-    int max_speed, speed, rel_pos;
+    uint8_t sonar_id, gyro_id;
+    int max_speed, speed, rel_pos, distance;
 
     if (argc != 3) {
         printf("Usage: ./tacho ud_distance oc_distance\n");
         exit(-1);
     }
+
     int ud_distance = atoi(argv[1]);
     int oc_distance = atoi(argv[2]);
+    ev3_sensor_init();
+    ev3_search_sensor(LEGO_EV3_GYRO, &gyro_id, 0);
+    ev3_search_sensor(LEGO_EV3_US, &sonar_id, 0);
 
     printf("Up / Down distance: %d\n", ud_distance);
     printf("Open / Close distance: %d\n", oc_distance);
@@ -358,8 +366,18 @@ int main(int argc, char *argv[]) {
     }
 
     //UP TONGS
-    printf("Raising tongs... ");
+    printf("Up / Down tongs... ");
     rel_pos = ud_distance;
+    distance = get_avg_distance(sonar_id, 5);
+    if (distance < 40 && ud_distance < 0) {
+        printf("Error!\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (distance > 40 && ud_distance > 0) {
+        printf("Error!\n");
+        exit(EXIT_FAILURE);
+    }
     get_tacho_max_speed(udsn, &max_speed);
     speed = (int)((float)max_speed * UP_DOWN_SPEED / 100.0 + 0.5);
     set_tacho_speed_sp( udsn, speed );
@@ -370,7 +388,7 @@ int main(int argc, char *argv[]) {
     printf("Done.\n");
 
     // OPEN TONGS
-    printf("Opening tongs... ");
+    printf("Opening / Closing tongs... ");
     rel_pos = oc_distance;
     get_tacho_max_speed(ocsn, &max_speed);
     speed = (int)((float)max_speed * OPEN_CLOSE_SPEED / 100.0 + 0.5);
@@ -379,6 +397,13 @@ int main(int argc, char *argv[]) {
     set_tacho_ramp_down_sp( ocsn, 100 );
     set_tacho_position_sp( ocsn, rel_pos );
     set_tacho_command_inx( ocsn, TACHO_RUN_TO_REL_POS );
-    printf("Done.");
+    printf("Done.\n");
+
+    Sleep(500);
+    printf("Angle before: %d\n", get_angle(gyro_id));
+    turn_left_gyro(90.0, gyro_id);
+    Sleep(500);
+    printf("Angle after: %d\n", get_angle(gyro_id));
+
+    ev3_uninit();
 }
-*/
