@@ -331,10 +331,54 @@ void turn_left_gyro(float angle, uint8_t gyro_id) {
     }
 }
 
+void turn_gyro_left(float angle, uint8_t gyro_id) {
+  if (angle == 0) {
+      return;
+  }
+  int angle_start, current_angle;
+  uint8_t lsn;
+  uint8_t rsn;
+  while (ev3_tacho_init() < 1) Sleep(1000);
+
+  //NOTE : don't use initialisation each time you want to use tacho !!!!
+  //config it once and for all !!
+  if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
+      if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
+
+          set_tacho_stop_action_inx(lsn,TACHO_HOLD);
+          set_tacho_stop_action_inx(rsn,TACHO_HOLD);
+          //init tacho's speed
+          get_tacho_max_speed(lsn, &max_speed);
+          rspeed = (int)((float)sign(angle)*max_speed * ROTATION_SPEED / 100.0 + 0.5);
+          lspeed = -rspeed;
+          set_tacho_speed_sp( lsn, lspeed );
+          set_tacho_speed_sp( rsn, rspeed );
+          //init tacho's speed curve shape
+          set_tacho_ramp_up_sp( lsn, 50 );
+          set_tacho_ramp_up_sp( rsn, 50 );
+          set_tacho_ramp_down_sp( lsn, 500 );
+          set_tacho_ramp_down_sp( rsn, 500 );
+          while ((abs(abs(angle_start - current_angle) - abs(angle))) > 2){
+            //if the robot goes beyond the the asked angle value go back
+            if (abs(angle_start - current_angle) - abs(angle) > 0){
+              rspeed = -rspeed/2;
+              lspeed = -lspeed/2;
+              set_tacho_speed_sp( lsn, lspeed );
+              set_tacho_speed_sp( rsn, rspeed );
+              set_tacho_command_inx( lsn, TACHO_RUN_FOREVER );
+              set_tacho_command_inx( rsn, TACHO_RUN_FOREVER );
+              Sleep(100);
+              //update current angle
+              current_angle = get_angle(gyro_id);
+            }
+            set_tacho_command_inx( lsn, TACHO_STOP );
+            set_tacho_command_inx( rsn, TACHO_STOP );
+        }
 
 //nathan
 //Make the robot turn based on angle from gyro sensor
-void turn_gyro_left(float angle, uint8_t gyro_id) {
+//angle to the left is positive angle
+void turn_gyro(float angle, uint8_t gyro_id) {
     if (angle == 0) {
         return;
     }
@@ -344,49 +388,41 @@ void turn_gyro_left(float angle, uint8_t gyro_id) {
     while (ev3_tacho_init() < 1) Sleep(1000);
 
     //NOTE : don't use initialisation each time you want to use tacho !!!!
-    //config it once and for all !!!
+    //config it once and for all !!
     if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
         if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
-            int max_speed, rspeed, lspeed;
+
             set_tacho_stop_action_inx(lsn,TACHO_HOLD);
             set_tacho_stop_action_inx(rsn,TACHO_HOLD);
 
-            //init tacho's speed
-            get_tacho_max_speed(lsn, &max_speed);
-            if (angle > 0) {
-                rspeed = (int)((float)max_speed * ROTATION_SPEED / 100.0 + 0.5);
-            }
-            else {
-                rspeed = (int)((float)(-1)*max_speed * ROTATION_SPEED / 100.0 + 0.5);
-            }
-            lspeed = -rspeed;
-            set_tacho_speed_sp( lsn, lspeed );
-            set_tacho_speed_sp( rsn, rspeed );
-            //init tacho's speed curve shape
-            set_tacho_ramp_up_sp( lsn, 50 );
-            set_tacho_ramp_up_sp( rsn, 50 );
-            set_tacho_ramp_down_sp( lsn, 500 );
-            set_tacho_ramp_down_sp( rsn, 500 );
-
             //init angle start angle
             angle_start = get_angle(gyro_id);
-            current_angle = get_angle(gyro_id);
-            //launch tacho
-            set_tacho_command_inx( lsn, TACHO_RUN_FOREVER );
-            set_tacho_command_inx( rsn, TACHO_RUN_FOREVER );
+            printf("angle start = %d \n", angle_start);
+            current_angle = angle_start;
+            printf("current angle = %d \n", current_angle);
+            //duty_cycle is the roughly the percentage of power given to the tacho
+            int duty_cycle = angle - (current_angle - angle_start);
+            if (duty_cycle > 15 || duty_cycle < -15){
+              duty_cycle = duty_cycle / abs(duty_cycle) * 15;
+            }
 
-            while ((abs(abs(angle_start - current_angle) - abs(angle))) > 2){
-              //if the robot goes beyond the the asked angle value go back
-              if (abs(angle_start - current_angle) - abs(angle) > 0){
-                rspeed = -rspeed/2;
-                lspeed = -lspeed/2;
-                set_tacho_speed_sp( lsn, lspeed );
-                set_tacho_speed_sp( rsn, rspeed );
-                set_tacho_command_inx( lsn, TACHO_RUN_FOREVER );
-                set_tacho_command_inx( rsn, TACHO_RUN_FOREVER );
+            //set the tacho's rotation
+            set_tacho_duty_cycle_sp( lsn, (-1) * duty_cycle );
+            set_tacho_duty_cycle_sp( rsn, duty_cycle );
+            set_tacho_command_inx( lsn, TACHO_RUN_DIRECT );
+            set_tacho_command_inx( rsn, TACHO_RUN_DIRECT );
+
+            while ((abs(abs(angle_start - current_angle) - angle)) > 2){
+              //recompute duty cycle value
+              duty_cycle = angle - (current_angle - angle_start);
+              if (duty_cycle > 15 || duty_cycle < -15 ){
+                duty_cycle = duty_cycle / abs(duty_cycle) * 15;
               }
-              //update current angle
+              //update duty cycle value
+              set_tacho_duty_cycle_sp( lsn, (-1) * duty_cycle );
+              set_tacho_duty_cycle_sp( rsn, duty_cycle );
               Sleep(100);
+              //update current angle
               current_angle = get_angle(gyro_id);
             }
             set_tacho_command_inx( lsn, TACHO_STOP );
@@ -477,7 +513,7 @@ int main(int argc, char *argv[]) {
 
     Sleep(500);
     printf("Angle before: %d\n", get_angle(gyro_id));
-    turn_gyro_left(90.0, gyro_id);
+    turn_gyro(90.0, gyro_id);
     wait_tachos();
     Sleep(500);
     printf("Angle after: %d\n", get_angle(gyro_id));
