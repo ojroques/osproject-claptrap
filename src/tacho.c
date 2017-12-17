@@ -14,10 +14,10 @@
 #include "ev3_port.h"
 #include "ev3_tacho.h"
 
-/* For test purposes
+#ifdef TACHO_DEBUG
 coordinate_t coordinate = {60, 30, 90, PTHREAD_MUTEX_INITIALIZER};
 volatile int quit_request = 0;   // To stop the position thread
-*/
+#endif
 
 /* By Olivier.
    Wait for the tachos to stop. */
@@ -401,8 +401,9 @@ void turn_gyro(float angle, uint8_t gyro_id) {
 }
 
 
+#ifdef TACHO_DEBUG
 
-//*********************MAIN USED FOR TESTS*******************************
+/* ********************** MAIN USED FOR TESTS ********************** */
 int main(int argc, char *argv[]) {
     uint8_t udsn;
     uint8_t ocsn;
@@ -481,10 +482,12 @@ int main(int argc, char *argv[]) {
 
     Sleep(500);
     printf("Angle before: %d\n", get_angle(gyro_id));
-    turn_left_gyro(90.0, gyro_id);
+    turn_gyro(90.0, gyro_id);
+    wait_tongs();
     Sleep(500);
     printf("Angle after: %d\n", get_angle(gyro_id));
 
     ev3_uninit();
 }
-*/
+
+#endif
