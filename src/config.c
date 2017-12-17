@@ -25,10 +25,7 @@ void search_sensor(uint8_t sensor_type, uint8_t *sensor_id, char *sensor_name) {
 
 //Erwan
 int config_tacho(uint8_t sonar_id) {
-    uint8_t lsn;
-    uint8_t rsn;
-    uint8_t udsn;
-    uint8_t ocsn;
+    uint8_t lsn, rsn, udsn, ocsn;
     printf("Initializing tachos...\n");
     for (int i = 0; i < 5 && ev3_tacho_init() < 1; i++) Sleep(1000);
     if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
@@ -76,8 +73,29 @@ sensors_t config() {
     return sensors;
 }
 
-void clean_exit() {
+void clean_exit(int signum) {
+    uint8_t lsn, rsn, udsn, ocsn;
+
+    printf("\n");
+    if (signum) printf("Signal %d detected!\n", signum);
+
     printf("Freeing the sensors... ");
     ev3_uninit();
     printf("Done.\n");
+    printf("Freeing the tachos... ");
+    if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
+        if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
+            if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT, 0, &udsn, 0)) {
+                if (ev3_search_tacho_plugged_in(OPEN_CLOSE_TONG_PORT, 0, &ocsn, 0)) {
+                    set_tacho_stop_action_inx(lsn, TACHO_COAST);
+                    set_tacho_stop_action_inx(rsn, TACHO_COAST);
+                    set_tacho_stop_action_inx(udsn, TACHO_COAST);
+                    set_tacho_stop_action_inx(ocsn, TACHO_COAST);
+                }
+            }
+        }
+    }
+    printf("Done.\n");
+    printf("See you later!\n");
+    exit(EXIT_SUCCESS);
 }

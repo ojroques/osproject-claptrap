@@ -34,14 +34,14 @@ int mv_history[2] = {-1, -2};
 void drop_obstacle() {
     printf("    Dropping non-movable obstacle... ");
     down_tongs(sensors_id.ultrasonic_sensor);
-    wait_tongs();
+    wait_tongs(UP_DOWN_ID);
     open_tongs();
-    wait_tongs();
+    wait_tongs(OPEN_CLOSE_ID);
     Sleep(1000);    // Wait for the ball to stop moving
     up_tongs(sensors_id.ultrasonic_sensor);
-    wait_tongs();
+    wait_tongs(UP_DOWN_ID);
     close_tongs();
-    wait_tongs();
+    wait_tongs(OPEN_CLOSE_ID);
     printf("Done.\n");
 }
 
@@ -49,13 +49,13 @@ void drop_obstacle() {
 void grab_obstacle() {
     printf("    Grabbing non-movable obstacle... ");
     open_tongs();
-    wait_tongs();
+    wait_tongs(OPEN_CLOSE_ID);
     down_tongs(sensors_id.ultrasonic_sensor);
-    wait_tongs();
+    wait_tongs(UP_DOWN_ID);
     close_tongs();
-    wait_tongs();
+    wait_tongs(OPEN_CLOSE_ID);
     up_tongs(sensors_id.ultrasonic_sensor);
-    wait_tongs();
+    wait_tongs(UP_DOWN_ID);
     printf("Done.\n");
 }
 
@@ -67,9 +67,9 @@ int obstacle_type(int *sonar_value) {
     int distance, new_distance, color;
     distance = *sonar_value;
 
-    // Move forward and stop at about 4cm of the obstacle
+    // Move forward and stop at about 3cm of the obstacle
     if (distance > DIST_COLOR) {
-        distance = distance - DIST_COLOR;
+        distance = distance - (3 * DIST_COLOR / 4);
     }
 
     forward(((float)distance) / 10.0);
@@ -214,6 +214,8 @@ int main() {
     pthread_t pos_thread;
     sensors_id = config();
 
+    signal(SIGINT, clean_exit);
+
     if (sensors_id.is_null) {
         printf("ERROR: Initialization has failed\n");
         return EXIT_FAILURE;
@@ -253,7 +255,6 @@ int main() {
     printf("Sending image to the server...\n");
     send_image();
     printf("Done.\n");
-    clean_exit();
-    printf("See you later!\n");
+    clean_exit(0);
     return EXIT_SUCCESS;
 }

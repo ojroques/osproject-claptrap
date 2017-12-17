@@ -4,8 +4,8 @@
 #include <stdint.h>
 
 #define ROTATION_SPEED             15   // A percentage of max_speed
-#define TRANSLATION_SPEED          50   // A percentage of max_speed
-#define UP_DOWN_SPEED              10
+#define TRANSLATION_SPEED          30   // A percentage of max_speed
+#define UP_DOWN_SPEED              20
 #define OPEN_CLOSE_SPEED           20
 #define LEFT_WHEEL_PORT            66
 #define RIGHT_WHEEL_PORT           67
@@ -16,9 +16,11 @@
 #define TONGS_UP_DOWN_DISTANCE     220
 #define TONGS_OPEN_CLOSE_DISTANCE  120
 #define TACHO_BUFFER_SIZE          256
+#define UP_DOWN_ID                 0
+#define OPEN_CLOSE_ID              1
 
 void wait_tachos();
-void wait_tongs();
+void wait_tongs(int id);
 void turn_left(float angle);
 void turn_right(float angle);
 void forward(float distance);

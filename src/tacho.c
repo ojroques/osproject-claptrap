@@ -40,20 +40,23 @@ void wait_tachos() {
 
 /* By Olivier.
    Wait for the tongs to stop. */
-void wait_tongs() {
+void wait_tongs(int id) {
     char tsn_state[TACHO_BUFFER_SIZE];
     char udsn_state[TACHO_BUFFER_SIZE];
     uint8_t tsn, udsn;
 
     while (ev3_tacho_init() < 1) Sleep(1000);
-    if (ev3_search_tacho_plugged_in(OPEN_CLOSE_TONG_PORT, 0, &tsn, 0)) {
-        if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT, 0, &udsn, 0)) {
-            do {
-                get_tacho_state(tsn, tsn_state, TACHO_BUFFER_SIZE);
-                get_tacho_state(udsn, udsn_state, TACHO_BUFFER_SIZE);
-                Sleep(200);
-            } while (strcmp("holding", tsn_state) && strcmp("holding", udsn_state));
-        }
+    if (id == UP_DOWN_ID && ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT, 0, &udsn, 0)) {
+        do {
+            get_tacho_state(udsn, udsn_state, TACHO_BUFFER_SIZE);
+            Sleep(200);
+        } while (strcmp("holding", udsn_state));
+    }
+    else if (id == OPEN_CLOSE_ID && ev3_search_tacho_plugged_in(OPEN_CLOSE_TONG_PORT, 0, &tsn, 0)) {
+        do {
+            get_tacho_state(tsn, tsn_state, TACHO_BUFFER_SIZE);
+            Sleep(200);
+        } while (strcmp("holding", tsn_state));
     }
 }
 
@@ -374,7 +377,7 @@ void turn_gyro(float angle, uint8_t gyro_id) {
             set_tacho_command_inx( lsn, TACHO_RUN_FOREVER );
             set_tacho_command_inx( rsn, TACHO_RUN_FOREVER );
 
-            while ((abs(abs(angle_start - current_angle) - angle)) < 2){
+            while ((abs(abs(angle_start - current_angle) - angle)) > 2){
               //if the robot goes beyond the the asked angle value go back
               if (abs(angle_start - current_angle) - angle > 0 && angle > 0){
                 set_tacho_polarity_inx( lsn, TACHO_INVERSED );
@@ -483,7 +486,7 @@ int main(int argc, char *argv[]) {
     Sleep(500);
     printf("Angle before: %d\n", get_angle(gyro_id));
     turn_gyro(90.0, gyro_id);
-    wait_tongs();
+    wait_tachos();
     Sleep(500);
     printf("Angle after: %d\n", get_angle(gyro_id));
 
