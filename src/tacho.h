@@ -13,7 +13,7 @@
 #define OPEN_CLOSE_SPEED           10
 #define LEFT_WHEEL_PORT            66
 #define RIGHT_WHEEL_PORT           67
-#define ROBOT_RADIUS               6.525
+#define ROBOT_RADIUS               4.65
 #define WHEEL_PERIMETER            17.593
 #define TACHO_BUFFER_SIZE          256
 #define TONGS_OPEN_CLOSE_DISTANCE  120

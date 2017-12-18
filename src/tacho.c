@@ -498,13 +498,15 @@ int main(int argc, char *argv[]) {
     uint8_t sonar_id, gyro_id;
     int max_speed, speed, rel_pos, distance;
 
-    if (argc != 3) {
-        printf("Usage: ./tacho ud_distance oc_distance\n");
+    if (argc != 5) {
+        printf("Usage: ./tacho ud_distance oc_distance angle radius\n");
         exit(-1);
     }
 
     int ud_distance = atoi(argv[1]);
     int oc_distance = atoi(argv[2]);
+    float angle     = atof(argv[3]);
+    float radius    = atof(argv[4]);
     ev3_sensor_init();
     ev3_search_sensor(LEGO_EV3_GYRO, &gyro_id, 0);
     ev3_search_sensor(LEGO_EV3_US, &sonar_id, 0);
@@ -571,13 +573,41 @@ int main(int argc, char *argv[]) {
     wait_tongs(OPEN_CLOSE_ID);
     printf("Done.\n");
 
+    printf("Turning left... ");
     Sleep(500);
-    printf("Angle before: %d\n", get_angle(gyro_id));
-    turn_left(90.0);
-    //turn_gyro(90.0, gyro_id);
-    wait_tachos();
-    printf("Angle after: %d\n", get_angle(gyro_id));
+    if (angle == 0) {
+        return 0;
+    }
+    uint8_t lsn;
+    uint8_t rsn;
+    int max_speed, speed;
+    int count_per_rot;
+    float rad = angle/360 * 2*M_PI;
+    int rel_pos;
 
+    while (ev3_tacho_init() < 1) Sleep(1000);
+    if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
+        if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
+            set_tacho_stop_action_inx(lsn,TACHO_HOLD);
+            set_tacho_stop_action_inx(rsn,TACHO_HOLD);
+            get_tacho_max_speed(lsn, &max_speed);
+            get_tacho_count_per_rot(lsn, &count_per_rot);
+            rel_pos = (int)((radius * rad / WHEEL_PERIMETER) * count_per_rot + 0.5);
+            speed = (int)((float)max_speed * ROTATION_SPEED / 100.0 + 0.5);
+            set_tacho_speed_sp( lsn, speed );
+            set_tacho_speed_sp( rsn, speed );
+            set_tacho_ramp_up_sp( lsn, 50 );
+            set_tacho_ramp_up_sp( rsn, 50 );
+            set_tacho_ramp_down_sp( lsn, 50 );
+            set_tacho_ramp_down_sp( rsn, 50 );
+            set_tacho_position_sp( lsn, -rel_pos );
+            set_tacho_position_sp( rsn, rel_pos );
+            set_tacho_command_inx( lsn, TACHO_RUN_TO_REL_POS );
+            set_tacho_command_inx( rsn, TACHO_RUN_TO_REL_POS );
+        }
+    }
+    wait_tachos();
+    printf("Done.");
     ev3_uninit();
 }
 
