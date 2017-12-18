@@ -26,7 +26,6 @@ void wait_tachos() {
     char rsn_state[TACHO_BUFFER_SIZE];
     uint8_t lsn, rsn;
 
-    while (ev3_tacho_init() < 1) Sleep(1000);
     if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
         if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
             do {
@@ -45,7 +44,6 @@ void wait_tongs(int id) {
     char udsn_state[TACHO_BUFFER_SIZE];
     uint8_t tsn, udsn;
 
-    while (ev3_tacho_init() < 1) Sleep(1000);
     if (id == UP_DOWN_ID && ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT, 0, &udsn, 0)) {
         do {
             get_tacho_state(udsn, udsn_state, TACHO_BUFFER_SIZE);
@@ -68,7 +66,6 @@ void turn_left(float angle) {
     uint8_t lsn;
     uint8_t rsn;
     float rad = angle/360 * 2*M_PI;
-    while (ev3_tacho_init() < 1) Sleep(1000);
     if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
         if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
             int max_speed, speed;
@@ -103,7 +100,6 @@ void turn_right(float angle){
     uint8_t lsn;
     uint8_t rsn;
     float rad = angle/360 * 2*M_PI;
-    while (ev3_tacho_init() < 1) Sleep(1000);
     if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
         if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
             int max_speed, speed;
@@ -134,7 +130,6 @@ void turn_right(float angle){
 void forward(float distance){
     uint8_t lsn;
     uint8_t rsn;
-    while (ev3_tacho_init() < 1) Sleep(1000);
     if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
         if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
             int max_speed, speed;
@@ -172,7 +167,6 @@ void forward(float distance){
 void backward(float distance){
     uint8_t lsn;
     uint8_t rsn;
-    while (ev3_tacho_init() < 1) Sleep(1000);
     if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
         if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
             int max_speed, speed;
@@ -210,7 +204,6 @@ void backward(float distance){
 void stop_moving() {
     uint8_t lsn;
     uint8_t rsn;
-    while (ev3_tacho_init() < 1) Sleep(1000);
     if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
         if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
             set_tacho_command_inx( lsn, TACHO_STOP );
@@ -224,7 +217,6 @@ void stop_moving() {
 void stop_tongs() {
     uint8_t udsn;
     uint8_t ocsn;
-    while (ev3_tacho_init() < 1) Sleep(1000);
     if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT, 0, &udsn, 0)) {
         if (ev3_search_tacho_plugged_in(OPEN_CLOSE_TONG_PORT, 0, &ocsn, 0)) {
             set_tacho_command_inx( udsn, TACHO_STOP );
@@ -241,7 +233,6 @@ void down_tongs(uint8_t sonar_id){
     // Check that the tongs can indeed move down
     if (get_avg_distance(sonar_id, NB_SENSOR_MESURE) < 50) return;
 
-    while (ev3_tacho_init() < 1) Sleep(1000);
     if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT,0, &dsn, 0 )){
         set_tacho_stop_action_inx(dsn,TACHO_HOLD);
         get_tacho_max_speed(dsn, &max_speed);
@@ -262,7 +253,6 @@ void up_tongs(uint8_t sonar_id){
     // Check that the tongs can indeed move up
     if (get_avg_distance(sonar_id, NB_SENSOR_MESURE) > 50) return;
 
-    while (ev3_tacho_init() < 1) Sleep(1000);
     if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT,0, &usn, 0 )){
         set_tacho_stop_action_inx(usn,TACHO_HOLD);
         get_tacho_max_speed(usn, &max_speed);
@@ -279,7 +269,6 @@ void up_tongs(uint8_t sonar_id){
 // Close: positive value
 void close_tongs(){
   uint8_t csn;
-  while (ev3_tacho_init() < 1) Sleep(1000);
   if (ev3_search_tacho_plugged_in(OPEN_CLOSE_TONG_PORT,0, &csn, 0 )){
       int max_speed, speed;
       int rel_pos = TONGS_OPEN_CLOSE_DISTANCE;
@@ -298,7 +287,6 @@ void close_tongs(){
 // Open: negative value
 void open_tongs(){
   uint8_t osn;
-  while (ev3_tacho_init() < 1) Sleep(1000);
   if (ev3_search_tacho_plugged_in(OPEN_CLOSE_TONG_PORT,0, &osn, 0 )){
       int max_speed, speed;
       int rel_pos = -TONGS_OPEN_CLOSE_DISTANCE;
@@ -313,51 +301,6 @@ void open_tongs(){
     }
 }
 
-//Erwan
-void turn_left_gyro(float angle, uint8_t gyro_id) {
-    if (angle == 0) {
-        return;
-    }
-    int angle_start, current_angle;
-    uint8_t lsn;
-    uint8_t rsn;
-    angle_start = get_angle(gyro_id);
-    while (ev3_tacho_init() < 1) Sleep(1000);
-    if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
-        if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
-            int max_speed, speed;
-            set_tacho_stop_action_inx(lsn,TACHO_HOLD);
-            set_tacho_stop_action_inx(rsn,TACHO_HOLD);
-            get_tacho_max_speed(lsn, &max_speed);
-            speed = (int)((float)max_speed * ROTATION_SPEED / 100.0 + 0.5);
-            set_tacho_speed_sp( lsn, speed );
-            set_tacho_speed_sp( rsn, speed );
-            set_tacho_ramp_up_sp( lsn, 50 );
-            set_tacho_ramp_up_sp( rsn, 50 );
-            set_tacho_ramp_down_sp( lsn, 50 );
-            set_tacho_ramp_down_sp( rsn, 50 );
-            set_tacho_polarity_inx( lsn, TACHO_INVERSED );
-            set_tacho_polarity_inx( rsn, TACHO_NORMAL );
-            current_angle = get_angle(gyro_id);
-            set_tacho_command_inx( lsn, TACHO_RUN_FOREVER );
-            set_tacho_command_inx( rsn, TACHO_RUN_FOREVER );
-            while ((abs(abs(angle_start - current_angle) - angle)) < 2){
-              if (abs(angle_start - current_angle) - angle < 0){
-                set_tacho_polarity_inx( lsn, TACHO_INVERSED );
-                set_tacho_polarity_inx( rsn, TACHO_NORMAL );
-              }
-              else{
-                set_tacho_polarity_inx( lsn, TACHO_NORMAL );
-                set_tacho_polarity_inx( rsn, TACHO_INVERSED );
-              }
-            }
-            set_tacho_command_inx( lsn, TACHO_STOP );
-            set_tacho_command_inx( rsn, TACHO_STOP );
-            set_tacho_polarity_inx( lsn, TACHO_NORMAL );
-            set_tacho_polarity_inx( rsn, TACHO_NORMAL );
-        }
-    }
-}
 
 //Erwan
 void turn_gyro_left(float angle, uint8_t gyro_id) {
@@ -367,10 +310,7 @@ void turn_gyro_left(float angle, uint8_t gyro_id) {
   int angle_start, current_angle;
   uint8_t lsn;
   uint8_t rsn;
-  while (ev3_tacho_init() < 1) Sleep(1000);
 
-  //NOTE : don't use initialisation each time you want to use tacho !!!!
-  //config it once and for all !!
   if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
       if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
           int rspeed,lspeed,max_speed;
@@ -426,7 +366,7 @@ void turn_gyro_left(float angle, uint8_t gyro_id) {
   }
 }
 
-//Erwan
+//Nathan
 //Make the robot turn based on angle from gyro sensor
 //angle to the left is positive angle
 void turn_gyro(float angle, uint8_t gyro_id) {
@@ -441,7 +381,6 @@ void turn_gyro(float angle, uint8_t gyro_id) {
     int angle_start, current_angle;
     uint8_t lsn;
     uint8_t rsn;
-    while (ev3_tacho_init() < 1) Sleep(1000);
 
     //NOTE : don't use initialisation each time you want to use tacho !!!!
     //config it once and for all !!
