@@ -14,6 +14,8 @@
 #include "ev3_port.h"
 #include "ev3_tacho.h"
 
+#define TACHO_DEBUG true
+
 #ifdef TACHO_DEBUG
 coordinate_t coordinate = {60, 30, 90, PTHREAD_MUTEX_INITIALIZER};
 volatile int quit_request = 0;   // To stop the position thread
@@ -402,6 +404,11 @@ void turn_gyro_left(float angle, uint8_t gyro_id) {
 //Make the robot turn based on angle from gyro sensor
 //angle to the left is positive angle
 void turn_gyro(float angle, uint8_t gyro_id) {
+
+    int range_angle = 2;
+    int speed_max = 40;
+    int speed_min = 18;
+
     if (angle == 0) {
         return;
     }
@@ -423,30 +430,45 @@ void turn_gyro(float angle, uint8_t gyro_id) {
             printf("angle start = %d \n", angle_start);
             current_angle = angle_start;
             printf("current angle = %d \n", current_angle);
+
             //duty_cycle is the roughly the percentage of power given to the tacho
             int duty_cycle = angle - (current_angle - angle_start);
-            if (duty_cycle > 15 || duty_cycle < -15){
-              duty_cycle = duty_cycle / abs(duty_cycle) * 15;
+
+            if (duty_cycle > speed_max || duty_cycle < ((-1) * speed_max) ){
+              duty_cycle = duty_cycle / abs(duty_cycle) * speed_max;
             }
+            if (duty_cycle > ((-1) * speed_min) && duty_cycle < speed_min ){
+              duty_cycle = duty_cycle / abs(duty_cycle) * speed_min;
+            }
+            printf("new duty cycle = %d \n", duty_cycle);
 
             //set the tacho's rotation
-            set_tacho_duty_cycle_sp( lsn, (-1) * duty_cycle );
-            set_tacho_duty_cycle_sp( rsn, duty_cycle );
+            set_tacho_duty_cycle_sp( lsn, duty_cycle );
+            set_tacho_duty_cycle_sp( rsn, (-1) * duty_cycle );
+
+            //launch tachos
             set_tacho_command_inx( lsn, TACHO_RUN_DIRECT );
             set_tacho_command_inx( rsn, TACHO_RUN_DIRECT );
 
-            while ((abs(abs(angle_start - current_angle) - angle)) > 2){
+            while ((abs(abs(angle_start - current_angle) - angle)) > range_angle){
+
               //recompute duty cycle value
               duty_cycle = angle - (current_angle - angle_start);
-              if (duty_cycle > 15 || duty_cycle < -15 ){
-                duty_cycle = duty_cycle / abs(duty_cycle) * 15;
+              if (duty_cycle > speed_max || duty_cycle < ((-1) * speed_max) ){
+                duty_cycle = duty_cycle / abs(duty_cycle) * speed_max;
               }
+              if (duty_cycle > ((-1) * speed_min) && duty_cycle < speed_min ){
+                duty_cycle = duty_cycle / abs(duty_cycle) * speed_min;
+              }
+              printf("new duty cycle = %d \n", duty_cycle);
+
               //update duty cycle value
-              set_tacho_duty_cycle_sp( lsn, (-1) * duty_cycle );
-              set_tacho_duty_cycle_sp( rsn, duty_cycle );
-              Sleep(100);
+              set_tacho_duty_cycle_sp( lsn, duty_cycle );
+              set_tacho_duty_cycle_sp( rsn, (-1) * duty_cycle );
+              Sleep(50);
               //update current angle
               current_angle = get_angle(gyro_id);
+              printf("delta angle = %d \n", (current_angle - angle_start));
             }
             set_tacho_command_inx( lsn, TACHO_STOP );
             set_tacho_command_inx( rsn, TACHO_STOP );
@@ -501,7 +523,7 @@ int main(int argc, char *argv[]) {
     }
 
     //UP TONGS
-    printf("Up / Down tongs... ");
+/*    printf("Up / Down tongs... ");
     rel_pos = ud_distance;
     distance = get_avg_distance(sonar_id, 5);
     if (distance < 40 && ud_distance < 0) {
@@ -521,9 +543,9 @@ int main(int argc, char *argv[]) {
     set_tacho_position_sp( udsn, rel_pos );
     set_tacho_command_inx( udsn, TACHO_RUN_TO_REL_POS );
     printf("Done.\n");
-
+*/
     // OPEN TONGS
-    printf("Opening / Closing tongs... ");
+/*    printf("Opening / Closing tongs... ");
     rel_pos = oc_distance;
     get_tacho_max_speed(ocsn, &max_speed);
     speed = (int)((float)max_speed * OPEN_CLOSE_SPEED / 100.0 + 0.5);
@@ -533,12 +555,12 @@ int main(int argc, char *argv[]) {
     set_tacho_position_sp( ocsn, rel_pos );
     set_tacho_command_inx( ocsn, TACHO_RUN_TO_REL_POS );
     printf("Done.\n");
-
+*/
     Sleep(500);
     printf("Angle before: %d\n", get_angle(gyro_id));
     turn_gyro(90.0, gyro_id);
-    wait_tachos();
-    Sleep(500);
+    //wait_tachos();
+    Sleep(10000);
     printf("Angle after: %d\n", get_angle(gyro_id));
 
     ev3_uninit();
