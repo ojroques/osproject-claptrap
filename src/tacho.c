@@ -14,8 +14,6 @@
 #include "ev3_port.h"
 #include "ev3_tacho.h"
 
-#define TACHO_DEBUG true
-
 #ifdef TACHO_DEBUG
 coordinate_t coordinate = {60, 30, 90, PTHREAD_MUTEX_INITIALIZER};
 volatile int quit_request = 0;   // To stop the position thread
@@ -207,13 +205,27 @@ void stop_moving() {
     }
 }
 
+/* By Olivier
+  Stop tongs. */
+void stop_tongs() {
+    uint8_t udsn;
+    uint8_t ocsn;
+    while (ev3_tacho_init() < 1) Sleep(1000);
+    if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT, 0, &udsn, 0)) {
+        if (ev3_search_tacho_plugged_in(OPEN_CLOSE_TONG_PORT, 0, &ocsn, 0)) {
+            set_tacho_command_inx( udsn, TACHO_STOP );
+            set_tacho_command_inx( ocsn, TACHO_STOP );
+        }
+    }
+}
+
 //Erwan
 // Down: negative value
 void down_tongs(uint8_t sonar_id){
     int max_speed, speed;
     uint8_t dsn;
     // Check that the tongs can indeed move down
-    if (get_avg_distance(sonar_id, 5) < 40) return;
+    if (get_avg_distance(sonar_id, NB_SENSOR_MESURE) < 50) return;
 
     while (ev3_tacho_init() < 1) Sleep(1000);
     if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT,0, &dsn, 0 )){
@@ -234,7 +246,7 @@ void up_tongs(uint8_t sonar_id){
     int max_speed, speed;
     uint8_t usn;
     // Check that the tongs can indeed move up
-    if (get_avg_distance(sonar_id, 5) > 40) return;
+    if (get_avg_distance(sonar_id, NB_SENSOR_MESURE) > 50) return;
 
     while (ev3_tacho_init() < 1) Sleep(1000);
     if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT,0, &usn, 0 )){
@@ -427,9 +439,9 @@ void turn_gyro(float angle, uint8_t gyro_id) {
 
             //init angle start angle
             angle_start = get_angle(gyro_id);
-            printf("angle start = %d \n", angle_start);
+            //printf("angle start = %d \n", angle_start);
             current_angle = angle_start;
-            printf("current angle = %d \n", current_angle);
+            //printf("current angle = %d \n", current_angle);
 
             //duty_cycle is the roughly the percentage of power given to the tacho
             int duty_cycle = angle - (current_angle - angle_start);
@@ -440,7 +452,7 @@ void turn_gyro(float angle, uint8_t gyro_id) {
             if (duty_cycle > ((-1) * speed_min) && duty_cycle < speed_min ){
               duty_cycle = duty_cycle / abs(duty_cycle) * speed_min;
             }
-            printf("new duty cycle = %d \n", duty_cycle);
+            //printf("new duty cycle = %d \n", duty_cycle);
 
             //set the tacho's rotation
             set_tacho_duty_cycle_sp( lsn, duty_cycle );
@@ -460,7 +472,7 @@ void turn_gyro(float angle, uint8_t gyro_id) {
               if (duty_cycle > ((-1) * speed_min) && duty_cycle < speed_min ){
                 duty_cycle = duty_cycle / abs(duty_cycle) * speed_min;
               }
-              printf("new duty cycle = %d \n", duty_cycle);
+              //printf("new duty cycle = %d \n", duty_cycle);
 
               //update duty cycle value
               set_tacho_duty_cycle_sp( lsn, duty_cycle );
@@ -468,7 +480,7 @@ void turn_gyro(float angle, uint8_t gyro_id) {
               Sleep(50);
               //update current angle
               current_angle = get_angle(gyro_id);
-              printf("delta angle = %d \n", (current_angle - angle_start));
+              // printf("delta angle = %d \n", (current_angle - angle_start));
             }
             set_tacho_command_inx( lsn, TACHO_STOP );
             set_tacho_command_inx( rsn, TACHO_STOP );
@@ -514,18 +526,19 @@ int main(int argc, char *argv[]) {
             set_tacho_stop_action_inx(ocsn, TACHO_HOLD);
             printf("Done.\n");
         } else {
-            printf("Error.\n");
+            printf("    Open / Close tacho ERR\n");
             exit(-1);
         }
     } else {
-        printf("Error.\n");
+        printf("    Up/ Down tacho ERR\n");
         exit(-1);
     }
 
     //UP TONGS
-/*    printf("Up / Down tongs... ");
+    printf("Up / Down tongs... ");
     rel_pos = ud_distance;
-    distance = get_avg_distance(sonar_id, 5);
+    distance = get_avg_distance(sonar_id, NB_SENSOR_MESURE);
+    printf("Distance: %d\n", distance);
     if (distance < 40 && ud_distance < 0) {
         printf("Error!\n");
         exit(EXIT_FAILURE);
@@ -542,10 +555,11 @@ int main(int argc, char *argv[]) {
     set_tacho_ramp_down_sp( udsn, 100 );
     set_tacho_position_sp( udsn, rel_pos );
     set_tacho_command_inx( udsn, TACHO_RUN_TO_REL_POS );
+    wait_tongs(UP_DOWN_ID);
     printf("Done.\n");
-*/
+
     // OPEN TONGS
-/*    printf("Opening / Closing tongs... ");
+    printf("Opening / Closing tongs... ");
     rel_pos = oc_distance;
     get_tacho_max_speed(ocsn, &max_speed);
     speed = (int)((float)max_speed * OPEN_CLOSE_SPEED / 100.0 + 0.5);
@@ -554,13 +568,14 @@ int main(int argc, char *argv[]) {
     set_tacho_ramp_down_sp( ocsn, 100 );
     set_tacho_position_sp( ocsn, rel_pos );
     set_tacho_command_inx( ocsn, TACHO_RUN_TO_REL_POS );
+    wait_tongs(OPEN_CLOSE_ID);
     printf("Done.\n");
-*/
+
     Sleep(500);
     printf("Angle before: %d\n", get_angle(gyro_id));
-    turn_gyro(90.0, gyro_id);
-    //wait_tachos();
-    Sleep(10000);
+    turn_left(90.0);
+    //turn_gyro(90.0, gyro_id);
+    wait_tachos();
     printf("Angle after: %d\n", get_angle(gyro_id));
 
     ev3_uninit();

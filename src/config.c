@@ -29,13 +29,13 @@ int config_tacho(uint8_t sonar_id) {
     printf("Initializing tachos...\n");
     for (int i = 0; i < 5 && ev3_tacho_init() < 1; i++) Sleep(1000);
     if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
-        printf("    Left tacho OK\n");
+        printf("    [OK] Left tacho\n");
         if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
-            printf("    Right tacho OK\n");
+            printf("    [OK] Right tacho\n");
             if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT, 0, &udsn, 0)) {
-                printf("    Up / Down tacho OK\n");
+                printf("    [OK] Up / Down tacho\n");
                 if (ev3_search_tacho_plugged_in(OPEN_CLOSE_TONG_PORT, 0, &ocsn, 0)) {
-                    printf("    Open / Close tacho OK\n");
+                    printf("    [OK] Open / Close tacho\n");
                     set_tacho_stop_action_inx(lsn, TACHO_HOLD);
                     set_tacho_stop_action_inx(rsn, TACHO_HOLD);
                     up_tongs(sonar_id);
@@ -46,7 +46,7 @@ int config_tacho(uint8_t sonar_id) {
             }
         }
     }
-    printf("ERROR.\n");
+    printf("    ERROR.\n");
     return 0;
 }
 
@@ -97,6 +97,7 @@ void clean_exit(int signum) {
         }
     }
     stop_moving();
+    stop_tongs();
     printf("Done.\n");
     printf("See you later!\n");
     exit(EXIT_SUCCESS);

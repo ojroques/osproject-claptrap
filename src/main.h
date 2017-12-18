@@ -13,7 +13,6 @@
 #define EAST              0
 #define DIST_TRESHOLD     200   // In millimeters
 #define DIST_COLOR        40    // In millimeters
-#define NB_SENSOR_MESURE  5
 
 void grab_obstacle();
 int obstacle_type(int *sonar_value);

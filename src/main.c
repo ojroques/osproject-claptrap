@@ -190,17 +190,20 @@ void check_obstacle() {
 void move(int direction, int mesures[NB_DIRECTION]) {
     int travel_distance, rotation;
 
+    // Calculate the angle from current direction to chosen direction
     rotation = direction - current_direction;
     if (rotation < 0) {
         rotation = rotation + NB_DIRECTION;
     }
 
+    // Rotate accordingly
     printf("    - Rotating by %d deg... ", ANGLES[rotation]);
     turn_left((float)ANGLES[rotation]);
     wait_tachos();
     printf("Done.\n");
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
 
+    // Go forward until an obstacle is detected
     travel_distance = mesures[direction] - DIST_TRESHOLD;
     printf("    - Moving by %dmm and updating history... ", travel_distance);
     forward((float)travel_distance / 10.0);

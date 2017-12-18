@@ -10,7 +10,7 @@
 #define UP_DOWN_SPEED              20
 #define OPEN_CLOSE_ID              1
 #define OPEN_CLOSE_TONG_PORT       68
-#define OPEN_CLOSE_SPEED           20
+#define OPEN_CLOSE_SPEED           10
 #define LEFT_WHEEL_PORT            66
 #define RIGHT_WHEEL_PORT           67
 #define ROBOT_RADIUS               6.525
@@ -26,10 +26,13 @@ void turn_right(float angle);
 void forward(float distance);
 void backward(float distance);
 void stop_moving();
+void stop_tongs();
 void down_tongs(uint8_t sonar_id);
 void up_tongs(uint8_t sonar_id);
 void close_tongs();
 void open_tongs();
 void turn_left_gyro(float angle, uint8_t gyro_id);
+void turn_gyro_left(float angle, uint8_t gyro_id);
+void turn_gyro(float angle, uint8_t gyro_id);
 
 #endif
