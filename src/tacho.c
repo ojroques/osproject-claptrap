@@ -138,12 +138,13 @@ void forward(float distance){
     if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
         if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
             int max_speed, speed;
-            int count_per_rot;
+            int count_per_rot, position_start, current_position, temp;
             int rel_pos;
             set_tacho_stop_action_inx(lsn,TACHO_HOLD);
             set_tacho_stop_action_inx(rsn,TACHO_HOLD);
             get_tacho_max_speed(lsn, &max_speed);
             get_tacho_count_per_rot(lsn, &count_per_rot);
+            get_tacho_position(lsn, &position_start);
             rel_pos = (int)((distance / WHEEL_PERIMETER) * count_per_rot + 0.5);
             speed = (int)((float)max_speed * TRANSLATION_SPEED / 100.0 + 0.5);
             set_tacho_speed_sp( lsn, speed );
@@ -156,7 +157,13 @@ void forward(float distance){
             set_tacho_position_sp( rsn, rel_pos );
             set_tacho_command_inx( lsn, TACHO_RUN_TO_REL_POS );
             set_tacho_command_inx( rsn, TACHO_RUN_TO_REL_POS );
-            update_coordinate(distance);
+            get_tacho_position(lsn, &current_position);
+            while((current_position-position_start) != rel_pos){
+              temp = current_position;
+              get_tacho_position(lsn, &current_position);
+              update_coordinate(WHEEL_PERIMETER*abs(current_position - temp)/count_per_rot);
+              Sleep(100);
+            }
         }
     }
 }
@@ -169,12 +176,13 @@ void backward(float distance){
     if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
         if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
             int max_speed, speed;
-            int count_per_rot;
+            int count_per_rot, position_start, current_position, temp;
             int rel_pos;
             set_tacho_stop_action_inx(lsn,TACHO_HOLD);
             set_tacho_stop_action_inx(rsn,TACHO_HOLD);
             get_tacho_max_speed(lsn, &max_speed);
             get_tacho_count_per_rot(lsn, &count_per_rot);
+            get_tacho_position(lsn, &position_start);
             rel_pos = (int)((distance / WHEEL_PERIMETER) * count_per_rot + 0.5);
             speed = (int)((float)max_speed * TRANSLATION_SPEED / 100.0 + 0.5);
             set_tacho_speed_sp( lsn, speed );
@@ -187,7 +195,13 @@ void backward(float distance){
             set_tacho_position_sp( rsn, -rel_pos );
             set_tacho_command_inx( lsn, TACHO_RUN_TO_REL_POS );
             set_tacho_command_inx( rsn, TACHO_RUN_TO_REL_POS );
-            update_coordinate(-distance);
+            get_tacho_position(lsn, &current_position);
+            while((current_position-position_start) != rel_pos){
+              temp = current_position;
+              get_tacho_position(lsn, &current_position);
+              update_coordinate(WHEEL_PERIMETER*abs(current_position - temp)/count_per_rot);
+              Sleep(100);
+            }
         }
     }
 }
