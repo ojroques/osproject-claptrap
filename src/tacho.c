@@ -192,7 +192,7 @@ void backward(float distance){
     }
 }
 /* By Olivier
-  Stop both tachos. */
+  Stop both wheels. */
 void stop_moving() {
     uint8_t lsn;
     uint8_t rsn;

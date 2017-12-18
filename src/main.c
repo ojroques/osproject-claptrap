@@ -119,6 +119,7 @@ void analyse_env(int mesures[NB_DIRECTION]) {
         } else {
             printf("None\n");
         }
+
         mesures[current_direction] = sonar_value;
         if (MAIN_DEBUG) getchar();    // PAUSE PROGRAM
         if (i < NB_DIRECTION - 1) {   // To avoid returning to the initial direction
@@ -133,6 +134,7 @@ or -1 if there are none */
 int choose_direction(int mesures[NB_DIRECTION]) {
     int i, direction, is_looping;
     direction = -1;
+
     for (i = 0; i < NB_DIRECTION; i++) {
         // is_looping indicates if direction i would result in a looping route
         is_looping = (mv_history[0] == mv_history[1] && i == mv_history[1]);
@@ -142,6 +144,7 @@ int choose_direction(int mesures[NB_DIRECTION]) {
             }
         }
     }
+
     printf("    - CURRENT DIRECTION: %s\n", DIRECTIONS_NAME[current_direction]);
     if (direction != -1) {
         printf("    - CHOSEN DIRECTION: %s\n", DIRECTIONS_NAME[direction]);
@@ -191,6 +194,7 @@ void move(int direction, int mesures[NB_DIRECTION]) {
     if (rotation < 0) {
         rotation = rotation + NB_DIRECTION;
     }
+
     printf("    - Rotating by %d deg... ", ANGLES[rotation]);
     turn_left((float)ANGLES[rotation]);
     wait_tachos();
@@ -228,9 +232,11 @@ int main() {
 
     printf("Press any key to begin exploration\n");
     getchar();
+
     drop_obstacle();
     start_time = time(NULL);
     printf("********** START OF EXPLORATION  **********\n\n");
+
     while (difftime(time(NULL), start_time) < EXPLORATION_TIME) {
         printf("[1] ENVIRONMENT ANALYSIS\n");
         analyse_env(mesures);
