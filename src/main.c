@@ -21,14 +21,15 @@ Eurecom, 2017 - 2018. */
 
 #define MAIN_DEBUG 0
 
-coordinate_t coordinate = {60, 30, 90, PTHREAD_MUTEX_INITIALIZER};
-volatile int quit_request = 0;   // To stop the position thread
-sensors_t sensors_id;
+coordinate_t coordinate                   = {60, 30, 90, PTHREAD_MUTEX_INITIALIZER};
+volatile int quit_request                 = 0;   // To stop the position thread
+sensors_t sensors_id                      = {0, 0, 0, 0, 0};
+tachos_t tachos_id                        = {0, 0, 0, 0};
 // Angles of {EAST, NORTH, WEST, SOUTH}
-const int ANGLES[NB_DIRECTION] = {0, 90, 180, -90};
+const int ANGLES[NB_DIRECTION]            = {0, 90, 180, -90};
 const char *DIRECTIONS_NAME[NB_DIRECTION] = {"E", "N", "W", "S"};
-int current_direction = NORTH;
-int mv_history[2] = {-1, -2};
+int current_direction                     = NORTH;
+int mv_history[2]                         = {-1, -2};
 
 /* Drop non-movable obstacle. */
 void drop_obstacle() {
@@ -215,15 +216,10 @@ void move(int direction, int mesures[NB_DIRECTION]) {
 }
 
 int main() {
-    int chosen_direction;
-    int mesures[NB_DIRECTION] = {0};
-    time_t start_time;
-    pthread_t pos_thread;
-    sensors_id = config();
-
     signal(SIGINT, clean_exit);
+    pthread_t pos_thread;
 
-    if (sensors_id.is_null) {
+    if (!config_all(&sensors_id, &tachos_id)) {
         printf("ERROR: Initialization has failed\n");
         return EXIT_FAILURE;
     }
@@ -233,10 +229,13 @@ int main() {
         return EXIT_FAILURE;
     }
 
+    time_t start_time;
+    int mesures[NB_DIRECTION] = {0};
+    int chosen_direction;
+
     printf("Press any key to begin exploration\n");
     getchar();
 
-    drop_obstacle();
     start_time = time(NULL);
     printf("********** START OF EXPLORATION  **********\n\n");
 
@@ -254,6 +253,7 @@ int main() {
     }
 
     printf("********** END OF EXPLORATION **********\n\n");
+
     printf("Killing position thread...");
     quit_request = 1;
     if (!pthread_join(pos_thread, NULL)) {

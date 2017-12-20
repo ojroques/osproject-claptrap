@@ -6,13 +6,9 @@
 #define ROTATION_SPEED             15   // A percentage of max_speed
 #define TRANSLATION_SPEED          30   // A percentage of max_speed
 #define UP_DOWN_ID                 0
-#define UP_DOWN_TONG_PORT          65
 #define UP_DOWN_SPEED              20
 #define OPEN_CLOSE_ID              1
-#define OPEN_CLOSE_TONG_PORT       68
 #define OPEN_CLOSE_SPEED           10
-#define LEFT_WHEEL_PORT            66
-#define RIGHT_WHEEL_PORT           67
 #define ROBOT_RADIUS               4.65
 #define WHEEL_PERIMETER            17.593
 #define TACHO_BUFFER_SIZE          256
