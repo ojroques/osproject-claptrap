@@ -34,29 +34,7 @@ int mv_history[2]                         = {-1, -2};
 /* Drop non-movable obstacle. */
 void drop_obstacle() {
     printf("    Dropping non-movable obstacle... ");
-    down_tongs(sensors_id.ultrasonic_sensor);
-    wait_tongs(UP_DOWN_ID);
-    open_tongs();
-    wait_tongs(OPEN_CLOSE_ID);
-    Sleep(1000);    // Wait for the ball to stop moving
-    up_tongs(sensors_id.ultrasonic_sensor);
-    wait_tongs(UP_DOWN_ID);
-    close_tongs();
-    wait_tongs(OPEN_CLOSE_ID);
-    printf("Done.\n");
-}
-
-/* Grab non-movable obstacle. */
-void grab_obstacle() {
-    printf("    Grabbing non-movable obstacle... ");
-    open_tongs();
-    wait_tongs(OPEN_CLOSE_ID);
-    down_tongs(sensors_id.ultrasonic_sensor);
-    wait_tongs(UP_DOWN_ID);
-    close_tongs();
-    wait_tongs(OPEN_CLOSE_ID);
-    up_tongs(sensors_id.ultrasonic_sensor);
-    wait_tongs(UP_DOWN_ID);
+    // TODO: Rewrite function
     printf("Done.\n");
 }
 
@@ -73,27 +51,26 @@ int obstacle_type(int *sonar_value) {
         distance = distance - (3 * DIST_COLOR / 4);
     }
 
-    forward(((float)distance) / 10.0);
-    wait_tachos();
+    translation(tachos_id.right_wheel, tachos_id.left_wheel, distance);
+    waitncheck_wheels(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.ultrasonic_sensor);
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
 
     // Check if there is really an obstacle
     new_distance = get_avg_distance(sensors_id.ultrasonic_sensor, NB_SENSOR_MESURE);
     *sonar_value = distance + new_distance; // Update sonar_value with a more reliable value
     if (new_distance > DIST_COLOR) {
-        backward(((float)distance) / 10.0);
-        wait_tachos();
+        translation(tachos_id.right_wheel, tachos_id.left_wheel, -distance);
+        waitncheck_wheels(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.ultrasonic_sensor);
         printf("No obstacle (dist: %d)\n", new_distance);
         return NO_OBST;
     }
 
     // Get the obstacle color
     color = get_avg_color(sensors_id.color_sensor, NB_SENSOR_MESURE);
-    backward(((float)distance) / 10.0);
-    wait_tachos();
+    translation(tachos_id.right_wheel, tachos_id.left_wheel, -distance);
+    waitncheck_wheels(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.ultrasonic_sensor);
     if (color == RED_ID) {
         printf("Movable obstacle (color: %d)\n", color);
-        // grab_obstacle();
         return MV_OBST;
     }
     printf("Non-movable obstacle (color: %d)\n", color);
@@ -124,8 +101,8 @@ void analyse_env(int mesures[NB_DIRECTION]) {
         mesures[current_direction] = sonar_value;
         if (MAIN_DEBUG) getchar();    // PAUSE PROGRAM
         if (i < NB_DIRECTION - 1) {   // To avoid returning to the initial direction
-            turn_left(90.0);
-            wait_tachos();
+            rotation(tachos_id.right_wheel, tachos_id.left_wheel, 90);
+            wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
         }
     }
 }
@@ -138,7 +115,7 @@ int choose_direction(int mesures[NB_DIRECTION]) {
 
     for (i = 0; i < NB_DIRECTION; i++) {
         // is_looping indicates if direction i would result in a looping route
-        is_looping = (mv_history[0] == mv_history[1] && i == mv_history[1]);
+        is_looping = (mv_history[1] == (mv_history[0] + 2) % NB_DIRECTION && i == mv_history[0]);
         if (mesures[i] >= DIST_TRESHOLD && !is_looping) {
             if (direction == -1 || mesures[i] > mesures[direction]) {
                 direction = i;
@@ -164,51 +141,28 @@ void update_history(int new_direction) {
     mv_history[0] = new_direction;
 }
 
-/* While moving, this function checks if there is an obstacle and stop tachos
-   if indeed there is one. */
-void check_obstacle() {
-    int dist_available;
-    char lsn_state[TACHO_BUFFER_SIZE];
-    char rsn_state[TACHO_BUFFER_SIZE];
-    uint8_t lsn, rsn;
-
-    ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0);
-    ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0);
-
-    do {
-        dist_available = get_avg_distance(sensors_id.ultrasonic_sensor, NB_SENSOR_MESURE);
-        if (dist_available < DIST_TRESHOLD) {
-            stop_moving();
-            break;
-        }
-        get_tacho_state(lsn, lsn_state, TACHO_BUFFER_SIZE);
-        get_tacho_state(rsn, rsn_state, TACHO_BUFFER_SIZE);
-        Sleep(200);
-    } while (strcmp("holding", lsn_state) && strcmp("holding", rsn_state));
-}
-
 /* Rotate and move 20cm forward in the given direction */
 void move(int direction, int mesures[NB_DIRECTION]) {
-    int travel_distance, rotation;
+    int travel_distance, ang;
 
     // Calculate the angle from current direction to chosen direction
-    rotation = direction - current_direction;
-    if (rotation < 0) {
-        rotation = rotation + NB_DIRECTION;
+    ang = direction - current_direction;
+    if (ang < 0) {
+        ang = ang + NB_DIRECTION;
     }
 
     // Rotate accordingly
-    printf("    - Rotating by %d deg... ", ANGLES[rotation]);
-    turn_left((float)ANGLES[rotation]);
-    wait_tachos();
+    printf("    - Rotating by %d deg... ", ANGLES[ang]);
+    rotation(tachos_id.right_wheel, tachos_id.left_wheel, ANGLES[ang]);
+    wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
     printf("Done.\n");
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
 
     // Go forward until an obstacle is detected
     travel_distance = mesures[direction] - DIST_TRESHOLD;
     printf("    - Moving by %dmm and updating history... ", travel_distance);
-    forward((float)travel_distance / 10.0);
-    check_obstacle();
+    translation(tachos_id.right_wheel, tachos_id.left_wheel, travel_distance);
+    waitncheck_wheels(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.ultrasonic_sensor);
     update_history(direction);
     printf("Done.\n");
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM

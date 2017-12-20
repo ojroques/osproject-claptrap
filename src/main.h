@@ -14,7 +14,7 @@
 #define DIST_TRESHOLD     200   // In millimeters
 #define DIST_COLOR        40    // In millimeters
 
-void grab_obstacle();
+void drop_obstacle();
 int obstacle_type(int *sonar_value);
 void analyse_env(int mesures[NB_DIRECTION]);
 int choose_direction(int mesures[NB_DIRECTION]);

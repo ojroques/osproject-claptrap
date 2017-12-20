@@ -19,473 +19,155 @@ coordinate_t coordinate = {60, 30, 90, PTHREAD_MUTEX_INITIALIZER};
 volatile int quit_request = 0;   // To stop the position thread
 #endif
 
-/* By Olivier.
-   Wait for the tachos to stop. */
-void wait_tachos() {
-    char lsn_state[TACHO_BUFFER_SIZE];
-    char rsn_state[TACHO_BUFFER_SIZE];
-    uint8_t lsn, rsn;
-
-    while (ev3_tacho_init() < 1) Sleep(1000);
-    if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
-        if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
-            do {
-                get_tacho_state(lsn, lsn_state, TACHO_BUFFER_SIZE);
-                get_tacho_state(rsn, rsn_state, TACHO_BUFFER_SIZE);
-                Sleep(200);
-            } while (strcmp("holding", lsn_state) && strcmp("holding", rsn_state));
-        }
+/* By Olivier
+  Stop given tachos. */
+void stop_tachos(uint8_t *tachos_id, int size) {
+    int i;
+    for (i = 0; i < size; i++) {
+        set_tacho_command_inx(tachos_id[i], TACHO_STOP );
     }
 }
 
 /* By Olivier.
-   Wait for the tongs to stop. */
-void wait_tongs(int id) {
-    char tsn_state[TACHO_BUFFER_SIZE];
-    char udsn_state[TACHO_BUFFER_SIZE];
-    uint8_t tsn, udsn;
+   Wait for the given tachos to stop. */
+void wait_wheels(uint8_t right_wheel, uint8_t left_wheel) {
+    char right_state[TACHO_BUFFER_SIZE];
+    char left_state[TACHO_BUFFER_SIZE];
+    do {
+        get_tacho_state(right_wheel, right_state, TACHO_BUFFER_SIZE);
+        get_tacho_state(left_wheel, left_state, TACHO_BUFFER_SIZE);
+        Sleep(200);
+    } while (strcmp("holding", right_state) && strcmp("holding", left_state));
+}
 
-    while (ev3_tacho_init() < 1) Sleep(1000);
-    if (id == UP_DOWN_ID && ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT, 0, &udsn, 0)) {
-        do {
-            get_tacho_state(udsn, udsn_state, TACHO_BUFFER_SIZE);
-            Sleep(200);
-        } while (strcmp("holding", udsn_state));
-    }
-    else if (id == OPEN_CLOSE_ID && ev3_search_tacho_plugged_in(OPEN_CLOSE_TONG_PORT, 0, &tsn, 0)) {
-        do {
-            get_tacho_state(tsn, tsn_state, TACHO_BUFFER_SIZE);
-            Sleep(200);
-        } while (strcmp("holding", tsn_state));
-    }
+/* By Olivier.
+   While moving, this function checks if there is an obstacle and stop tachos
+   if indeed there is one. */
+void waitncheck_wheels(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasonic_id) {
+    // TODO: Write this function
 }
 
 //Erwan
-void turn_left(float angle) {
-    if (angle == 0) {
-        return;
-    }
-    uint8_t lsn;
-    uint8_t rsn;
-    float rad = angle/360 * 2*M_PI;
-    while (ev3_tacho_init() < 1) Sleep(1000);
-    if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
-        if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
-            int max_speed, speed;
-            int count_per_rot;
-            int rel_pos;
-            set_tacho_stop_action_inx(lsn,TACHO_HOLD);
-            set_tacho_stop_action_inx(rsn,TACHO_HOLD);
-            get_tacho_max_speed(lsn, &max_speed);
-            get_tacho_count_per_rot(lsn, &count_per_rot);
-            rel_pos = (int)((ROBOT_RADIUS * rad / WHEEL_PERIMETER) * count_per_rot + 0.5);
-            speed = (int)((float)max_speed * ROTATION_SPEED / 100.0 + 0.5);
-            set_tacho_speed_sp( lsn, speed );
-            set_tacho_speed_sp( rsn, speed );
-            set_tacho_ramp_up_sp( lsn, 50 );
-            set_tacho_ramp_up_sp( rsn, 50 );
-            set_tacho_ramp_down_sp( lsn, 50 );
-            set_tacho_ramp_down_sp( rsn, 50 );
-            set_tacho_position_sp( lsn, -rel_pos );
-            set_tacho_position_sp( rsn, rel_pos );
-            set_tacho_command_inx( lsn, TACHO_RUN_TO_REL_POS );
-            set_tacho_command_inx( rsn, TACHO_RUN_TO_REL_POS );
-            update_theta(angle);
-        }
-    }
-}
+void translation(uint8_t right_wheel, uint8_t left_wheel, int distance) {
+    if (!distance) return;
 
-//Erwan
-void turn_right(float angle){
-    if (angle == 0) {
-        return;
-    }
-    uint8_t lsn;
-    uint8_t rsn;
-    float rad = angle/360 * 2*M_PI;
-    while (ev3_tacho_init() < 1) Sleep(1000);
-    if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
-        if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
-            int max_speed, speed;
-            int count_per_rot;
-            int rel_pos;
-            set_tacho_stop_action_inx(lsn,TACHO_HOLD);
-            set_tacho_stop_action_inx(rsn,TACHO_HOLD);
-            get_tacho_max_speed(lsn, &max_speed);
-            get_tacho_count_per_rot(lsn, &count_per_rot);
-            rel_pos = (int)((ROBOT_RADIUS * rad / WHEEL_PERIMETER) * count_per_rot + 0.5);
-            speed = (int)((float)max_speed * ROTATION_SPEED / 100.0 + 0.5);
-            set_tacho_speed_sp( lsn, speed );
-            set_tacho_speed_sp( rsn, speed );
-            set_tacho_ramp_up_sp( lsn, 50 );
-            set_tacho_ramp_up_sp( rsn, 50 );
-            set_tacho_ramp_down_sp( lsn, 50 );
-            set_tacho_ramp_down_sp( rsn, 50 );
-            set_tacho_position_sp( lsn, rel_pos );
-            set_tacho_position_sp( rsn, -rel_pos );
-            set_tacho_command_inx( lsn, TACHO_RUN_TO_REL_POS );
-            set_tacho_command_inx( rsn, TACHO_RUN_TO_REL_POS );
-            update_theta(-angle);
-        }
-    }
-}
-
-//Erwan
-void forward(float distance){
-    uint8_t lsn;
-    uint8_t rsn;
-    while (ev3_tacho_init() < 1) Sleep(1000);
-    if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
-        if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
-            int max_speed, speed;
-            int count_per_rot;
-            int rel_pos;
-            set_tacho_stop_action_inx(lsn,TACHO_HOLD);
-            set_tacho_stop_action_inx(rsn,TACHO_HOLD);
-            get_tacho_max_speed(lsn, &max_speed);
-            get_tacho_count_per_rot(lsn, &count_per_rot);
-            rel_pos = (int)((distance / WHEEL_PERIMETER) * count_per_rot + 0.5);
-            speed = (int)((float)max_speed * TRANSLATION_SPEED / 100.0 + 0.5);
-            set_tacho_speed_sp( lsn, speed );
-            set_tacho_speed_sp( rsn, speed );
-            set_tacho_ramp_up_sp( lsn, 50 );
-            set_tacho_ramp_up_sp( rsn, 50 );
-            set_tacho_ramp_down_sp( lsn, 50 );
-            set_tacho_ramp_down_sp( rsn, 50 );
-            set_tacho_position_sp( lsn, rel_pos );
-            set_tacho_position_sp( rsn, rel_pos );
-            set_tacho_command_inx( lsn, TACHO_RUN_TO_REL_POS );
-            set_tacho_command_inx( rsn, TACHO_RUN_TO_REL_POS );
-            update_coordinate(distance);
-        }
-    }
-}
-
-//Erwan
-void backward(float distance){
-    uint8_t lsn;
-    uint8_t rsn;
-    while (ev3_tacho_init() < 1) Sleep(1000);
-    if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
-        if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
-            int max_speed, speed;
-            int count_per_rot;
-            int rel_pos;
-            set_tacho_stop_action_inx(lsn,TACHO_HOLD);
-            set_tacho_stop_action_inx(rsn,TACHO_HOLD);
-            get_tacho_max_speed(lsn, &max_speed);
-            get_tacho_count_per_rot(lsn, &count_per_rot);
-            rel_pos = (int)((distance / WHEEL_PERIMETER) * count_per_rot + 0.5);
-            speed = (int)((float)max_speed * TRANSLATION_SPEED / 100.0 + 0.5);
-            set_tacho_speed_sp( lsn, speed );
-            set_tacho_speed_sp( rsn, speed );
-            set_tacho_ramp_up_sp( lsn, 50 );
-            set_tacho_ramp_up_sp( rsn, 50 );
-            set_tacho_ramp_down_sp( lsn, 50 );
-            set_tacho_ramp_down_sp( rsn, 50 );
-            set_tacho_position_sp( lsn, -rel_pos );
-            set_tacho_position_sp( rsn, -rel_pos );
-            set_tacho_command_inx( lsn, TACHO_RUN_TO_REL_POS );
-            set_tacho_command_inx( rsn, TACHO_RUN_TO_REL_POS );
-            update_coordinate(-distance);
-        }
-    }
-}
-/* By Olivier
-  Stop both wheels. */
-void stop_moving() {
-    uint8_t lsn;
-    uint8_t rsn;
-    while (ev3_tacho_init() < 1) Sleep(1000);
-    if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
-        if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
-            set_tacho_command_inx( lsn, TACHO_STOP );
-            set_tacho_command_inx( rsn, TACHO_STOP );
-        }
-    }
-}
-
-/* By Olivier
-  Stop tongs. */
-void stop_tongs() {
-    uint8_t udsn;
-    uint8_t ocsn;
-    while (ev3_tacho_init() < 1) Sleep(1000);
-    if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT, 0, &udsn, 0)) {
-        if (ev3_search_tacho_plugged_in(OPEN_CLOSE_TONG_PORT, 0, &ocsn, 0)) {
-            set_tacho_command_inx( udsn, TACHO_STOP );
-            set_tacho_command_inx( ocsn, TACHO_STOP );
-        }
-    }
-}
-
-//Erwan
-// Down: negative value
-void down_tongs(uint8_t sonar_id){
     int max_speed, speed;
-    uint8_t dsn;
-    // Check that the tongs can indeed move down
-    if (get_avg_distance(sonar_id, NB_SENSOR_MESURE) < 50) return;
+    int count_per_rot, rel_pos;
 
-    while (ev3_tacho_init() < 1) Sleep(1000);
-    if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT,0, &dsn, 0 )){
-        set_tacho_stop_action_inx(dsn,TACHO_HOLD);
-        get_tacho_max_speed(dsn, &max_speed);
-        speed = (int)((float)max_speed * UP_DOWN_SPEED / 100.0 + 0.5);
-        set_tacho_speed_sp( dsn, speed );
-        set_tacho_ramp_up_sp( dsn, 25 );
-        set_tacho_ramp_down_sp( dsn, 100 );
-        set_tacho_position_sp( dsn, -TONGS_UP_DOWN_DISTANCE );
-        set_tacho_command_inx( dsn, TACHO_RUN_TO_REL_POS );
-    }
+    set_tacho_stop_action_inx(left_wheel, TACHO_HOLD);
+    set_tacho_stop_action_inx(right_wheel, TACHO_HOLD);
+
+    get_tacho_max_speed(left_wheel, &max_speed);
+    get_tacho_count_per_rot(left_wheel, &count_per_rot);
+
+    rel_pos = (int)(((float)distance / WHEEL_PERIMETER) * count_per_rot + 0.5);
+    speed = (int)((float)max_speed * TRANSLATION_SPEED / 100.0 + 0.5);
+
+    set_tacho_speed_sp(left_wheel, speed);
+    set_tacho_speed_sp(right_wheel, speed);
+
+    set_tacho_ramp_up_sp(left_wheel, RAMP_DURATION);
+    set_tacho_ramp_up_sp(right_wheel, RAMP_DURATION);
+    set_tacho_ramp_down_sp(left_wheel, RAMP_DURATION);
+    set_tacho_ramp_down_sp(right_wheel, RAMP_DURATION);
+
+    set_tacho_position_sp(left_wheel, rel_pos);
+    set_tacho_position_sp(right_wheel, rel_pos);
+
+    set_tacho_command_inx(left_wheel, TACHO_RUN_TO_REL_POS);
+    set_tacho_command_inx(right_wheel, TACHO_RUN_TO_REL_POS);
 }
 
 //Erwan
-// Up: positive value
-void up_tongs(uint8_t sonar_id){
+void rotation(uint8_t right_wheel, uint8_t left_wheel, int angle) {
+    if (!angle) return;
+
+    float rad = (float)angle / 360 * 2*M_PI;
     int max_speed, speed;
-    uint8_t usn;
-    // Check that the tongs can indeed move up
-    if (get_avg_distance(sonar_id, NB_SENSOR_MESURE) > 50) return;
+    int count_per_rot, rel_pos;
 
-    while (ev3_tacho_init() < 1) Sleep(1000);
-    if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT,0, &usn, 0 )){
-        set_tacho_stop_action_inx(usn,TACHO_HOLD);
-        get_tacho_max_speed(usn, &max_speed);
-        speed = (int)((float)max_speed * UP_DOWN_SPEED / 100.0 + 0.5);
-        set_tacho_speed_sp( usn, speed );
-        set_tacho_ramp_up_sp( usn, 25 );
-        set_tacho_ramp_down_sp( usn, 100 );
-        set_tacho_position_sp( usn, TONGS_UP_DOWN_DISTANCE );
-        set_tacho_command_inx( usn, TACHO_RUN_TO_REL_POS );
-    }
+    set_tacho_stop_action_inx(left_wheel, TACHO_HOLD);
+    set_tacho_stop_action_inx(right_wheel, TACHO_HOLD);
+
+    get_tacho_max_speed(left_wheel, &max_speed);
+    get_tacho_count_per_rot(left_wheel, &count_per_rot);
+
+    rel_pos = (int)((ROBOT_RADIUS * rad / WHEEL_PERIMETER) * count_per_rot + 0.5);
+    speed = (int)((float)max_speed * ROTATION_SPEED / 100.0 + 0.5);
+
+    set_tacho_speed_sp(left_wheel, speed);
+    set_tacho_speed_sp(right_wheel, speed);
+
+    set_tacho_ramp_up_sp(left_wheel, RAMP_DURATION);
+    set_tacho_ramp_up_sp(right_wheel, RAMP_DURATION);
+    set_tacho_ramp_down_sp(left_wheel, RAMP_DURATION);
+    set_tacho_ramp_down_sp(right_wheel, RAMP_DURATION);
+
+    set_tacho_position_sp(left_wheel, -rel_pos);
+    set_tacho_position_sp(right_wheel, rel_pos);
+
+    set_tacho_command_inx(left_wheel, TACHO_RUN_TO_REL_POS);
+    set_tacho_command_inx(right_wheel, TACHO_RUN_TO_REL_POS);
 }
 
-//Erwan
-// Close: positive value
-void close_tongs(){
-  uint8_t csn;
-  while (ev3_tacho_init() < 1) Sleep(1000);
-  if (ev3_search_tacho_plugged_in(OPEN_CLOSE_TONG_PORT,0, &csn, 0 )){
-      int max_speed, speed;
-      int rel_pos = TONGS_OPEN_CLOSE_DISTANCE;
-      set_tacho_stop_action_inx(csn,TACHO_HOLD);
-      get_tacho_max_speed(csn, &max_speed);
-      speed = (int)((float)max_speed * OPEN_CLOSE_SPEED / 100.0 + 0.5);
-      set_tacho_speed_sp( csn, speed );
-      set_tacho_ramp_up_sp( csn, 25 );
-      set_tacho_ramp_down_sp( csn, 100 );
-      set_tacho_position_sp( csn, rel_pos );
-      set_tacho_command_inx( csn, TACHO_RUN_TO_REL_POS );
-    }
-}
-
-//Erwan
-// Open: negative value
-void open_tongs(){
-  uint8_t osn;
-  while (ev3_tacho_init() < 1) Sleep(1000);
-  if (ev3_search_tacho_plugged_in(OPEN_CLOSE_TONG_PORT,0, &osn, 0 )){
-      int max_speed, speed;
-      int rel_pos = -TONGS_OPEN_CLOSE_DISTANCE;
-      set_tacho_stop_action_inx(osn,TACHO_HOLD);
-      get_tacho_max_speed(osn, &max_speed);
-      speed = (int)((float)max_speed * OPEN_CLOSE_SPEED / 100.0 + 0.5);
-      set_tacho_speed_sp( osn, speed );
-      set_tacho_ramp_up_sp( osn, 25 );
-      set_tacho_ramp_down_sp( osn, 100 );
-      set_tacho_position_sp( osn, rel_pos );
-      set_tacho_command_inx( osn, TACHO_RUN_TO_REL_POS );
-    }
-}
-
-//Erwan
-void turn_left_gyro(float angle, uint8_t gyro_id) {
+// Nathan
+// Make the robot turn based on angle from gyro sensor
+void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int angle) {
     if (angle == 0) {
         return;
     }
+
+    const int RANGE_ANGLE = 2;
+    const int SPEED_MAX   = 40;
+    const int SPEED_MIN   = 18;
+
     int angle_start, current_angle;
-    uint8_t lsn;
-    uint8_t rsn;
+
+    set_tacho_stop_action_inx(left_wheel, TACHO_HOLD);
+    set_tacho_stop_action_inx(right_wheel, TACHO_HOLD);
+
+    //init angle start angle
     angle_start = get_angle(gyro_id);
-    while (ev3_tacho_init() < 1) Sleep(1000);
-    if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
-        if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
-            int max_speed, speed;
-            set_tacho_stop_action_inx(lsn,TACHO_HOLD);
-            set_tacho_stop_action_inx(rsn,TACHO_HOLD);
-            get_tacho_max_speed(lsn, &max_speed);
-            speed = (int)((float)max_speed * ROTATION_SPEED / 100.0 + 0.5);
-            set_tacho_speed_sp( lsn, speed );
-            set_tacho_speed_sp( rsn, speed );
-            set_tacho_ramp_up_sp( lsn, 50 );
-            set_tacho_ramp_up_sp( rsn, 50 );
-            set_tacho_ramp_down_sp( lsn, 50 );
-            set_tacho_ramp_down_sp( rsn, 50 );
-            set_tacho_polarity_inx( lsn, TACHO_INVERSED );
-            set_tacho_polarity_inx( rsn, TACHO_NORMAL );
-            current_angle = get_angle(gyro_id);
-            set_tacho_command_inx( lsn, TACHO_RUN_FOREVER );
-            set_tacho_command_inx( rsn, TACHO_RUN_FOREVER );
-            while ((abs(abs(angle_start - current_angle) - angle)) < 2){
-              if (abs(angle_start - current_angle) - angle < 0){
-                set_tacho_polarity_inx( lsn, TACHO_INVERSED );
-                set_tacho_polarity_inx( rsn, TACHO_NORMAL );
-              }
-              else{
-                set_tacho_polarity_inx( lsn, TACHO_NORMAL );
-                set_tacho_polarity_inx( rsn, TACHO_INVERSED );
-              }
-            }
-            set_tacho_command_inx( lsn, TACHO_STOP );
-            set_tacho_command_inx( rsn, TACHO_STOP );
-            set_tacho_polarity_inx( lsn, TACHO_NORMAL );
-            set_tacho_polarity_inx( rsn, TACHO_NORMAL );
-        }
+    current_angle = angle_start;
+
+    //duty_cycle is the roughly the percentage of power given to the tacho
+    int duty_cycle = angle - (current_angle - angle_start);
+
+    if (duty_cycle > SPEED_MAX || duty_cycle < ((-1) * SPEED_MAX)){
+      duty_cycle = duty_cycle / abs(duty_cycle) * SPEED_MAX;
     }
-}
-
-//Erwan
-void turn_gyro_left(float angle, uint8_t gyro_id) {
-  if (angle == 0) {
-      return;
-  }
-  int angle_start, current_angle;
-  uint8_t lsn;
-  uint8_t rsn;
-  while (ev3_tacho_init() < 1) Sleep(1000);
-
-  //NOTE : don't use initialisation each time you want to use tacho !!!!
-  //config it once and for all !!
-  if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
-      if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
-          int rspeed,lspeed,max_speed;
-          set_tacho_stop_action_inx(lsn,TACHO_HOLD);
-          set_tacho_stop_action_inx(rsn,TACHO_HOLD);
-          //init tacho's speed
-          get_tacho_max_speed(lsn, &max_speed);
-          if (angle < 0){
-            rspeed = (int)((float)(-1)*max_speed * ROTATION_SPEED / 100.0 + 0.5);
-          }
-          else{
-            rspeed = (int)((float)max_speed * ROTATION_SPEED / 100.0 + 0.5);
-          }
-          lspeed = -rspeed;
-          set_tacho_speed_sp( lsn, lspeed );
-          set_tacho_speed_sp( rsn, rspeed );
-          //init tacho's speed curve shape
-          set_tacho_ramp_up_sp( lsn, 50 );
-          set_tacho_ramp_up_sp( rsn, 50 );
-          set_tacho_ramp_down_sp( lsn, 500 );
-          set_tacho_ramp_down_sp( rsn, 500 );
-          //init angle start angle
-          angle_start = get_angle(gyro_id);
-          current_angle = get_angle(gyro_id);
-          //launch tacho
-          set_tacho_command_inx( lsn, TACHO_RUN_FOREVER );
-          set_tacho_command_inx( rsn, TACHO_RUN_FOREVER );
-          int inverse = 0;
-          while ((abs(abs(angle_start - current_angle) - abs(angle))) > 2){
-            //if the robot goes beyond the the asked angle value go back
-            if (abs(angle_start - current_angle) - abs(angle) > 0 && inverse == 0){
-              rspeed = -rspeed/2;
-              lspeed = -lspeed/2;
-              inverse = 1;
-              set_tacho_speed_sp( lsn, lspeed );
-              set_tacho_speed_sp( rsn, rspeed );
-              set_tacho_command_inx( lsn, TACHO_RUN_FOREVER );
-              set_tacho_command_inx( rsn, TACHO_RUN_FOREVER );
-            }
-            else if (abs(angle_start - current_angle) - abs(angle) < 0 && inverse == 1){
-              rspeed = -rspeed/2;
-              lspeed = -lspeed/2;
-              inverse = 0;
-              set_tacho_speed_sp( lsn, lspeed );
-              set_tacho_speed_sp( rsn, rspeed );
-              set_tacho_command_inx( lsn, TACHO_RUN_FOREVER );
-              set_tacho_command_inx( rsn, TACHO_RUN_FOREVER );
-            }
-        }
-        set_tacho_command_inx( lsn, TACHO_STOP );
-        set_tacho_command_inx( rsn, TACHO_STOP );
+    if (duty_cycle > ((-1) * SPEED_MIN) && duty_cycle < SPEED_MIN){
+      duty_cycle = duty_cycle / abs(duty_cycle) * SPEED_MIN;
     }
-  }
-}
 
-//Erwan
-//Make the robot turn based on angle from gyro sensor
-//angle to the left is positive angle
-void turn_gyro(float angle, uint8_t gyro_id) {
+    //set the tacho's rotation
+    set_tacho_duty_cycle_sp(left_wheel, duty_cycle);
+    set_tacho_duty_cycle_sp(right_wheel, (-1) * duty_cycle);
 
-    int range_angle = 2;
-    int speed_max = 40;
-    int speed_min = 18;
+    //launch tachos
+    set_tacho_command_inx(left_wheel, TACHO_RUN_DIRECT );
+    set_tacho_command_inx(right_wheel, TACHO_RUN_DIRECT );
 
-    if (angle == 0) {
-        return;
+    while ((abs(abs(angle_start - current_angle) - angle)) > RANGE_ANGLE){
+
+      //recompute duty cycle value
+      duty_cycle = angle - (current_angle - angle_start);
+      if (duty_cycle > SPEED_MAX || duty_cycle < ((-1) * SPEED_MAX)){
+        duty_cycle = duty_cycle / abs(duty_cycle) * SPEED_MAX;
+      }
+      if (duty_cycle > ((-1) * SPEED_MIN) && duty_cycle < SPEED_MIN){
+        duty_cycle = duty_cycle / abs(duty_cycle) * SPEED_MIN;
+      }
+
+      //update duty cycle value
+      set_tacho_duty_cycle_sp(left_wheel, duty_cycle);
+      set_tacho_duty_cycle_sp(right_wheel, (-1) * duty_cycle);
+      Sleep(50);
+      //update current angle
+      current_angle = get_angle(gyro_id);
     }
-    int angle_start, current_angle;
-    uint8_t lsn;
-    uint8_t rsn;
-    while (ev3_tacho_init() < 1) Sleep(1000);
-
-    //NOTE : don't use initialisation each time you want to use tacho !!!!
-    //config it once and for all !!
-    if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
-        if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
-
-            set_tacho_stop_action_inx(lsn,TACHO_HOLD);
-            set_tacho_stop_action_inx(rsn,TACHO_HOLD);
-
-            //init angle start angle
-            angle_start = get_angle(gyro_id);
-            //printf("angle start = %d \n", angle_start);
-            current_angle = angle_start;
-            //printf("current angle = %d \n", current_angle);
-
-            //duty_cycle is the roughly the percentage of power given to the tacho
-            int duty_cycle = angle - (current_angle - angle_start);
-
-            if (duty_cycle > speed_max || duty_cycle < ((-1) * speed_max) ){
-              duty_cycle = duty_cycle / abs(duty_cycle) * speed_max;
-            }
-            if (duty_cycle > ((-1) * speed_min) && duty_cycle < speed_min ){
-              duty_cycle = duty_cycle / abs(duty_cycle) * speed_min;
-            }
-            //printf("new duty cycle = %d \n", duty_cycle);
-
-            //set the tacho's rotation
-            set_tacho_duty_cycle_sp( lsn, duty_cycle );
-            set_tacho_duty_cycle_sp( rsn, (-1) * duty_cycle );
-
-            //launch tachos
-            set_tacho_command_inx( lsn, TACHO_RUN_DIRECT );
-            set_tacho_command_inx( rsn, TACHO_RUN_DIRECT );
-
-            while ((abs(abs(angle_start - current_angle) - angle)) > range_angle){
-
-              //recompute duty cycle value
-              duty_cycle = angle - (current_angle - angle_start);
-              if (duty_cycle > speed_max || duty_cycle < ((-1) * speed_max) ){
-                duty_cycle = duty_cycle / abs(duty_cycle) * speed_max;
-              }
-              if (duty_cycle > ((-1) * speed_min) && duty_cycle < speed_min ){
-                duty_cycle = duty_cycle / abs(duty_cycle) * speed_min;
-              }
-              //printf("new duty cycle = %d \n", duty_cycle);
-
-              //update duty cycle value
-              set_tacho_duty_cycle_sp( lsn, duty_cycle );
-              set_tacho_duty_cycle_sp( rsn, (-1) * duty_cycle );
-              Sleep(50);
-              //update current angle
-              current_angle = get_angle(gyro_id);
-              // printf("delta angle = %d \n", (current_angle - angle_start));
-            }
-            set_tacho_command_inx( lsn, TACHO_STOP );
-            set_tacho_command_inx( rsn, TACHO_STOP );
-        }
-    }
+    set_tacho_command_inx(left_wheel, TACHO_STOP);
+    set_tacho_command_inx(right_wheel, TACHO_STOP);
 }
 
 
