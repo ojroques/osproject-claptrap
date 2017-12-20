@@ -4,7 +4,6 @@
 #include <string.h>
 #include <stdint.h>
 #include <math.h>
-#include <pthread.h>
 
 #include "const.h"
 #include "position.h"
@@ -14,18 +13,18 @@
 #include "ev3_port.h"
 #include "ev3_tacho.h"
 
+//#define TACHO_DEBUG
+
 #ifdef TACHO_DEBUG
+#include <pthread.h>
 coordinate_t coordinate = {60, 30, 90, PTHREAD_MUTEX_INITIALIZER};
 volatile int quit_request = 0;   // To stop the position thread
 #endif
 
 /* By Olivier
-  Stop given tachos. */
-void stop_tachos(uint8_t *tachos_id, int size) {
-    int i;
-    for (i = 0; i < size; i++) {
-        set_tacho_command_inx(tachos_id[i], TACHO_STOP );
-    }
+  Stop given tacho. */
+void stop_tacho(uint8_t tacho_id) {
+    set_tacho_command_inx(tacho_id, TACHO_STOP);
 }
 
 /* By Olivier.
@@ -44,7 +43,20 @@ void wait_wheels(uint8_t right_wheel, uint8_t left_wheel) {
    While moving, this function checks if there is an obstacle and stop tachos
    if indeed there is one. */
 void waitncheck_wheels(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasonic_id) {
-    // TODO: Write this function
+    int current_distance;
+    char right_state[TACHO_BUFFER_SIZE];
+    char left_state[TACHO_BUFFER_SIZE];
+    do {
+        current_distance = get_avg_distance(ultrasonic_id, NB_SENSOR_MESURE);
+        if (current_distance < TRESHOLD_MANEUVER) {
+            stop_tacho(right_wheel);
+            stop_tacho(left_wheel);
+            break;
+        }
+        get_tacho_state(right_wheel, right_state, TACHO_BUFFER_SIZE);
+        get_tacho_state(left_wheel, left_state, TACHO_BUFFER_SIZE);
+        Sleep(200);
+    } while (strcmp("holding", right_state) && strcmp("holding", left_state));
 }
 
 //Erwan
@@ -113,9 +125,7 @@ void rotation(uint8_t right_wheel, uint8_t left_wheel, int angle) {
 // Nathan
 // Make the robot turn based on angle from gyro sensor
 void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int angle) {
-    if (angle == 0) {
-        return;
-    }
+    if (!angle) return;
 
     const int RANGE_ANGLE = 2;
     const int SPEED_MAX   = 40;
@@ -173,123 +183,54 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
 
 #ifdef TACHO_DEBUG
 
+#define LEFT_WHEEL_PORT        66
+#define RIGHT_WHEEL_PORT       67
+
 /* ********************** MAIN USED FOR TESTS ********************** */
 int main(int argc, char *argv[]) {
-    uint8_t udsn;
-    uint8_t ocsn;
-    uint8_t sonar_id, gyro_id;
-    int max_speed, speed, rel_pos, distance;
-
-    if (argc != 5) {
-        printf("Usage: ./tacho ud_distance oc_distance angle radius\n");
+    if (argc != 3) {
+        printf("Usage: ./tacho translation_distance rotation_angle\n");
         exit(-1);
     }
 
-    int ud_distance = atoi(argv[1]);
-    int oc_distance = atoi(argv[2]);
-    float angle     = atof(argv[3]);
-    float radius    = atof(argv[4]);
+    uint8_t right_wheel, left_wheel;
+    uint8_t sonar_id;
+
+    int rotation_angle   = atoi(argv[1]);
+    int translation_dist = atoi(argv[2]);
+
     ev3_sensor_init();
-    ev3_search_sensor(LEGO_EV3_GYRO, &gyro_id, 0);
     ev3_search_sensor(LEGO_EV3_US, &sonar_id, 0);
 
-    printf("Up / Down distance: %d\n", ud_distance);
-    printf("Open / Close distance: %d\n", oc_distance);
-    if (ud_distance > 200 || oc_distance > 200) {
-        printf("One of these values seems a little high, continue anyway ? (CTRL + C to quit) ");
-        getchar();
-    }
-
     printf("Initializing tachos...\n");
-    for (int i = 0; i < 5 && ev3_tacho_init() < 1; i++) Sleep(1000);
-    if (ev3_search_tacho_plugged_in(UP_DOWN_TONG_PORT, 0, &udsn, 0)) {
-        printf("    Up / Down tacho OK\n");
-        if (ev3_search_tacho_plugged_in(OPEN_CLOSE_TONG_PORT, 0, &ocsn, 0)) {
-            printf("    Open / Close tacho OK\n");
-            set_tacho_stop_action_inx(udsn, TACHO_HOLD);
-            set_tacho_stop_action_inx(ocsn, TACHO_HOLD);
-            printf("Done.\n");
+    if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &right_wheel, 0)) {
+        printf("    [OK] Right wheel\n");
+        if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &left_wheel, 0)) {
+            printf("    [OK] Left wheel\n");
         } else {
-            printf("    Open / Close tacho ERR\n");
+            printf("    [ERR] Right wheel\n");
             exit(-1);
         }
     } else {
-        printf("    Up/ Down tacho ERR\n");
+        printf("    [ERR] Left wheel\n");
         exit(-1);
     }
-
-    //UP TONGS
-    printf("Up / Down tongs... ");
-    rel_pos = ud_distance;
-    distance = get_avg_distance(sonar_id, NB_SENSOR_MESURE);
-    printf("Distance: %d\n", distance);
-    if (distance < 40 && ud_distance < 0) {
-        printf("Error!\n");
-        exit(EXIT_FAILURE);
-    }
-
-    if (distance > 40 && ud_distance > 0) {
-        printf("Error!\n");
-        exit(EXIT_FAILURE);
-    }
-    get_tacho_max_speed(udsn, &max_speed);
-    speed = (int)((float)max_speed * UP_DOWN_SPEED / 100.0 + 0.5);
-    set_tacho_speed_sp( udsn, speed );
-    set_tacho_ramp_up_sp( udsn, 25 );
-    set_tacho_ramp_down_sp( udsn, 100 );
-    set_tacho_position_sp( udsn, rel_pos );
-    set_tacho_command_inx( udsn, TACHO_RUN_TO_REL_POS );
-    wait_tongs(UP_DOWN_ID);
     printf("Done.\n");
 
-    // OPEN TONGS
-    printf("Opening / Closing tongs... ");
-    rel_pos = oc_distance;
-    get_tacho_max_speed(ocsn, &max_speed);
-    speed = (int)((float)max_speed * OPEN_CLOSE_SPEED / 100.0 + 0.5);
-    set_tacho_speed_sp( ocsn, speed );
-    set_tacho_ramp_up_sp( ocsn, 25 );
-    set_tacho_ramp_down_sp( ocsn, 100 );
-    set_tacho_position_sp( ocsn, rel_pos );
-    set_tacho_command_inx( ocsn, TACHO_RUN_TO_REL_POS );
-    wait_tongs(OPEN_CLOSE_ID);
-    printf("Done.\n");
-
-    printf("Turning left... ");
-    Sleep(500);
-    if (angle == 0) {
-        return 0;
-    }
-    uint8_t lsn;
-    uint8_t rsn;
-    int max_speed, speed;
-    int count_per_rot;
-    float rad = angle/360 * 2*M_PI;
-    int rel_pos;
-
-    while (ev3_tacho_init() < 1) Sleep(1000);
-    if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &lsn, 0)) {
-        if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &rsn, 0)) {
-            set_tacho_stop_action_inx(lsn,TACHO_HOLD);
-            set_tacho_stop_action_inx(rsn,TACHO_HOLD);
-            get_tacho_max_speed(lsn, &max_speed);
-            get_tacho_count_per_rot(lsn, &count_per_rot);
-            rel_pos = (int)((radius * rad / WHEEL_PERIMETER) * count_per_rot + 0.5);
-            speed = (int)((float)max_speed * ROTATION_SPEED / 100.0 + 0.5);
-            set_tacho_speed_sp( lsn, speed );
-            set_tacho_speed_sp( rsn, speed );
-            set_tacho_ramp_up_sp( lsn, 50 );
-            set_tacho_ramp_up_sp( rsn, 50 );
-            set_tacho_ramp_down_sp( lsn, 50 );
-            set_tacho_ramp_down_sp( rsn, 50 );
-            set_tacho_position_sp( lsn, -rel_pos );
-            set_tacho_position_sp( rsn, rel_pos );
-            set_tacho_command_inx( lsn, TACHO_RUN_TO_REL_POS );
-            set_tacho_command_inx( rsn, TACHO_RUN_TO_REL_POS );
-        }
-    }
-    wait_tachos();
+    printf("Rotating by %d degres... ", rotation_angle);
+    rotation(right_wheel, left_wheel, rotation_angle);
+    wait_wheels(right_wheel, left_wheel);
     printf("Done.");
+
+    printf("Moving forward by %d mm... ", translation_distance);
+    translation(right_wheel, left_wheel, translation_dist);
+    wait_wheels(right_wheel, left_wheel);
+    printf("Done.");
+
+    set_tacho_stop_action_inx(right_wheel, TACHO_COAST);
+    set_tacho_stop_action_inx(left_wheel, TACHO_COAST);
+    stop_tacho(right_wheel);
+    stop_tacho(left_wheel);
     ev3_uninit();
 }
 

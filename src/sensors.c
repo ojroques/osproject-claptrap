@@ -86,19 +86,26 @@ int get_color(uint8_t sensor_id){
 }
 
 /**
- *Function which gives the average color detected over N mesures
- *by the color sensor.
+ *Function which gives the color detected most often over N mesures
  *Returns an int between 0 and ?
  **/
 int get_avg_color(uint8_t sensor_id, int nb_mesure) {
-    int i, average;
-    average = 0;
+    int color, i;
+    int frequency_color[8] = {0};
+
     Sleep(DELAY_SENSOR);
     for (i = 0; i < nb_mesure; i++) {
-        average += get_color(sensor_id);
+        frequency_color[get_color(sensor_id)]++;
         fflush(stdout);
+        Sleep(100);
     }
-    return (int)( ((float)average / (float)nb_mesure) + 0.5 );
+
+    color = 0;
+    for (i = 0; i < 8; i++) {
+        if (frequency_color[i] > frequency_color[color]) color = i;
+    }
+
+    return color;
 }
 
 /**

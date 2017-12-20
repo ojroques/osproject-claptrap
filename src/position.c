@@ -13,37 +13,37 @@ extern volatile int quit_request;
 
 //Erwan
 void *position_thread(void *arg) {
-  (void) arg;   // To avoid the warning message
-  while (!quit_request) {
+    (void) arg;   // To avoid the warning message
+    while (!quit_request) {
+        pthread_mutex_lock(&(coordinate.coordinate_lock));
+        send_position((int16_t)(coordinate.x), (int16_t)(coordinate.y));
+        pthread_mutex_unlock(&(coordinate.coordinate_lock));
+        Sleep(1500);
+    }
+    pthread_exit(NULL);
+}
+
+//Erwan
+void update_theta(int angle) {
     pthread_mutex_lock(&(coordinate.coordinate_lock));
-    send_position((int16_t)(coordinate.x), (int16_t)(coordinate.y));
+    coordinate.theta = coordinate.theta + angle;
     pthread_mutex_unlock(&(coordinate.coordinate_lock));
-    Sleep(1000);
-  }
-  pthread_exit(NULL);
 }
 
 //Erwan
-void update_theta(float angle){
-  pthread_mutex_lock(&(coordinate.coordinate_lock));
-  coordinate.theta = coordinate.theta + angle;
-  pthread_mutex_unlock(&(coordinate.coordinate_lock));
+void update_coordinate(int distance) {
+    pthread_mutex_lock(&(coordinate.coordinate_lock));
+    float rad = M_PI * (float)coordinate.theta / 180 ;
+    coordinate.x = coordinate.x + (round)(distance * cos(rad));
+    coordinate.y = coordinate.y + (round)(distance * sin(rad));
+    pthread_mutex_unlock(&(coordinate.coordinate_lock));
 }
 
 //Erwan
-void update_coordinate(float distance){
-  pthread_mutex_lock(&(coordinate.coordinate_lock));
-  double rad = M_PI*coordinate.theta/180 ;
-  coordinate.x = coordinate.x + distance*cos(rad);
-  coordinate.y = coordinate.y + distance*sin(rad);
-  pthread_mutex_unlock(&(coordinate.coordinate_lock));
-}
-
-//Erwan
-void get_obst_position(float r, float theta, int16_t *x_obst, int16_t *y_obst){
-  double rad = M_PI*theta/180 ;
-  pthread_mutex_lock(&(coordinate.coordinate_lock));
-  *x_obst = coordinate.x + r*cos(rad);
-  *y_obst = coordinate.y + r*sin(rad);
-  pthread_mutex_unlock(&(coordinate.coordinate_lock));
+void get_obst_position(int r, int theta, int16_t *x_obst, int16_t *y_obst) {
+    float rad = M_PI * (float)theta / 180 ;
+    pthread_mutex_lock(&(coordinate.coordinate_lock));
+    *x_obst = coordinate.x + (round)(r * cos(rad));
+    *y_obst = coordinate.y + (round)(r * sin(rad));
+    pthread_mutex_unlock(&(coordinate.coordinate_lock));
 }

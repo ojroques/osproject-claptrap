@@ -25,7 +25,6 @@ coordinate_t coordinate                   = {60, 30, 90, PTHREAD_MUTEX_INITIALIZ
 volatile int quit_request                 = 0;   // To stop the position thread
 sensors_t sensors_id                      = {0, 0, 0, 0, 0};
 tachos_t tachos_id                        = {0, 0, 0, 0};
-// Angles of {EAST, NORTH, WEST, SOUTH}
 const int ANGLES[NB_DIRECTION]            = {0, 90, 180, -90};
 const char *DIRECTIONS_NAME[NB_DIRECTION] = {"E", "N", "W", "S"};
 int current_direction                     = NORTH;
@@ -47,8 +46,8 @@ int obstacle_type(int *sonar_value) {
     distance = *sonar_value;
 
     // Move forward and stop at about 3cm of the obstacle
-    if (distance > DIST_COLOR) {
-        distance = distance - (3 * DIST_COLOR / 4);
+    if (distance > TRESHOLD_COLOR) {
+        distance = distance - TRESHOLD_COLOR;
     }
 
     translation(tachos_id.right_wheel, tachos_id.left_wheel, distance);
@@ -58,7 +57,8 @@ int obstacle_type(int *sonar_value) {
     // Check if there is really an obstacle
     new_distance = get_avg_distance(sensors_id.ultrasonic_sensor, NB_SENSOR_MESURE);
     *sonar_value = distance + new_distance; // Update sonar_value with a more reliable value
-    if (new_distance > DIST_COLOR) {
+    // Check color, after multiplying TRESHOLD_COLOR by 2 as an error margin
+    if (new_distance > 2*TRESHOLD_COLOR) {
         translation(tachos_id.right_wheel, tachos_id.left_wheel, -distance);
         waitncheck_wheels(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.ultrasonic_sensor);
         printf("No obstacle (dist: %d)\n", new_distance);
@@ -91,8 +91,8 @@ void analyse_env(int mesures[NB_DIRECTION]) {
         sonar_value = get_avg_distance(sensors_id.ultrasonic_sensor, NB_SENSOR_MESURE);
         printf("    - %s: %dmm, OBST: ", DIRECTIONS_NAME[current_direction], sonar_value);
         // If non-movable obstacle detected, place obstacle
-        if (sonar_value < DIST_TRESHOLD && obstacle_type(&sonar_value) == NONMV_OBST) {
-            get_obst_position((float)sonar_value / 10., (float)ANGLES[current_direction], &x_obstacle, &y_obstacle);
+        if (sonar_value < TRESHOLD_CHECK_OBST && obstacle_type(&sonar_value) == NONMV_OBST) {
+            get_obst_position(sonar_value, ANGLES[current_direction], &x_obstacle, &y_obstacle);
             place_obstacle(x_obstacle, y_obstacle);
         } else {
             printf("None\n");
@@ -116,7 +116,7 @@ int choose_direction(int mesures[NB_DIRECTION]) {
     for (i = 0; i < NB_DIRECTION; i++) {
         // is_looping indicates if direction i would result in a looping route
         is_looping = (mv_history[1] == (mv_history[0] + 2) % NB_DIRECTION && i == mv_history[0]);
-        if (mesures[i] >= DIST_TRESHOLD && !is_looping) {
+        if (mesures[i] >= TRESHOLD_MANEUVER && !is_looping) {
             if (direction == -1 || mesures[i] > mesures[direction]) {
                 direction = i;
             }
@@ -159,7 +159,7 @@ void move(int direction, int mesures[NB_DIRECTION]) {
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
 
     // Go forward until an obstacle is detected
-    travel_distance = mesures[direction] - DIST_TRESHOLD;
+    travel_distance = mesures[direction] - TRESHOLD_MANEUVER;
     printf("    - Moving by %dmm and updating history... ", travel_distance);
     translation(tachos_id.right_wheel, tachos_id.left_wheel, travel_distance);
     waitncheck_wheels(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.ultrasonic_sensor);
@@ -215,9 +215,11 @@ int main() {
     } else {
         printf("Error.\n");
     }
+
     printf("Sending image to the server...\n");
     send_image();
     printf("Done.\n");
+
     clean_exit(0);
     return EXIT_SUCCESS;
 }

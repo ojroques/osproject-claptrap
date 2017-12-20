@@ -1,7 +1,7 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
-#define SIZE_OBSTACLE      2                     /* The size of an obstacle's side */
+#define SIZE_OBSTACLE       2   /* The size of an obstacle's side */
 #define IMG_WIDTH          24
 #define IMG_HEIGHT         40
 #define ERR_OUT_OF_BOUNDS  -1

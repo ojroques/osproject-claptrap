@@ -22,7 +22,7 @@ void search_sensor(uint8_t sensor_type, uint8_t *sensor_id, char *sensor_name) {
     }
 }
 
-void search_tachos(uint8_t motor_port, uint8_t *tacho_id, char *tacho_name) {
+void search_tacho(uint8_t motor_port, uint8_t *tacho_id, char *tacho_name) {
     if (ev3_search_tacho_plugged_in(motor_port, 0, tacho_id, 0)) {
         printf("    [OK] %s found!\n", tacho_name);
     } else {
@@ -44,10 +44,10 @@ void config_sensors(sensors_t *sensors_id) {
 void config_tacho(tachos_t *tachos_id) {
     printf("Initializing tachos...\n");
     ev3_tacho_init();
-    search_tacho(RIGHT_WHEEL_PORT, 0, &(tachos_id->right_wheel), "Right wheel");
-    search_tacho(LEFT_WHEEL_PORT, 0, &(tachos_id->left_wheel), "Left wheel");
-    search_tacho(ULTRASONIC_TACHO_PORT, 0, &(tachos_id->ultrasonic_tacho), "Ultrasonic tacho");
-    search_tacho(CARRIER_PORT, 0, &(tachos_id->obstacle_carrier), "Obstacle carrier");
+    search_tacho(RIGHT_WHEEL_PORT, &(tachos_id->right_wheel), "Right wheel");
+    search_tacho(LEFT_WHEEL_PORT, &(tachos_id->left_wheel), "Left wheel");
+    search_tacho(ULTRASONIC_TACHO_PORT, &(tachos_id->ultrasonic_tacho), "Ultrasonic tacho");
+    search_tacho(CARRIER_PORT, &(tachos_id->obstacle_carrier), "Obstacle carrier");
     printf("Done.\n");
 }
 
@@ -95,8 +95,10 @@ void clean_exit(int signum) {
     set_tacho_stop_action_inx(left_wheel, TACHO_COAST);
     set_tacho_stop_action_inx(us_tacho, TACHO_COAST);
     set_tacho_stop_action_inx(obst_carrier, TACHO_COAST);
-    stop_moving();
-    stop_tongs();
+    stop_tacho(right_wheel);
+    stop_tacho(left_wheel);
+    stop_tacho(us_tacho);
+    stop_tacho(obst_carrier);
     printf("Done.\n");
 
     printf("See you later!\n");
