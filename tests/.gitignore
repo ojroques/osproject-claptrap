@@ -1,1 +1,5 @@
 *.o
+tester
+sensors_test
+gyro_test
+tacho_test
