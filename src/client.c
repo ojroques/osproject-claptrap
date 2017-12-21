@@ -17,6 +17,13 @@ Eurecom, 2017 - 2018. */
 int s;
 uint16_t msgId = 1;
 
+/* Convert a position to an index
+   c is in millimeters */
+uint16_t coord_to_index(int16_t c) {
+    uint16_t i = (uint16_t) c;
+    return (i - (i % 50)) / 50;
+}
+
 int read_from_server(char *buffer, size_t maxSize) {
     int bytes_read = recv(s, buffer, maxSize, 0);
 

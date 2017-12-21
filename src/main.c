@@ -21,19 +21,20 @@ Eurecom, 2017 - 2018. */
 
 #define MAIN_DEBUG 0
 
-coordinate_t coordinate                   = {60, 30, 90, PTHREAD_MUTEX_INITIALIZER};
 volatile int quit_request                 = 0;   // To stop the position thread
 sensors_t sensors_id                      = {0, 0, 0, 0, 0};
 tachos_t tachos_id                        = {0, 0, 0, 0};
+int current_direction                     = NORTH;
 const int ANGLES[NB_DIRECTION]            = {0, 90, 180, -90};
 const char *DIRECTIONS_NAME[NB_DIRECTION] = {"E", "N", "W", "S"};
-int current_direction                     = NORTH;
+coordinate_t coordinate                   = {600, 300, 90, PTHREAD_MUTEX_INITIALIZER};
 int mv_history[2]                         = {-1, -2};
 
 /* Drop non-movable obstacle. */
 void drop_obstacle() {
     printf("    Dropping non-movable obstacle... ");
     // TODO: Rewrite function
+    Sleep(1000);
     printf("Done.\n");
 }
 

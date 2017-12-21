@@ -60,11 +60,6 @@ int set_cell(uint16_t i, uint16_t j, int value) {
     return 0;
 }
 
-uint16_t coord_to_index(int16_t c) {
-    uint16_t i = (uint16_t) c;
-    return (i - (i % 5)) / 5;
-}
-
 int is_out_of_bounds(uint16_t i, uint16_t j) {
     return (i >= IMG_HEIGHT || j >= IMG_WIDTH);
 }

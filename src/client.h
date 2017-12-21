@@ -15,6 +15,7 @@
 #define WRONG_MESSAGE     1
 #define START_MESSAGE     2
 
+uint16_t coord_to_index(int16_t c);
 int read_from_server(char *buffer, size_t maxSize);
 int sent_to_server(char *buffer, size_t maxSize);
 void print_message(char *message, size_t message_size);

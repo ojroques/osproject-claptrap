@@ -16,7 +16,7 @@ void *position_thread(void *arg) {
     (void) arg;   // To avoid the warning message
     while (!quit_request) {
         pthread_mutex_lock(&(coordinate.coordinate_lock));
-        send_position((int16_t)(coordinate.x), (int16_t)(coordinate.y));
+        send_position(coord_to_index(coordinate.x), coord_to_index(coordinate.y));
         pthread_mutex_unlock(&(coordinate.coordinate_lock));
         Sleep(1500);
     }
@@ -41,7 +41,7 @@ void update_coordinate(int distance) {
 
 //Erwan
 void get_obst_position(int r, int theta, int16_t *x_obst, int16_t *y_obst) {
-    float rad = M_PI * (float)theta / 180 ;
+    float rad = M_PI * (float)theta / 180;
     pthread_mutex_lock(&(coordinate.coordinate_lock));
     *x_obst = coordinate.x + (round)(r * cos(rad));
     *y_obst = coordinate.y + (round)(r * sin(rad));
