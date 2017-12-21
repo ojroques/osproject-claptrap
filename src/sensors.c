@@ -47,6 +47,7 @@ DoubleValue retrieve_double_value(uint8_t sensor_id, uint8_t sensor_mode){
   }
   return ref;
 }
+
 //Same for triple value
 
 TripleValue retrieve_triple_value(uint8_t sensor_id, uint8_t sensor_mode){

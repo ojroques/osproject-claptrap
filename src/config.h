@@ -3,8 +3,8 @@
 
 #include <stdint.h>
 
-#define LEFT_WHEEL_PORT        66
 #define RIGHT_WHEEL_PORT       67
+#define LEFT_WHEEL_PORT        66
 #define ULTRASONIC_TACHO_PORT  65
 #define CARRIER_PORT           68
 

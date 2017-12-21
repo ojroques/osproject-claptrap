@@ -21,14 +21,14 @@ Eurecom, 2017 - 2018. */
 
 #define MAIN_DEBUG 0
 
-volatile int quit_request                 = 0;   // To stop the position thread
-sensors_t sensors_id                      = {0, 0, 0, 0, 0};
-tachos_t tachos_id                        = {0, 0, 0, 0};
-int current_direction                     = NORTH;
-const int ANGLES[NB_DIRECTION]            = {0, 90, 180, -90};
-const char *DIRECTIONS_NAME[NB_DIRECTION] = {"E", "N", "W", "S"};
-coordinate_t coordinate                   = {600, 300, 90, PTHREAD_MUTEX_INITIALIZER};
-int mv_history[2]                         = {-1, -2};
+volatile int quit_request                 = 0;    // To stop the position thread
+sensors_t sensors_id                      = {0, 0, 0, 0, 0};    // Contains the sensors' identifiant
+tachos_t tachos_id                        = {0, 0, 0, 0};       // Contains the tachos' identifiant
+int current_direction                     = NORTH;              // Direction faced by the robot at the beginning
+const int ANGLES[NB_DIRECTION]            = {0, 90, 180, -90};  // Angles for each direction from east
+const char *DIRECTIONS_NAME[NB_DIRECTION] = {"E", "N", "W", "S"};    // Name of all 4 directions
+coordinate_t coordinate                   = {600, 300, 90, PTHREAD_MUTEX_INITIALIZER};    // The current position and angle
+int mv_history[2]                         = {-1, -2};          // Holds the last two moves
 
 /* Drop non-movable obstacle. */
 void drop_obstacle() {
@@ -50,7 +50,6 @@ int obstacle_type(int *sonar_value) {
     if (distance > TRESHOLD_COLOR) {
         distance = distance - TRESHOLD_COLOR;
     }
-
     translation(tachos_id.right_wheel, tachos_id.left_wheel, distance);
     waitncheck_wheels(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.ultrasonic_sensor);
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
@@ -58,6 +57,7 @@ int obstacle_type(int *sonar_value) {
     // Check if there is really an obstacle
     new_distance = get_avg_distance(sensors_id.ultrasonic_sensor, NB_SENSOR_MESURE);
     *sonar_value = distance + new_distance; // Update sonar_value with a more reliable value
+
     // Check color, after multiplying TRESHOLD_COLOR by 2 as an error margin
     if (new_distance > 2*TRESHOLD_COLOR) {
         translation(tachos_id.right_wheel, tachos_id.left_wheel, -distance);
@@ -85,12 +85,14 @@ void analyse_env(int mesures[NB_DIRECTION]) {
     int16_t x_obstacle, y_obstacle;
 
     printf("    Mesures:\n");
-
     initial_direction = current_direction;
+
     for (i = 0; i < NB_DIRECTION; i++) {
+        // Mesure distance of the current direction
         current_direction = (initial_direction + i) % NB_DIRECTION;
         sonar_value = get_avg_distance(sensors_id.ultrasonic_sensor, NB_SENSOR_MESURE);
         printf("    - %s: %dmm, OBST: ", DIRECTIONS_NAME[current_direction], sonar_value);
+
         // If non-movable obstacle detected, place obstacle
         if (sonar_value < TRESHOLD_CHECK_OBST && obstacle_type(&sonar_value) == NONMV_OBST) {
             get_obst_position(sonar_value, ANGLES[current_direction], &x_obstacle, &y_obstacle);
@@ -99,6 +101,7 @@ void analyse_env(int mesures[NB_DIRECTION]) {
             printf("None\n");
         }
 
+        // Rotate to the next direction
         mesures[current_direction] = sonar_value;
         if (MAIN_DEBUG) getchar();    // PAUSE PROGRAM
         if (i < NB_DIRECTION - 1) {   // To avoid returning to the initial direction
@@ -108,7 +111,7 @@ void analyse_env(int mesures[NB_DIRECTION]) {
     }
 }
 
-/* Return the direction with the largest free space (> 20cm)
+/* Return the direction with the largest free space (> 10cm)
 or -1 if there are none */
 int choose_direction(int mesures[NB_DIRECTION]) {
     int i, direction, is_looping;
@@ -174,19 +177,21 @@ int main() {
     signal(SIGINT, clean_exit);
     pthread_t pos_thread;
 
+    // General configuration
     if (!config_all(&sensors_id, &tachos_id)) {
         printf("ERROR: Initialization has failed\n");
         return EXIT_FAILURE;
     }
 
+    // Run the position thread, sending the current position every 1.5s to the server
     if(pthread_create(&pos_thread, NULL, position_thread, NULL) == -1) {
         printf("ERROR: Could not start the position thread\n");
         return EXIT_FAILURE;
     }
 
-    time_t start_time;
-    int mesures[NB_DIRECTION] = {0};
-    int chosen_direction;
+    time_t start_time;                  // The robot stops after 3mn50
+    int mesures[NB_DIRECTION] = {0};    // Contains the mesured distance of all 4 directions
+    int chosen_direction;               // The direction the robot will move to
 
     printf("Press any key to begin exploration\n");
     getchar();
@@ -209,6 +214,7 @@ int main() {
 
     printf("********** END OF EXPLORATION **********\n\n");
 
+    // Stop sending the current position
     printf("Killing position thread...");
     quit_request = 1;
     if (!pthread_join(pos_thread, NULL)) {
@@ -217,7 +223,8 @@ int main() {
         printf("Error.\n");
     }
 
-    printf("Sending image to the server...\n");
+    // Send the map to the server
+    printf("Sending map to the server...\n");
     send_image();
     printf("Done.\n");
 
