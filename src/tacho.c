@@ -65,12 +65,14 @@ void translation(uint8_t right_wheel, uint8_t left_wheel, int distance) {
 
     int max_speed, speed;
     int count_per_rot, rel_pos;
+    int position_start, current_position, temp;
 
     set_tacho_stop_action_inx(left_wheel, TACHO_HOLD);
     set_tacho_stop_action_inx(right_wheel, TACHO_HOLD);
 
     get_tacho_max_speed(left_wheel, &max_speed);
     get_tacho_count_per_rot(left_wheel, &count_per_rot);
+    get_tacho_position(left_wheel, &position_start);
 
     rel_pos = (int)(((float)distance / WHEEL_PERIMETER) * count_per_rot + 0.5);
     speed = (int)((float)max_speed * TRANSLATION_SPEED / 100.0 + 0.5);
@@ -88,6 +90,14 @@ void translation(uint8_t right_wheel, uint8_t left_wheel, int distance) {
 
     set_tacho_command_inx(left_wheel, TACHO_RUN_TO_REL_POS);
     set_tacho_command_inx(right_wheel, TACHO_RUN_TO_REL_POS);
+
+    get_tacho_position(left_wheel, &current_position);
+    while((current_position - position_start) != rel_pos) {
+        temp = current_position;
+        get_tacho_position(left_wheel, &current_position);
+        update_coordinate(WHEEL_PERIMETER * abs(current_position - temp) / count_per_rot);
+        Sleep(100);
+    }
 }
 
 //Erwan
