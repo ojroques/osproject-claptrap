@@ -33,14 +33,12 @@ void print_image() {
 }
 
 void init_image() {
-    printf("Initializing the image...");
     int i, j;
     for (i = 0; i < IMG_HEIGHT; i++) {
         for (j = 0; j < IMG_WIDTH; j++) {
             IMAGE[i][j] = 0;
         }
     }
-    printf("Done.\n");
 }
 
 int get_cell(uint16_t i, uint16_t j) {

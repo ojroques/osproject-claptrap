@@ -18,7 +18,7 @@ void *position_thread(void *arg) {
         pthread_mutex_lock(&(coordinate.coordinate_lock));
         send_position(coord_to_index(coordinate.x), coord_to_index(coordinate.y));
         pthread_mutex_unlock(&(coordinate.coordinate_lock));
-        Sleep(1500);
+        Sleep(2000);
     }
     pthread_exit(NULL);
 }

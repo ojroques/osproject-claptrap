@@ -66,7 +66,7 @@ void translation(uint8_t right_wheel, uint8_t left_wheel, int distance) {
 
     int max_speed, speed;
     int count_per_rot, rel_pos;
-    int position_start, current_position, temp;
+    /* int position_start, current_position, temp; */
 
     // Set behavior when tachos will stop
     set_tacho_stop_action_inx(left_wheel, TACHO_HOLD);
@@ -75,11 +75,11 @@ void translation(uint8_t right_wheel, uint8_t left_wheel, int distance) {
     // Get the tachos current settings
     get_tacho_max_speed(left_wheel, &max_speed);
     get_tacho_count_per_rot(left_wheel, &count_per_rot);
-    get_tacho_position(left_wheel, &position_start);
+    /* get_tacho_position(left_wheel, &position_start); */
 
     // Calculate the speed percentage and the number of rotation for the wheel
-    rel_pos = (int)(((float)distance / WHEEL_PERIMETER) * count_per_rot + 0.5);
-    speed = (int)((float)max_speed * TRANSLATION_SPEED / 100.0 + 0.5);
+    rel_pos = round(((float)distance / WHEEL_PERIMETER) * count_per_rot + 0.5);
+    speed = round((float)max_speed * TRANSLATION_SPEED / 100.0 + 0.5);
 
     // Set the tachos speed to the one calculated
     set_tacho_speed_sp(left_wheel, speed);
@@ -100,13 +100,13 @@ void translation(uint8_t right_wheel, uint8_t left_wheel, int distance) {
     set_tacho_command_inx(right_wheel, TACHO_RUN_TO_REL_POS);
 
     // Update the position
-    get_tacho_position(left_wheel, &current_position);
+    /* get_tacho_position(left_wheel, &current_position);
     while((current_position - position_start) != rel_pos) {
         temp = current_position;
         get_tacho_position(left_wheel, &current_position);
         update_coordinate(WHEEL_PERIMETER * abs(current_position - temp) / count_per_rot);
         Sleep(100);
-    }
+    } */
 }
 
 /* By Erwan
@@ -114,7 +114,7 @@ void translation(uint8_t right_wheel, uint8_t left_wheel, int distance) {
 void rotation(uint8_t right_wheel, uint8_t left_wheel, int angle) {
     if (!angle) return;
 
-    float rad = (float)angle / 360 * 2*M_PI;
+    float rad = ((float)angle / 360.0) * 2 * M_PI;
     int max_speed, speed;
     int count_per_rot, rel_pos;
 
@@ -127,8 +127,8 @@ void rotation(uint8_t right_wheel, uint8_t left_wheel, int angle) {
     get_tacho_count_per_rot(left_wheel, &count_per_rot);
 
     // Calculate the speed percentage and the number of rotation for the wheel
-    rel_pos = (int)((ROBOT_RADIUS * rad / WHEEL_PERIMETER) * count_per_rot + 0.5);
-    speed = (int)((float)max_speed * ROTATION_SPEED / 100.0 + 0.5);
+    rel_pos = round((ROBOT_RADIUS * rad / WHEEL_PERIMETER) * count_per_rot + 0.5);
+    speed = round((float)max_speed * ROTATION_SPEED / 100.0 + 0.5);
 
     // Set the tachos speed to the one calculated
     set_tacho_speed_sp(left_wheel, speed);
@@ -223,10 +223,11 @@ int main(int argc, char *argv[]) {
     uint8_t right_wheel, left_wheel;
     uint8_t sonar_id, color_id;
 
-    int rotation_angle   = atoi(argv[1]);
-    int translation_dist = atoi(argv[2]);
+    int translation_dist = atoi(argv[1]);
+    int rotation_angle   = atoi(argv[2]);
 
     ev3_sensor_init();
+    ev3_tacho_init();
     ev3_search_sensor(LEGO_EV3_US, &sonar_id, 0);
     ev3_search_sensor(LEGO_EV3_COLOR, &color_id, 0);
 
@@ -236,11 +237,11 @@ int main(int argc, char *argv[]) {
         if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &left_wheel, 0)) {
             printf("    [OK] Left wheel\n");
         } else {
-            printf("    [ERR] Right wheel\n");
+            printf("    [ERR] Left wheel\n");
             exit(-1);
         }
     } else {
-        printf("    [ERR] Left wheel\n");
+        printf("    [ERR] Right wheel\n");
         exit(-1);
     }
     printf("Done.\n");
@@ -248,17 +249,17 @@ int main(int argc, char *argv[]) {
     printf("Rotating by %d degres... ", rotation_angle);
     rotation(right_wheel, left_wheel, rotation_angle);
     wait_wheels(right_wheel, left_wheel);
-    printf("Done.");
+    printf("Done.\n");
 
-    printf("Moving forward by %d mm... ", translation_distance);
+    printf("Moving forward by %d mm and detecting obstacles... ", translation_dist);
     translation(right_wheel, left_wheel, translation_dist);
-    wait_wheels(right_wheel, left_wheel);
-    printf("Done.");
+    waitncheck_wheels(right_wheel, left_wheel, sonar_id);
+    printf("Done.\n");
 
-    printf("Moving backward by %d mm... ", translation_distance);
+    printf("Moving backward by %d mm... ", translation_dist);
     translation(right_wheel, left_wheel, -translation_dist);
     wait_wheels(right_wheel, left_wheel);
-    printf("Done.");
+    printf("Done.\n");
 
     printf("Color detected: %d\n", get_avg_color(color_id, NB_SENSOR_MESURE));
 

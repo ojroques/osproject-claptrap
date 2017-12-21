@@ -6,7 +6,7 @@
 #define ROTATION_SPEED     15   // A percentage of max_speed
 #define TRANSLATION_SPEED  30   // A percentage of max_speed
 #define RAMP_DURATION      100
-#define ROBOT_RADIUS       4.65
+#define ROBOT_RADIUS       46.5
 #define WHEEL_PERIMETER    175.93
 #define TACHO_BUFFER_SIZE  256
 

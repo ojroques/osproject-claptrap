@@ -74,13 +74,7 @@ int config_all(sensors_t *sensors_id, tachos_t *tachos_id) {
     printf("Done.\n");
 
     // Connect to the server
-    printf("Establishing connection... ");
     is_ok = open_connection();
-    if (is_ok) {
-        printf("Done.\n");
-    } else {
-        printf("Error!\n");
-    }
 
     printf("----------- END OF INITIALIZATION -----------\n\n");
 
@@ -101,11 +95,6 @@ void clean_exit(int signum) {
     printf("\n");
     if (signum) printf("Signal %d detected!\n", signum);
 
-    // Free the sensors
-    printf("Freeing the sensors... ");
-    ev3_uninit();
-    printf("Done.\n");
-
     printf("Freeing the tachos... ");
     // To avoid stuck tachos after quitting abruptly
     set_tacho_stop_action_inx(right_wheel, TACHO_COAST);
@@ -116,6 +105,11 @@ void clean_exit(int signum) {
     stop_tacho(left_wheel);
     stop_tacho(us_tacho);
     stop_tacho(obst_carrier);
+    printf("Done.\n");
+
+    // Free the sensors
+    printf("Freeing the sensors... ");
+    ev3_uninit();
     printf("Done.\n");
 
     printf("See you later!\n");
