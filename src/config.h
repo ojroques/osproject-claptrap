@@ -31,7 +31,7 @@ void search_sensor(uint8_t sensor_type, uint8_t *sensor_id, char *sensor_name);
 void search_tacho(uint8_t motor_port, uint8_t *tacho_id, char *tacho_name);
 void config_sensors(sensors_t *sensors_id);
 void config_tacho(tachos_t *tachos_id);
-int config_all(sensors_t *sensors_id, tachos_t *tachos_id);
+int config_all(sensors_t *sensors_id, tachos_t *tachos_id, int map_width, int map_height);
 void clean_exit(int signum);
 
 #endif

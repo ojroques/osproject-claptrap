@@ -60,7 +60,7 @@ void config_tacho(tachos_t *tachos_id) {
 
 /* By Olivier
    Configure the robot */
-int config_all(sensors_t *sensors_id, tachos_t *tachos_id) {
+int config_all(sensors_t *sensors_id, tachos_t *tachos_id, int map_width, int map_height) {
     int is_ok;
     printf("---------- CLAPTRAP INITIALIZATION ----------\n");
 
@@ -70,7 +70,7 @@ int config_all(sensors_t *sensors_id, tachos_t *tachos_id) {
 
     // Image initialization
     printf("Initializing image... ");
-    init_image();
+    init_image(map_width, map_height);
     printf("Done.\n");
 
     // Connect to the server

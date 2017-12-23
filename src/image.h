@@ -2,8 +2,6 @@
 #define IMAGE_H
 
 #define SIZE_OBSTACLE       2   /* The size of an obstacle's side */
-#define IMG_WIDTH          24
-#define IMG_HEIGHT         40
 #define ERR_OUT_OF_BOUNDS  -1
 
 typedef struct color_t {
@@ -13,7 +11,7 @@ typedef struct color_t {
 } color_t;
 
 void print_image();
-void init_image();
+void init_image(int width, int height);
 int get_cell(uint16_t i, uint16_t j);
 int set_cell(uint16_t i, uint16_t j, int value);
 int is_out_of_bounds(uint16_t i, uint16_t j);

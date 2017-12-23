@@ -173,12 +173,33 @@ void move(int direction, int mesures[NB_DIRECTION]) {
     // TODO: Update image accordingly
 }
 
-int main() {
-    signal(SIGINT, clean_exit);
-    pthread_t pos_thread;
+int main(int argc, char *argv[]) {
+
+    // Getting the map dimensions
+    if (argc != 1 || argc != 3) {
+        printf("Usage 1: ./main map_width map_height\n");
+        printf("Usage 2: ./main - Default values: (24, 40)\n");
+        return EXIT_FAILURE;
+    }
+
+    // Variables initialization
+    int map_width, map_height;          // The map dimensions
+    signal(SIGINT, clean_exit);         // Redirect CTRL + C to clean_exit in config.c
+    pthread_t pos_thread;               // The position thread
+    time_t start_time;                  // The robot stops after 3mn50
+    int mesures[NB_DIRECTION] = {0};    // Contains the mesured distance of all 4 directions
+    int chosen_direction;               // The direction the robot will move to
 
     // General configuration
-    if (!config_all(&sensors_id, &tachos_id)) {
+    if (argc == 1) {
+        map_width  = 24;
+        map_height = 40;
+    } else {
+        map_width  = atoi(argv[1]);
+        map_height = atoi(argv[2]);
+    }
+
+    if (!config_all(&sensors_id, &tachos_id, map_width, map_height)) {
         printf("ERROR: Initialization has failed\n");
         return EXIT_FAILURE;
     }
@@ -189,10 +210,7 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    time_t start_time;                  // The robot stops after 3mn50
-    int mesures[NB_DIRECTION] = {0};    // Contains the mesured distance of all 4 directions
-    int chosen_direction;               // The direction the robot will move to
-
+    // The main algorithm composed of four parts
     printf("Press any key to begin exploration\n");
     getchar();
 
