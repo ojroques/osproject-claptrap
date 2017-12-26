@@ -177,8 +177,8 @@ int main(int argc, char *argv[]) {
 
     // Getting the map dimensions
     if (argc != 1 || argc != 3) {
-        printf("Usage 1: ./main map_width map_height\n");
-        printf("Usage 2: ./main - Default values: (24, 40)\n");
+        printf("Usage 1: %s map_width map_height\n", argv[0]);
+        printf("Usage 2: %s - Default values: (24, 40)\n", argv[0]);
         return EXIT_FAILURE;
     }
 

@@ -212,6 +212,8 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
 
 #define LEFT_WHEEL_PORT        66
 #define RIGHT_WHEEL_PORT       67
+#define ULTRASONIC_TACHO_PORT  65
+#define CARRIER_PORT           68
 
 /* ********************** MAIN USED FOR TESTS ********************** */
 int main(int argc, char *argv[]) {
