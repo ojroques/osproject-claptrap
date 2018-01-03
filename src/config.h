@@ -5,8 +5,8 @@
 
 #define RIGHT_WHEEL_PORT       67
 #define LEFT_WHEEL_PORT        66
-#define ULTRASONIC_TACHO_PORT  65
-#define CARRIER_PORT           68
+#define ULTRASONIC_TACHO_PORT  68
+#define CARRIER_PORT           65
 
 // Nathan
 // Struct with the id of each sensors
