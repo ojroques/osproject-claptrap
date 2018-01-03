@@ -39,6 +39,17 @@ void wait_wheels(uint8_t right_wheel, uint8_t left_wheel) {
     } while (strcmp("holding", right_state) && strcmp("holding", left_state));
 }
 
+/* By Nathan.
+   Wait for the ultrasonic sensor tacho to stop. */
+void wait_head(uint8_t ultrasonic_tacho) {
+    char head_state[TACHO_BUFFER_SIZE];
+    do {
+        get_tacho_state(ultrasonic_tacho, head_state, TACHO_BUFFER_SIZE);
+        Sleep(200);
+    } while (strcmp("holding", head_state));
+}
+
+
 /* By Olivier.
    While moving, this function checks if there is an obstacle and stop tachos
    if indeed there is one. */
@@ -207,24 +218,64 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
     set_tacho_command_inx(right_wheel, TACHO_STOP);
 }
 
+//Nathan
+//function to turn the head to the right
+
+void turn_ultrasonic_tacho(uint8_t ultrasonic_tacho, int angle){
+
+  if (!angle) return;
+
+  int max_speed, speed;
+  int rel_pos;
+
+  // Set behavior when tachos will stop
+  set_tacho_stop_action_inx(ultrasonic_tacho, TACHO_HOLD);
+
+  // Get the tachos current settings
+  get_tacho_max_speed(ultrasonic_tacho, &max_speed);
+
+  // Calculate the speed percentage and the number of rotation for the wheel
+  rel_pos = round(angle);
+  speed = round((float)max_speed / 8 ) ;
+
+  // Set the tachos speed to the one calculated
+  set_tacho_speed_sp(ultrasonic_tacho, speed);
+
+  // Set the acceleration
+  set_tacho_ramp_up_sp(ultrasonic_tacho, RAMP_DURATION);
+  set_tacho_ramp_down_sp(ultrasonic_tacho, RAMP_DURATION);
+
+
+  // Set the number of wheel rotation
+  set_tacho_position_sp(ultrasonic_tacho, rel_pos);
+
+  // Run the specified command
+  set_tacho_command_inx(ultrasonic_tacho, TACHO_RUN_TO_REL_POS);
+
+}
+
 
 #ifdef TACHO_DEBUG
 
 #define LEFT_WHEEL_PORT        66
 #define RIGHT_WHEEL_PORT       67
+#define ULTRASONIC_TACHO_PORT  65
+#define CARRIER_PORT           68
 
 /* ********************** MAIN USED FOR TESTS ********************** */
 int main(int argc, char *argv[]) {
     if (argc != 3) {
-        printf("Usage: ./tacho translation_distance rotation_angle\n");
+        printf("Usage: ./tacho translation_distance rotation_angle ultrasonic_tacho_rotation obstacle_carrier_rotation\n");
         exit(-1);
     }
 
-    uint8_t right_wheel, left_wheel;
+    uint8_t right_wheel, left_wheel, ultrasonic_tacho, obstacle_carrier;
     uint8_t sonar_id, color_id;
 
     int translation_dist = atoi(argv[1]);
     int rotation_angle   = atoi(argv[2]);
+    int ultrasonic_tacho_rotation = atoi(argv[3]);
+    int obstacle_carrier_rotation   = atoi(argv[4]);
 
     ev3_sensor_init();
     ev3_tacho_init();
@@ -236,6 +287,17 @@ int main(int argc, char *argv[]) {
         printf("    [OK] Right wheel\n");
         if (ev3_search_tacho_plugged_in(LEFT_WHEEL_PORT, 0, &left_wheel, 0)) {
             printf("    [OK] Left wheel\n");
+            if (ev3_search_tacho_plugged_in(ULTRASONIC_TACHO_PORT, 0, &ultrasonic_tacho, 0)) {
+                printf("    [OK] Ultrasonic tacho\n");
+                if (ev3_search_tacho_plugged_in(CARRIER_PORT, 0, &obstacle_carrier, 0)) {
+                    printf("    [OK] Carrier tacho\n");
+                } else {
+                  printf("    [ERR] Carrier tacho\n");
+                  exit(-1);
+            } else {
+              printf("    [ERR] Ultrasonic tacho\n");
+              exit(-1);
+            }
         } else {
             printf("    [ERR] Left wheel\n");
             exit(-1);
@@ -263,10 +325,19 @@ int main(int argc, char *argv[]) {
 
     printf("Color detected: %d\n", get_avg_color(color_id, NB_SENSOR_MESURE));
 
+    printf("Turning ultrasonic sensor of %d degree... ", ultrasonic_tacho_rotation);
+    turn_ultrasonic_tacho(ultrasonic_tacho, ultrasonic_tacho_rotation);
+    wait_head(ultrasonic_tacho);
+    printf("Done.\n");
+
     set_tacho_stop_action_inx(right_wheel, TACHO_COAST);
     set_tacho_stop_action_inx(left_wheel, TACHO_COAST);
+    set_tacho_stop_action_inx(ultrasonic_tacho, TACHO_COAST);
+    set_tacho_stop_action_inx(obstacle_carrier, TACHO_COAST);
     stop_tacho(right_wheel);
     stop_tacho(left_wheel);
+    stop_tacho(ultrasonic_tacho);
+    stop_tacho(obstacle_carrier);
     ev3_uninit();
 }
 
