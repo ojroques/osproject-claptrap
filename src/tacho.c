@@ -254,6 +254,7 @@ void operate_tacho(uint8_t tacho, int angle){
 //function to turn the head of the robot
 //NOTE : the max rotation angle that can be given to the tacho to turn the head
 //is 135 or -135 when the head is at the center position
+//The value may be a bit different due to non symetrical behavior of tacho
 
 void turn_ultrasonic_tacho(uint8_t ultrasonic_tacho, int angle){
 
@@ -288,8 +289,11 @@ int single_scan(uint8_t ultrasonic_tacho, uint8_t sonar_id, int angle){
 
 //Nathan
 //Function to perform a scan of the area from the min angle to the max angle
+//need the min max angle to define range of scan and number of scan that is non zero
+//and the array with the right length
 
 void scan_distance(uint8_t ultrasonic_tacho, uint8_t sonar_id, int number_of_scan, int min_angle, int max_angle, int * array_of_scan_values){
+  if (!number_of_scan) return;
   int angle_delta = round( (max_angle - min_angle) / (number_of_scan - 1) );
   turn_ultrasonic_tacho(ultrasonic_tacho, min_angle);
   wait_head(ultrasonic_tacho);
