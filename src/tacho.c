@@ -107,7 +107,9 @@ void translation(uint8_t right_wheel, uint8_t left_wheel,uint8_t ultrasonic_id, 
     set_tacho_command_inx(left_wheel, TACHO_RUN_TO_REL_POS);
     set_tacho_command_inx(right_wheel, TACHO_RUN_TO_REL_POS);
 
-    waitncheck_wheels(right_wheel, left_wheel, ultrasonic_id, position_start)
+    if (distance > 0){
+      waitncheck_wheels(right_wheel, left_wheel, ultrasonic_id, position_start);
+    }
     // Update the position
     /* get_tacho_position(left_wheel, &current_position);
     while((current_position - position_start) != rel_pos) {
@@ -261,8 +263,7 @@ int main(int argc, char *argv[]) {
     printf("Done.\n");
 
     printf("Moving forward by %d mm and detecting obstacles... ", translation_dist);
-    translation(right_wheel, left_wheel, translation_dist);
-    waitncheck_wheels(right_wheel, left_wheel, sonar_id);
+    translation(right_wheel, left_wheel, translation_dist, sonar_id);
     printf("Done.\n");
 
     printf("Moving backward by %d mm... ", translation_dist);
