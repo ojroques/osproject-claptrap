@@ -4,6 +4,7 @@
 #include <pthread.h>
 #include <math.h>
 
+#include "sensors.h"
 #include "const.h"
 #include "client.h"
 #include "position.h"
@@ -27,6 +28,18 @@ void *position_thread(void *arg) {
 void update_theta(int angle) {
     pthread_mutex_lock(&(coordinate.coordinate_lock));
     coordinate.theta = coordinate.theta + angle;
+    pthread_mutex_unlock(&(coordinate.coordinate_lock));
+}
+
+//Erwan
+void recalibrate_theta(uint8_t compass_id, int compass_starting_angle){
+    Sleep(4000); // We let the time for the compass to calibrate itself
+    int compass_angle = get_compass_direction(compass_id);
+    pthread_mutex_lock(&(coordinate.coordinate_lock));
+    // We check if the derivation of theta is not too much
+    if (abs((coordinate.theta - 90) - (compass_angle - compass_starting_angle)) > 2){
+      coordinate.theta = compass_angle; // if it is we recalibrate by trusting the compass
+    }
     pthread_mutex_unlock(&(coordinate.coordinate_lock));
 }
 
