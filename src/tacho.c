@@ -292,11 +292,13 @@ int single_scan(uint8_t ultrasonic_tacho, uint8_t sonar_id, int angle){
 void scan_distance(uint8_t ultrasonic_tacho, uint8_t sonar_id, int number_of_scan, int min_angle, int max_angle, int * array_of_scan_values){
   int angle_delta = round((float)(max_angle - min_angle) / (float)number_of_scan);
   turn_ultrasonic_tacho(ultrasonic_tacho, min_angle);
+  wait_head(ultrasonic_tacho);
   // get first value of scan
   array_of_scan_values[0] = get_avg_distance(sonar_id, NB_SENSOR_MESURE);
   //for remaining scan, turn head and scan
   for(int i = 1; i < number_of_scan; i++){
     array_of_scan_values[i] = single_scan(ultrasonic_tacho, sonar_id, angle_delta);
+    wait_head(ultrasonic_tacho);
   }
   //turn head back to center position
   turn_ultrasonic_tacho(ultrasonic_tacho, -1 * max_angle);
@@ -376,8 +378,8 @@ int main(int argc, char *argv[]) {
     //printf("Color detected: %d\n", get_avg_color(color_id, NB_SENSOR_MESURE));
 
     printf("Turning ultrasonic sensor of %d degree... ", ultrasonic_tacho_rotation);
-    turn_ultrasonic_tacho(ultrasonic_tacho, ultrasonic_tacho_rotation);
-    wait_head(ultrasonic_tacho);
+    //turn_ultrasonic_tacho(ultrasonic_tacho, ultrasonic_tacho_rotation);
+    //wait_head(ultrasonic_tacho);
     printf("Done.\n");
 
     printf("Performing %d scans... ", number_of_scan);
@@ -387,6 +389,7 @@ int main(int argc, char *argv[]) {
       printf("value %d scanned = %d \n", i, scanned_values[i]);
     }
     wait_head(ultrasonic_tacho);
+    Sleep(6000);
     printf("Done.\n");
 
     set_tacho_stop_action_inx(right_wheel, TACHO_COAST);
