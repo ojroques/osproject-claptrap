@@ -179,7 +179,14 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
     current_angle = angle_start;
 
     //duty_cycle is the roughly the percentage of power given to the tacho
-    int duty_cycle = angle - (current_angle - angle_start);
+    int duty_cycle;
+    if(angle > 0 ){
+      //for positive value of angle
+      duty_cycle = angle - abs(current_angle - angle_start);
+    }else{
+      //for negative value of angle
+      duty_cycle = angle + abs(current_angle - angle_start);
+    }
 
     if (duty_cycle > SPEED_MAX || duty_cycle < ((-1) * SPEED_MAX)){
       duty_cycle = duty_cycle / abs(duty_cycle) * SPEED_MAX;
@@ -188,7 +195,7 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
       duty_cycle = duty_cycle / abs(duty_cycle) * SPEED_MIN;
     }
 
-    //set the tacho's rotation
+    //set the tacho's rotation1
     set_tacho_duty_cycle_sp(left_wheel, duty_cycle);
     set_tacho_duty_cycle_sp(right_wheel, (-1) * duty_cycle);
 
@@ -205,6 +212,10 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
       }else{
         //for negative value of angle
         duty_cycle = angle + abs(current_angle - angle_start);
+      }
+
+      if (duty_cycle == 0){
+        break;
       }
 
       if (duty_cycle > SPEED_MAX || duty_cycle < ((-1) * SPEED_MAX)){
@@ -331,7 +342,7 @@ int main(int argc, char *argv[]) {
     }
 
     uint8_t right_wheel, left_wheel, ultrasonic_tacho, obstacle_carrier;
-    uint8_t sonar_id, color_id;
+    uint8_t sonar_id, color_id, gyro_id;
 
     int translation_dist = atoi(argv[1]);
     int rotation_angle   = atoi(argv[2]);
@@ -343,6 +354,7 @@ int main(int argc, char *argv[]) {
     ev3_tacho_init();
     ev3_search_sensor(LEGO_EV3_US, &sonar_id, 0);
     ev3_search_sensor(LEGO_EV3_COLOR, &color_id, 0);
+    ev3_search_sensor(LEGO_EV3_GYRO, &gyro_id, 0);
 
     printf("Initializing tachos...\n");
     if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &right_wheel, 0)) {
@@ -374,8 +386,8 @@ int main(int argc, char *argv[]) {
     printf("Rotating by %d degres... ", rotation_angle);
     //rotation(right_wheel, left_wheel, rotation_angle);
     //wait_wheels(right_wheel, left_wheel);
-    rotation_gyro(right_wheel, left_wheel, rotation_angle);
-    Sleep(10000);
+    rotation_gyro(right_wheel, left_wheel, gyro_id, rotation_angle);
+    Sleep(5000);
     printf("Done.\n");
 
     printf("Moving forward by %d mm and detecting obstacles... ", translation_dist);
