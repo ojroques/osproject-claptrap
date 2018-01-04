@@ -312,8 +312,8 @@ void scan_distance(uint8_t ultrasonic_tacho, uint8_t sonar_id, int number_of_sca
 
 /* ********************** MAIN USED FOR TESTS ********************** */
 int main(int argc, char *argv[]) {
-    if (argc != 5) {
-        printf("Usage: ./tacho translation_distance rotation_angle ultrasonic_tacho_rotation obstacle_carrier_rotation\n");
+    if (argc != 6) {
+        printf("Usage: ./tacho translation_distance rotation_angle ultrasonic_tacho_rotation obstacle_carrier_rotation number_of_scan\n");
         exit(-1);
     }
 
@@ -324,6 +324,7 @@ int main(int argc, char *argv[]) {
     int rotation_angle   = atoi(argv[2]);
     int ultrasonic_tacho_rotation = atoi(argv[3]);
     int obstacle_carrier_rotation   = atoi(argv[4]);
+    int number_of_scan   = atoi(argv[5]);
 
     ev3_sensor_init();
     ev3_tacho_init();
@@ -376,6 +377,15 @@ int main(int argc, char *argv[]) {
 
     printf("Turning ultrasonic sensor of %d degree... ", ultrasonic_tacho_rotation);
     turn_ultrasonic_tacho(ultrasonic_tacho, ultrasonic_tacho_rotation);
+    wait_head(ultrasonic_tacho);
+    printf("Done.\n");
+
+    printf("Performing %d scans... ", number_of_scan);
+    int scanned_values[number_of_scan];
+    scan_distance(ultrasonic_tacho, sonar_id, number_of_scan, -135, 135, scanned_values);
+    for (int i = 0; i<number_of_scan; i++){
+      printf("value %d scanned = %d \n", i, scanned_values[i]);
+    }
     wait_head(ultrasonic_tacho);
     printf("Done.\n");
 
