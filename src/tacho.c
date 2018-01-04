@@ -259,11 +259,11 @@ void turn_ultrasonic_tacho(uint8_t ultrasonic_tacho, int angle){
 
   int rel_pos;
   rel_pos = round(angle);
-  if (rel_pos > THRESHOLD_ULTRASONIC_TACHO){
-    rel_pos = THRESHOLD_ULTRASONIC_TACHO;
+  if (rel_pos > THRESHOLD_ULTRASONIC_TACHO_SUP){
+    rel_pos = THRESHOLD_ULTRASONIC_TACHO_SUP;
   }
-  if (rel_pos < -1 * THRESHOLD_ULTRASONIC_TACHO){
-    rel_pos = -1 * THRESHOLD_ULTRASONIC_TACHO;
+  if (rel_pos < THRESHOLD_ULTRASONIC_TACHO_INF){
+    rel_pos = THRESHOLD_ULTRASONIC_TACHO_INF;
   }
 
   //operate tacho with the right angle
@@ -290,7 +290,7 @@ int single_scan(uint8_t ultrasonic_tacho, uint8_t sonar_id, int angle){
 //Function to perform a scan of the area from the min angle to the max angle
 
 void scan_distance(uint8_t ultrasonic_tacho, uint8_t sonar_id, int number_of_scan, int min_angle, int max_angle, int * array_of_scan_values){
-  int angle_delta = round((float)(max_angle - min_angle) / (float)number_of_scan);
+  int angle_delta = round( (max_angle - min_angle) / (number_of_scan - 1) );
   turn_ultrasonic_tacho(ultrasonic_tacho, min_angle);
   wait_head(ultrasonic_tacho);
   // get first value of scan
@@ -326,7 +326,7 @@ int main(int argc, char *argv[]) {
     int rotation_angle   = atoi(argv[2]);
     int ultrasonic_tacho_rotation = atoi(argv[3]);
     int obstacle_carrier_rotation   = atoi(argv[4]);
-    int number_of_scan   = atoi(argv[5]);
+    int number_of_scan  = atoi(argv[5]);
 
     ev3_sensor_init();
     ev3_tacho_init();
@@ -389,7 +389,6 @@ int main(int argc, char *argv[]) {
       printf("value %d scanned = %d \n", i, scanned_values[i]);
     }
     wait_head(ultrasonic_tacho);
-    Sleep(6000);
     printf("Done.\n");
 
     set_tacho_stop_action_inx(right_wheel, TACHO_COAST);
