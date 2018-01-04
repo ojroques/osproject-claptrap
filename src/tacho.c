@@ -42,26 +42,34 @@ void wait_wheels(uint8_t right_wheel, uint8_t left_wheel) {
 /* By Olivier.
    While moving, this function checks if there is an obstacle and stop tachos
    if indeed there is one. */
-void waitncheck_wheels(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasonic_id) {
-    int current_distance;
+void waitncheck_wheels(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasonic_id, position_start) {
+    int current_distance, count_per_rot, current_position, temp;
     char right_state[TACHO_BUFFER_SIZE];
     char left_state[TACHO_BUFFER_SIZE];
+    get_tacho_count_per_rot(left_wheel, &count_per_rot);
+    current_position = position_start;
     do {
         current_distance = get_avg_distance(ultrasonic_id, NB_SENSOR_MESURE);
         if (current_distance < TRESHOLD_MANEUVER) {
             stop_tacho(right_wheel);
             stop_tacho(left_wheel);
+            temp = current_position;
+            get_tacho_position(left_wheel, &current_position);
+            update_coordinate(WHEEL_PERIMETER * abs(current_position - temp) / count_per_rot);
             break;
         }
         get_tacho_state(right_wheel, right_state, TACHO_BUFFER_SIZE);
         get_tacho_state(left_wheel, left_state, TACHO_BUFFER_SIZE);
+        temp = current_position;
+        get_tacho_position(left_wheel, &current_position);
+        update_coordinate(WHEEL_PERIMETER * abs(current_position - temp) / count_per_rot);
         Sleep(200);
     } while (strcmp("holding", right_state) && strcmp("holding", left_state));
 }
 
 /* By Erwan
    Tranlate by X millimeters. */
-void translation(uint8_t right_wheel, uint8_t left_wheel, int distance) {
+void translation(uint8_t right_wheel, uint8_t left_wheel,uint8_t ultrasonic_id, int distance) {
     if (!distance) return;
 
     int max_speed, speed;
@@ -75,7 +83,7 @@ void translation(uint8_t right_wheel, uint8_t left_wheel, int distance) {
     // Get the tachos current settings
     get_tacho_max_speed(left_wheel, &max_speed);
     get_tacho_count_per_rot(left_wheel, &count_per_rot);
-    /* get_tacho_position(left_wheel, &position_start); */
+    get_tacho_position(left_wheel, &position_start);
 
     // Calculate the speed percentage and the number of rotation for the wheel
     rel_pos = round(((float)distance / WHEEL_PERIMETER) * count_per_rot + 0.5);
@@ -99,6 +107,7 @@ void translation(uint8_t right_wheel, uint8_t left_wheel, int distance) {
     set_tacho_command_inx(left_wheel, TACHO_RUN_TO_REL_POS);
     set_tacho_command_inx(right_wheel, TACHO_RUN_TO_REL_POS);
 
+    waitncheck_wheels(right_wheel, left_wheel, ultrasonic_id, position_start)
     // Update the position
     /* get_tacho_position(left_wheel, &current_position);
     while((current_position - position_start) != rel_pos) {
