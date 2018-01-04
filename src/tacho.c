@@ -219,7 +219,7 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
 }
 
 //Nathan
-//function to turn the head to the right
+//function to turn the head of the robot
 
 void turn_ultrasonic_tacho(uint8_t ultrasonic_tacho, int angle, int sleep_time){
 
@@ -236,11 +236,11 @@ void turn_ultrasonic_tacho(uint8_t ultrasonic_tacho, int angle, int sleep_time){
 
   // Calculate the speed percentage and the number of rotation for the wheel
   rel_pos = round(angle);
-  if (rel_pos > 135){
-    rel_pos = 135;
+  if (rel_pos > THRESHOLD_ULTRASONIC_TACHO){
+    rel_pos = THRESHOLD_ULTRASONIC_TACHO;
   }
-  if (rel_pos < -135){
-    rel_pos = -135;
+  if (rel_pos < -1 * THRESHOLD_ULTRASONIC_TACHO){
+    rel_pos = -1 * THRESHOLD_ULTRASONIC_TACHO;
   }
   speed = round((float)max_speed / 8 ) ;
 
@@ -257,14 +257,41 @@ void turn_ultrasonic_tacho(uint8_t ultrasonic_tacho, int angle, int sleep_time){
 
   // Run the specified command
   set_tacho_command_inx(ultrasonic_tacho, TACHO_RUN_TO_REL_POS);
+}
 
-  Sleep(sleep_time);
 
-  // Set the number of wheel rotation
-  set_tacho_position_sp(ultrasonic_tacho, -1 * rel_pos);
+//Nathan
+//function to turn the tacho which operate the carrier
+
+void turn_carrier_tacho(uint8_t obstacle_carrier, int angle){
+
+  if (!angle) return;
+
+  int max_speed, speed;
+  int rel_pos;
+
+  // Set behavior when tachos will stop
+  set_tacho_stop_action_inx(obstacle_carrier, TACHO_HOLD);
+
+  // Get the tachos current settings
+  get_tacho_max_speed(obstacle_carrier, &max_speed);
+
+  // Calculate the speed percentage and the number of rotation for the wheel
+  rel_pos = round(angle);
+  speed = round((float)max_speed / 8 ) ;
+
+  // Set the tachos speed to the one calculated
+  set_tacho_speed_sp(obstacle_carrier, speed);
+
+  // Set the acceleration
+  set_tacho_ramp_up_sp(obstacle_carrier, RAMP_DURATION);
+  set_tacho_ramp_down_sp(obstacle_carrier, RAMP_DURATION);
+
+  // Set the tacho rotation
+  set_tacho_position_sp(obstacle_carrier, rel_pos);
 
   // Run the specified command
-  set_tacho_command_inx(ultrasonic_tacho, TACHO_RUN_TO_REL_POS);
+  set_tacho_command_inx(obstacle_carrier, TACHO_RUN_TO_REL_POS);
 
 }
 

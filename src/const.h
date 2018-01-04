@@ -9,5 +9,6 @@
 #define TRESHOLD_COLOR        30    // Dist in mm to detect color reliably
 #define TRESHOLD_MANEUVER    150    // Dist in mm to maneuver correctly
 #define TRESHOLD_CHECK_OBST  250    // Dist in mm to go check the obst type
+#define THRESHOLD_ULTRASONIC_TACHO  135   // Max angle of rotation of the tacho rotating the head of the robot
 
 #endif
