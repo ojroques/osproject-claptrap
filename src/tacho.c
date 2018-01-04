@@ -386,13 +386,18 @@ int main(int argc, char *argv[]) {
     //wait_head(ultrasonic_tacho);
     printf("Done.\n");
 
+    printf("Turning carrier tacho of %d degree... ", obstacle_carrier_rotation);
+    turn_ultrasonic_tacho(obstacle_carrier, obstacle_carrier_rotation);
+    wait_head(obstacle_carrier);
+    printf("Done.\n");
+
     printf("Performing %d scans... ", number_of_scan);
-    int scanned_values[number_of_scan];
-    scan_distance(ultrasonic_tacho, sonar_id, number_of_scan, -135, 135, scanned_values);
-    for (int i = 0; i<number_of_scan; i++){
-      printf("value %d scanned = %d \n", i, scanned_values[i]);
-    }
-    wait_head(ultrasonic_tacho);
+    //int scanned_values[number_of_scan];
+    //scan_distance(ultrasonic_tacho, sonar_id, number_of_scan, -135, 135, scanned_values);
+    //for (int i = 0; i<number_of_scan; i++){
+    //  printf("value %d scanned = %d \n", i, scanned_values[i]);
+    //}
+    //wait_head(ultrasonic_tacho);
     printf("Done.\n");
 
     set_tacho_stop_action_inx(right_wheel, TACHO_COAST);
