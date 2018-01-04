@@ -279,7 +279,7 @@ void turn_ultrasonic_tacho(uint8_t ultrasonic_tacho, int angle, int sleep_time){
 /* ********************** MAIN USED FOR TESTS ********************** */
 int main(int argc, char *argv[]) {
     if (argc != 5) {
-        printf("Usage: ./tacho translation_distance rotation_angle ultrasonic_tacho_rotation obstacle_carrier_rotation\n");
+        printf("Usage: ./tacho <translation_distance <rotation_angle> <ultrasonic_tacho_rotation> <obstacle_carrier_rotation>\n");
         exit(-1);
     }
 
@@ -324,21 +324,21 @@ int main(int argc, char *argv[]) {
     printf("Done.\n");
 
     printf("Rotating by %d degres... ", rotation_angle);
-    //rotation(right_wheel, left_wheel, rotation_angle);
-    //wait_wheels(right_wheel, left_wheel);
+    rotation(right_wheel, left_wheel, rotation_angle);
+    wait_wheels(right_wheel, left_wheel);
     printf("Done.\n");
 
     printf("Moving forward by %d mm and detecting obstacles... ", translation_dist);
-    //translation(right_wheel, left_wheel, translation_dist);
-    //waitncheck_wheels(right_wheel, left_wheel, sonar_id);
+    translation(right_wheel, left_wheel, translation_dist);
+    waitncheck_wheels(right_wheel, left_wheel, sonar_id);
     printf("Done.\n");
 
     printf("Moving backward by %d mm... ", translation_dist);
-    //translation(right_wheel, left_wheel, -translation_dist);
-    //wait_wheels(right_wheel, left_wheel);
+    translation(right_wheel, left_wheel, -translation_dist);
+    wait_wheels(right_wheel, left_wheel);
     printf("Done.\n");
 
-    //printf("Color detected: %d\n", get_avg_color(color_id, NB_SENSOR_MESURE));
+    printf("Color detected: %d\n", get_avg_color(color_id, NB_SENSOR_MESURE));
 
     printf("Turning ultrasonic sensor of %d degree... ", ultrasonic_tacho_rotation);
     turn_ultrasonic_tacho(ultrasonic_tacho, ultrasonic_tacho_rotation, 1000);

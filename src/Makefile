@@ -2,6 +2,8 @@ CC     = gcc
 CFLAGS = -std=gnu99 -Wall -Wextra -c
 EXEC   = client image tacho tacho_local main main_local
 
+.PHONY: run clean ultraclean
+
 run:
 	./main
 

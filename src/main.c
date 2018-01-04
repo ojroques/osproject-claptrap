@@ -176,8 +176,8 @@ void move(int direction, int mesures[NB_DIRECTION]) {
 int main(int argc, char *argv[]) {
 
     // Getting the map dimensions
-    if (argc != 1 || argc != 3) {
-        printf("Usage 1: %s map_width map_height\n", argv[0]);
+    if (argc != 1 && argc != 4) {
+        printf("Usage 1: %s <map_width> <map_height> <x_init> <y_init>\n", argv[0]);
         printf("Usage 2: %s - Default values: (24, 40)\n", argv[0]);
         return EXIT_FAILURE;
     }
@@ -195,8 +195,10 @@ int main(int argc, char *argv[]) {
         map_width  = 24;
         map_height = 40;
     } else {
-        map_width  = atoi(argv[1]);
-        map_height = atoi(argv[2]);
+        map_width    = atoi(argv[1]);
+        map_height   = atoi(argv[2]);
+        coordinate.x = atoi(argv[3]);
+        coordinate.y = atoi(argv[4]);
     }
 
     if (!config_all(&sensors_id, &tachos_id, map_width, map_height)) {
