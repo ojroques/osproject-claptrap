@@ -13,7 +13,7 @@
 #include "ev3_port.h"
 #include "ev3_tacho.h"
 
-//#define TACHO_DEBUG
+#define TACHO_DEBUG
 
 #ifdef TACHO_DEBUG
 #include <pthread.h>
@@ -42,7 +42,7 @@ void wait_wheels(uint8_t right_wheel, uint8_t left_wheel) {
 /* By Olivier.
    While moving, this function checks if there is an obstacle and stop tachos
    if indeed there is one. */
-void waitncheck_wheels(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasonic_id, position_start) {
+void waitncheck_wheels(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasonic_id,int position_start) {
     int current_distance, count_per_rot, current_position, temp;
     char right_state[TACHO_BUFFER_SIZE];
     char left_state[TACHO_BUFFER_SIZE];
@@ -53,9 +53,6 @@ void waitncheck_wheels(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrason
         if (current_distance < TRESHOLD_MANEUVER) {
             stop_tacho(right_wheel);
             stop_tacho(left_wheel);
-            temp = current_position;
-            get_tacho_position(left_wheel, &current_position);
-            update_coordinate(WHEEL_PERIMETER * abs(current_position - temp) / count_per_rot);
             break;
         }
         get_tacho_state(right_wheel, right_state, TACHO_BUFFER_SIZE);
@@ -65,6 +62,9 @@ void waitncheck_wheels(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrason
         update_coordinate(WHEEL_PERIMETER * abs(current_position - temp) / count_per_rot);
         Sleep(200);
     } while (strcmp("holding", right_state) && strcmp("holding", left_state));
+    temp = current_position;
+    get_tacho_position(left_wheel, &current_position);
+    update_coordinate(WHEEL_PERIMETER * abs(current_position - temp) / count_per_rot);
 }
 
 /* By Erwan
@@ -73,7 +73,7 @@ void translation(uint8_t right_wheel, uint8_t left_wheel,uint8_t ultrasonic_id, 
     if (!distance) return;
 
     int max_speed, speed;
-    int count_per_rot, rel_pos;
+    int count_per_rot, rel_pos, position_start;
     /* int position_start, current_position, temp; */
 
     // Set behavior when tachos will stop
@@ -232,16 +232,19 @@ int main(int argc, char *argv[]) {
     }
 
     uint8_t right_wheel, left_wheel;
-    uint8_t sonar_id, color_id;
+    uint8_t sonar_id, color_id, compass_id;
 
     int translation_dist = atoi(argv[1]);
     int rotation_angle   = atoi(argv[2]);
+    int compass_starting_angle;
 
     ev3_sensor_init();
     ev3_tacho_init();
     ev3_search_sensor(LEGO_EV3_US, &sonar_id, 0);
-    ev3_search_sensor(LEGO_EV3_COLOR, &color_id, 0);
-
+    //ev3_search_sensor(LEGO_EV3_COLOR, &color_id, 0);
+    ev3_search_sensor(HT_NXT_COMPASS, &compass_id, 0);
+    Sleep(4000);
+    compass_starting_angle = get_compass_direction(compass_id);
     printf("Initializing tachos...\n");
     if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &right_wheel, 0)) {
         printf("    [OK] Right wheel\n");
@@ -257,21 +260,29 @@ int main(int argc, char *argv[]) {
     }
     printf("Done.\n");
 
-    printf("Rotating by %d degres... ", rotation_angle);
+    printf("Rotating by %d degres... \n", rotation_angle);
     rotation(right_wheel, left_wheel, rotation_angle);
     wait_wheels(right_wheel, left_wheel);
     printf("Done.\n");
 
-    printf("Moving forward by %d mm and detecting obstacles... ", translation_dist);
-    translation(right_wheel, left_wheel, translation_dist, sonar_id);
+    printf("Moving forward by %d mm and detecting obstacles... \n", translation_dist);
+    translation(right_wheel, left_wheel, sonar_id, translation_dist);
     printf("Done.\n");
 
-    printf("Moving backward by %d mm... ", translation_dist);
-    translation(right_wheel, left_wheel, -translation_dist);
+    printf("Moving backward by %d mm... \n", translation_dist);
+    translation(right_wheel, left_wheel, sonar_id, -translation_dist);
     wait_wheels(right_wheel, left_wheel);
     printf("Done.\n");
 
-    printf("Color detected: %d\n", get_avg_color(color_id, NB_SENSOR_MESURE));
+    printf("Rotating then using compass to recalibrate\n");
+    for(int i = 0; i < 4; i++){
+      rotation (right_wheel, left_wheel, 90);
+      wait_wheels(right_wheel, left_wheel);
+    }
+    recalibrate_theta(compass_id, compass_starting_angle);
+
+
+    // printf("Color detected: %d\n", get_avg_color(color_id, NB_SENSOR_MESURE));
 
     set_tacho_stop_action_inx(right_wheel, TACHO_COAST);
     set_tacho_stop_action_inx(left_wheel, TACHO_COAST);

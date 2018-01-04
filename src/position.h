@@ -10,7 +10,8 @@ void get_obst_position(int r, int theta, int16_t *x_obst, int16_t *y_obst);
 void recalibrate_theta(uint8_t compass_id, int compass_starting_angle);
 
 typedef struct coordinate_t{
-    int16_t x, y, theta;
+    double x, y;
+    int theta;
     pthread_mutex_t coordinate_lock;
 } coordinate_t;
 

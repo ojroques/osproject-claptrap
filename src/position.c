@@ -8,6 +8,7 @@
 #include "const.h"
 #include "client.h"
 #include "position.h"
+#include <stdio.h>
 
 extern coordinate_t coordinate;
 extern volatile int quit_request;
@@ -17,7 +18,7 @@ void *position_thread(void *arg) {
     (void) arg;   // To avoid the warning message
     while (!quit_request) {
         pthread_mutex_lock(&(coordinate.coordinate_lock));
-        send_position(coord_to_index(coordinate.x), coord_to_index(coordinate.y));
+        send_position(coord_to_index((int16_t)coordinate.x), coord_to_index((int16_t)coordinate.y));
         pthread_mutex_unlock(&(coordinate.coordinate_lock));
         Sleep(2000);
     }
@@ -38,7 +39,7 @@ void recalibrate_theta(uint8_t compass_id, int compass_starting_angle){
     pthread_mutex_lock(&(coordinate.coordinate_lock));
     // We check if the derivation of theta is not too much
     if (abs((coordinate.theta - 90) - (compass_angle - compass_starting_angle)) > 2){
-      printf("modification of theta, old vaue = %d, new value = %d\n", coordinate.theta,compass_angle - compass_starting_angle + 90)
+      printf("modification of theta, old value = %d, new value = %d\n", coordinate.theta,compass_angle - compass_starting_angle + 90);
       coordinate.theta = compass_angle - compass_starting_angle + 90; // if it is we recalibrate by trusting the compass
     }
     pthread_mutex_unlock(&(coordinate.coordinate_lock));
@@ -47,9 +48,10 @@ void recalibrate_theta(uint8_t compass_id, int compass_starting_angle){
 //Erwan
 void update_coordinate(int distance) {
     pthread_mutex_lock(&(coordinate.coordinate_lock));
-    float rad = M_PI * (float)coordinate.theta / 180 ;
-    coordinate.x = coordinate.x + (round)(distance * cos(rad));
-    coordinate.y = coordinate.y + (round)(distance * sin(rad));
+    float rad = M_PI * (float)coordinate.theta / 180. ;
+    coordinate.x = coordinate.x + (distance * cos(rad));
+    coordinate.y = coordinate.y + (distance * sin(rad));
+    printf("coordinate X = %lf, coordinate Y = %lf\n", coordinate.x, coordinate.y);
     pthread_mutex_unlock(&(coordinate.coordinate_lock));
 }
 
