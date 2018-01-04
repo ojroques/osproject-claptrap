@@ -199,7 +199,14 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
     while ((abs(abs(angle_start - current_angle) - angle)) > RANGE_ANGLE){
 
       //recompute duty cycle value
-      duty_cycle = angle - (current_angle - angle_start);
+      if(angle > 0 ){
+        //for positive value of angle
+        duty_cycle = angle - abs(current_angle - angle_start);
+      }else{
+        //for negative value of angle
+        duty_cycle = angle + abs(current_angle - angle_start);
+      }
+
       if (duty_cycle > SPEED_MAX || duty_cycle < ((-1) * SPEED_MAX)){
         duty_cycle = duty_cycle / abs(duty_cycle) * SPEED_MAX;
       }
@@ -367,6 +374,8 @@ int main(int argc, char *argv[]) {
     printf("Rotating by %d degres... ", rotation_angle);
     //rotation(right_wheel, left_wheel, rotation_angle);
     //wait_wheels(right_wheel, left_wheel);
+    rotation_gyro(right_wheel, left_wheel, rotation_angle);
+    Sleep(10000);
     printf("Done.\n");
 
     printf("Moving forward by %d mm and detecting obstacles... ", translation_dist);
