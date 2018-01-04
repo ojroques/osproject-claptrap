@@ -218,23 +218,46 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
     set_tacho_command_inx(right_wheel, TACHO_STOP);
 }
 
+
 //Nathan
-//function to turn the head of the robot
+//function to operate tacho
 
-void turn_ultrasonic_tacho(uint8_t ultrasonic_tacho, int angle, int sleep_time){
-
+void operate_tacho(uint8_t tacho, int angle){
   if (!angle) return;
 
   int max_speed, speed;
-  int rel_pos;
 
   // Set behavior when tachos will stop
-  set_tacho_stop_action_inx(ultrasonic_tacho, TACHO_HOLD);
+  set_tacho_stop_action_inx(tacho, TACHO_HOLD);
 
   // Get the tachos current settings
-  get_tacho_max_speed(ultrasonic_tacho, &max_speed);
+  get_tacho_max_speed(tacho, &max_speed);
 
-  // Calculate the speed percentage and the number of rotation for the wheel
+  //Compute the speed of rotation
+  speed = round((float)max_speed / 8 );
+
+  // Set the tachos speed to the one calculated
+  set_tacho_speed_sp(tacho, speed);
+
+  // Set the acceleration
+  set_tacho_ramp_up_sp(tacho, RAMP_DURATION);
+  set_tacho_ramp_down_sp(tacho, RAMP_DURATION);
+
+  // Set the number of wheel rotation
+  set_tacho_position_sp(tacho, angle);
+
+  // Run the specified command
+  set_tacho_command_inx(tacho, TACHO_RUN_TO_REL_POS);
+}
+
+//Nathan
+//function to turn the head of the robot
+//NOTE : the max rotation angle that can be given to the tacho to turn the head
+//is 135 or -135 when the head is at the center position
+
+void turn_ultrasonic_tacho(uint8_t ultrasonic_tacho, int angle){
+
+  int rel_pos;
   rel_pos = round(angle);
   if (rel_pos > THRESHOLD_ULTRASONIC_TACHO){
     rel_pos = THRESHOLD_ULTRASONIC_TACHO;
@@ -242,21 +265,9 @@ void turn_ultrasonic_tacho(uint8_t ultrasonic_tacho, int angle, int sleep_time){
   if (rel_pos < -1 * THRESHOLD_ULTRASONIC_TACHO){
     rel_pos = -1 * THRESHOLD_ULTRASONIC_TACHO;
   }
-  speed = round((float)max_speed / 8 ) ;
 
-  // Set the tachos speed to the one calculated
-  set_tacho_speed_sp(ultrasonic_tacho, speed);
-
-  // Set the acceleration
-  set_tacho_ramp_up_sp(ultrasonic_tacho, RAMP_DURATION);
-  set_tacho_ramp_down_sp(ultrasonic_tacho, RAMP_DURATION);
-
-
-  // Set the number of wheel rotation
-  set_tacho_position_sp(ultrasonic_tacho, rel_pos);
-
-  // Run the specified command
-  set_tacho_command_inx(ultrasonic_tacho, TACHO_RUN_TO_REL_POS);
+  //operate tacho with the right angle
+  operate_tacho(ultrasonic_tacho, rel_pos);
 }
 
 
@@ -264,35 +275,31 @@ void turn_ultrasonic_tacho(uint8_t ultrasonic_tacho, int angle, int sleep_time){
 //function to turn the tacho which operate the carrier
 
 void turn_carrier_tacho(uint8_t obstacle_carrier, int angle){
+  operate_tacho(obstacle_carrier, angle);
+}
 
-  if (!angle) return;
+//Nathan
+//Function to perform a single scan
 
-  int max_speed, speed;
-  int rel_pos;
+int single_scan(uint8_t ultrasonic_tacho, uint8_t sonar_id, int angle){
+  turn_ultrasonic_tacho(ultrasonic_tacho, angle);
+  return get_avg_distance(sonar_id, NB_SENSOR_MESURE);
+}
 
-  // Set behavior when tachos will stop
-  set_tacho_stop_action_inx(obstacle_carrier, TACHO_HOLD);
+//Nathan
+//Function to perform a scan of the area from the min angle to the max angle
 
-  // Get the tachos current settings
-  get_tacho_max_speed(obstacle_carrier, &max_speed);
-
-  // Calculate the speed percentage and the number of rotation for the wheel
-  rel_pos = round(angle);
-  speed = round((float)max_speed / 8 ) ;
-
-  // Set the tachos speed to the one calculated
-  set_tacho_speed_sp(obstacle_carrier, speed);
-
-  // Set the acceleration
-  set_tacho_ramp_up_sp(obstacle_carrier, RAMP_DURATION);
-  set_tacho_ramp_down_sp(obstacle_carrier, RAMP_DURATION);
-
-  // Set the tacho rotation
-  set_tacho_position_sp(obstacle_carrier, rel_pos);
-
-  // Run the specified command
-  set_tacho_command_inx(obstacle_carrier, TACHO_RUN_TO_REL_POS);
-
+void scan_distance(uint8_t ultrasonic_tacho, uint8_t sonar_id, int number_of_scan, int min_angle, int max_angle, int * array_of_scan_values){
+  int angle_delta = round((float)(max_angle - min_angle) / (float)number_of_scan);
+  turn_ultrasonic_tacho(ultrasonic_tacho, min_angle);
+  // get first value of scan
+  array_of_scan_values[0] = get_avg_distance(sonar_id, NB_SENSOR_MESURE);
+  //for remaining scan, turn head and scan
+  for(int i = 1; i < number_of_scan; i++){
+    array_of_scan_values[i] = single_scan(ultrasonic_tacho, sonar_id, angle_delta);
+  }
+  //turn head back to center position
+  turn_ultrasonic_tacho(ultrasonic_tacho, -1 * max_angle);
 }
 
 
@@ -368,7 +375,7 @@ int main(int argc, char *argv[]) {
     //printf("Color detected: %d\n", get_avg_color(color_id, NB_SENSOR_MESURE));
 
     printf("Turning ultrasonic sensor of %d degree... ", ultrasonic_tacho_rotation);
-    turn_ultrasonic_tacho(ultrasonic_tacho, ultrasonic_tacho_rotation, 1000);
+    turn_ultrasonic_tacho(ultrasonic_tacho, ultrasonic_tacho_rotation);
     wait_head(ultrasonic_tacho);
     printf("Done.\n");
 
