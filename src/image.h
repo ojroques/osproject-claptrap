@@ -17,6 +17,8 @@ int set_cell(uint16_t i, uint16_t j, int value);
 int is_out_of_bounds(uint16_t i, uint16_t j);
 void place_obstacle(int16_t x, int16_t y);
 color_t val_to_color(int value);
+int min(int a, int b, int c);
+void unexplored_area(uint16_t *x, uint16_t *y);
 void send_image();
 
 #endif

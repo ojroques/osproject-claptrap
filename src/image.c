@@ -103,6 +103,58 @@ void place_obstacle(int16_t x, int16_t y) {
         }
     }
 }
+ 
+/* UTILITY FUNCTIONS */
+/* Function to get minimum of three values */
+int min(int a, int b, int c) {
+    int m = a;
+    if (m > b) m = b;
+    if (m > c) m = c;
+    return m;
+}
+
+/* Place in x, y the center of the largest square
+ * of unexplored area fitting inside the image */
+void unexplored_area(uint16_t *x, uint16_t *y) {
+    int i, j;
+    int S[img_height][img_width];
+    int max_of_s, max_i, max_j; 
+
+    /* Set first column of S[][]*/
+    for (i = 0; i < img_height; i++)
+        S[i][0] = image[i][0];
+
+    /* Set first row of S[][]*/    
+    for (j = 0; j < img_width; j++)
+        S[0][j] = image[0][j];
+
+    /* Construct other entries of S[][]*/
+    for (i = 1; i < img_height; i++) {
+        for (j = 1; j < img_width; j++) {
+            if (image[i][j] == 0) 
+                S[i][j] = min(S[i][j-1], S[i-1][j], S[i-1][j-1]) + 1;
+            else
+                S[i][j] = 0;
+        }
+    }
+   
+    /* Find the maximum entry, and indexes of maximum entry in S[][] */
+    max_of_s = S[0][0];
+    max_i = 0; 
+    max_j = 0;
+    for (i = 0; i < img_height; i++) {
+        for (j = 0; j < img_width; j++) {
+            if (max_of_s < S[i][j]) {
+                max_of_s = S[i][j];
+                max_i = i; 
+                max_j = j;
+            }
+        }
+    }
+
+    *x = max_i - (max_of_s / 2);
+    *y = max_j - (max_of_s / 2);
+}
 
 /* Convert the given value to a color based on the probability of presence of
    an obstacle. A larger value means a higher probability.
@@ -131,14 +183,16 @@ void send_image() {
     send_mapdone();
 }
 
-/* For test purposes only
+/* For test purposes
 int main() {
+    uint16_t x_free, y_free;
     init_image(24, 40);
     set_cell(20, 12, 2);
     place_obstacle(12, 12);
     place_obstacle(12, 12);
     print_image();
-    printf("La case (20, 12) a pour valeur %d.\n", get_cell(20, 12));
+    printf("La case (20, 12) a pour valeur %d\n", get_cell(20, 12));
+    unexplored_area(&x_free, &y_free);
+    printf("Centre de la zone inexploree: (%d, %d)\n", x_free, y_free);
     return 0;
-}
-*/
+} */
