@@ -38,7 +38,8 @@ void recalibrate_theta(uint8_t compass_id, int compass_starting_angle){
     pthread_mutex_lock(&(coordinate.coordinate_lock));
     // We check if the derivation of theta is not too much
     if (abs((coordinate.theta - 90) - (compass_angle - compass_starting_angle)) > 2){
-      coordinate.theta = compass_angle; // if it is we recalibrate by trusting the compass
+      printf("modification of theta, old vaue = %d, new value = %d\n", coordinate.theta,compass_angle - compass_starting_angle + 90)
+      coordinate.theta = compass_angle - compass_starting_angle + 90; // if it is we recalibrate by trusting the compass
     }
     pthread_mutex_unlock(&(coordinate.coordinate_lock));
 }
