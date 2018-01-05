@@ -292,40 +292,34 @@ void turn_ultrasonic_tacho(uint8_t ultrasonic_tacho, int angle){
 
 
 //Nathan
-//function to turn the tacho which operate the carrier
+//NOTE : the carrier tacho when is up needs -60 degree to get in position
+//in order to carry object
+//the carrier needs -75 more degrees to be in down position
+//the absolute position is set at the tacho initialisation
+//(can be reset by unplug replug it)
+//moving the tacho by hand doesn't change the absolute position stored in memory
+//it is safer to operate the tacho with relative position value
 
-void turn_carrier_tacho(uint8_t obstacle_carrier, int angle){
-  if (!angle) return;
+//The following behavior order must be respected:
+//up (starting position) -> middle -> down -> up
 
-  int max_speed, speed, position;
+//Nathan
+//Function to get the carrier in middle position
+//NOTE : the carrier should ALWAYS start from up position
+void carrier_middle_position(uint8_t obstacle_carrier){
+  operate_tacho(obstacle_carrier, -60);
+}
 
-  // Set behavior when tachos will stop
-  set_tacho_stop_action_inx(obstacle_carrier, TACHO_HOLD);
+//Nathan
+//function to release object
+void carrier_down_position(uint8_t obstacle_carrier){
+  operate_tacho(obstacle_carrier, -75);
+}
 
-  // Get the tachos current settings
-  get_tacho_max_speed(obstacle_carrier, &max_speed);
-
-  //Compute the speed of rotation
-  speed = round((float)max_speed / 8 );
-
-  // Set the tachos speed to the one calculated
-  set_tacho_speed_sp(obstacle_carrier, speed);
-
-  // Set the acceleration
-  set_tacho_ramp_up_sp(obstacle_carrier, RAMP_DURATION);
-  set_tacho_ramp_down_sp(obstacle_carrier, RAMP_DURATION);
-
-  get_tacho_position_sp(obstacle_carrier, &position);
-
-  printf("absolute position is : %d\n", position);
-
-  // Set the number of wheel rotation
-  set_tacho_position_sp(obstacle_carrier, position + angle);
-
-  // Run the specified command
-  set_tacho_command_inx(obstacle_carrier, TACHO_RUN_TO_ABS_POS);
-
-  //operate_tacho(obstacle_carrier, angle);
+//Nathan
+//function to get the carrier back up
+void carrier_up_position(uint8_t obstacle_carrier){
+  operate_tacho(obstacle_carrier, 135);
 }
 
 //Nathan
@@ -439,7 +433,11 @@ int main(int argc, char *argv[]) {
     printf("Done.\n");
 
     printf("Turning carrier tacho of %d degree... ", obstacle_carrier_rotation);
-    turn_carrier_tacho(obstacle_carrier, obstacle_carrier_rotation);
+    carrier_middle_position(uint8_t obstacle_carrier);
+    wait_tacho(obstacle_carrier);
+    carrier_down_position(uint8_t obstacle_carrier);
+    wait_tacho(obstacle_carrier);
+    carrier_up_position(uint8_t obstacle_carrier);
     wait_tacho(obstacle_carrier);
     printf("Done.\n");
 
