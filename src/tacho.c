@@ -294,7 +294,37 @@ void turn_ultrasonic_tacho(uint8_t ultrasonic_tacho, int angle){
 //function to turn the tacho which operate the carrier
 
 void turn_carrier_tacho(uint8_t obstacle_carrier, int angle){
-  operate_tacho(obstacle_carrier, angle);
+  if (!angle) return;
+
+  int max_speed, speed, position;
+
+  // Set behavior when tachos will stop
+  set_tacho_stop_action_inx(obstacle_carrier, TACHO_HOLD);
+
+  // Get the tachos current settings
+  get_tacho_max_speed(obstacle_carrier, &max_speed);
+
+  //Compute the speed of rotation
+  speed = round((float)max_speed / 8 );
+
+  // Set the tachos speed to the one calculated
+  set_tacho_speed_sp(obstacle_carrier, speed);
+
+  // Set the acceleration
+  set_tacho_ramp_up_sp(obstacle_carrier, RAMP_DURATION);
+  set_tacho_ramp_down_sp(obstacle_carrier, RAMP_DURATION);
+
+  get_tacho_position_sp(obstacle_carrier, &position);
+
+  printf("absolute position is : %d\n", position);
+
+  // Set the number of wheel rotation
+  set_tacho_position_sp(obstacle_carrier, position + angle);
+
+  // Run the specified command
+  set_tacho_command_inx(obstacle_carrier, TACHO_RUN_TO_ABS_POS);
+
+  //operate_tacho(obstacle_carrier, angle);
 }
 
 //Nathan
