@@ -115,7 +115,7 @@ int min(int a, int b, int c) {
 
 /* Place in x, y the center of the largest square
  * of unexplored area fitting inside the image */
-void unexplored_area(uint16_t *x, uint16_t *y) {
+void unexplored_area(int16_t *x, int16_t *y) {
     int i, j;
     int S[img_height][img_width];
     int max_of_s, max_i, max_j; 
@@ -152,8 +152,8 @@ void unexplored_area(uint16_t *x, uint16_t *y) {
         }
     }
 
-    *x = max_i - (max_of_s / 2);
-    *y = max_j - (max_of_s / 2);
+    *x = index_to_coord(max_i - (max_of_s / 2));
+    *y = index_to_coord(max_j - (max_of_s / 2));
 }
 
 /* Convert the given value to a color based on the probability of presence of

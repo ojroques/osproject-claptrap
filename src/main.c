@@ -9,6 +9,7 @@ Eurecom, 2017 - 2018. */
 #include <time.h>
 #include <signal.h>
 #include <pthread.h>
+#include <math.h>
 
 #include "main.h"
 #include "const.h"
@@ -173,6 +174,21 @@ void move(int direction, int mesures[NB_DIRECTION]) {
     // TODO: Update image accordingly
 }
 
+int goto_unknown_area(int16_t x_unexp, int16_t y_unexp) {
+    int r, theta;
+    int16_t delta_x, delta_y;    
+
+    delta_x = x_unexp - coordinate.x;
+    delta_y = y_unexp - coordinate.y;
+    r = round(sqrt(pow(delta_x, 2) + pow(delta_y, 2)));
+    theta = round(180 * atan((double)delta_y / (double)delta_x) / M_PI);
+    
+    rotation(tachos_id.right_wheel, tachos_id.left_wheel, theta);
+    wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
+    translation(tachos_id.right_wheel, tachos_id.left_wheel, r);
+    return waitncheck_wheels(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.ultrasonic_sensor);
+}
+
 int main(int argc, char *argv[]) {
 
     // Getting the map dimensions
@@ -189,6 +205,7 @@ int main(int argc, char *argv[]) {
     time_t start_time;                  // The robot stops after 3mn50
     int mesures[NB_DIRECTION] = {0};    // Contains the mesured distance of all 4 directions
     int chosen_direction;               // The direction the robot will move to
+    int16_t x_unexp, y_unexp;               // Position of an unexplored area
 
     // General configuration
     if (argc == 1) {
@@ -212,13 +229,15 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    // The main algorithm composed of four parts
+    // The main algorithm
     printf("Press any key to begin exploration\n");
     getchar();
 
     start_time = time(NULL);
     printf("********** START OF EXPLORATION  **********\n\n");
 
+    // First part: basic exploration
+    printf("FIRST PART: Basic exploration\n\n");
     while (difftime(time(NULL), start_time) < EXPLORATION_TIME) {
         printf("[1] ENVIRONMENT ANALYSIS\n");
         analyse_env(mesures);
@@ -230,6 +249,13 @@ int main(int argc, char *argv[]) {
         printf("[3] MOVEMENT\n");
         move(chosen_direction, mesures);
         printf("\n");
+    }
+
+    // Second part: exploring unknown areas
+    printf("SECOND PART: EXPLORATION OF UNKNONW AREAS");
+    while (difftime(time(NULL), start_time) < 230) {
+        unexplored_area(&x_unexp, &y_unexp);
+        printf("Unexplored area: (%d, %d)\n", x_unexp, y_unexp);
     }
 
     printf("********** END OF EXPLORATION **********\n\n");

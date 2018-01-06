@@ -24,6 +24,13 @@ uint16_t coord_to_index(int16_t c) {
     return (i - (i % 50)) / 50;
 }
 
+/* Convert an index to a position
+   x is in millimeters */
+int16_t index_to_coord(uint16_t x) {
+    int16_t i = (int16_t) x;
+    return i * 50 + 25;
+}
+
 int read_from_server(char *buffer, size_t maxSize) {
     int bytes_read = recv(s, buffer, maxSize, 0);
 
