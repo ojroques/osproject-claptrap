@@ -176,7 +176,7 @@ void move(int direction, int mesures[NB_DIRECTION]) {
 int main(int argc, char *argv[]) {
 
     // Getting the map dimensions
-    if (argc != 1 && argc != 4) {
+    if (argc != 1 && argc != 5) {
         printf("Usage 1: %s <map_width> <map_height> <x_init> <y_init>\n", argv[0]);
         printf("Usage 2: %s - Default values: (24, 40)\n", argv[0]);
         return EXIT_FAILURE;
