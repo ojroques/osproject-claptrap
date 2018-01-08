@@ -55,11 +55,11 @@ void wait_tacho(uint8_t tacho) {
    Return 0 if tachos stopped properly
           1 if an obstacle has been detected. */
 int waitncheck_wheels(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasonic_id) {
-    int current_distance, count_per_rot, current_position, temp;
+    int current_distance;
     char right_state[TACHO_BUFFER_SIZE];
     char left_state[TACHO_BUFFER_SIZE];
-    get_tacho_count_per_rot(left_wheel, &count_per_rot);
-    current_position = position_start;
+    /* get_tacho_count_per_rot(left_wheel, &count_per_rot); */
+    /* current_position = position_start; */
     do {
         current_distance = get_avg_distance(ultrasonic_id, NB_SENSOR_MESURE);
         if (current_distance < TRESHOLD_MANEUVER) {
@@ -69,20 +69,20 @@ int waitncheck_wheels(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasoni
         }
         get_tacho_state(right_wheel, right_state, TACHO_BUFFER_SIZE);
         get_tacho_state(left_wheel, left_state, TACHO_BUFFER_SIZE);
-        temp = current_position;
-        get_tacho_position(left_wheel, &current_position);
-        update_coordinate(WHEEL_PERIMETER * abs(current_position - temp) / count_per_rot);
+        /* temp = current_position; */
+        /* get_tacho_position(left_wheel, &current_position); */
+        /* update_coordinate(WHEEL_PERIMETER * abs(current_position - temp) / count_per_rot); */
         Sleep(200);
     } while (strcmp("holding", right_state) && strcmp("holding", left_state));
-    temp = current_position;
-    get_tacho_position(left_wheel, &current_position);
-    update_coordinate(WHEEL_PERIMETER * abs(current_position - temp) / count_per_rot);
+    /* temp = current_position; */
+    /* get_tacho_position(left_wheel, &current_position); */
+    /* update_coordinate(WHEEL_PERIMETER * abs(current_position - temp) / count_per_rot); */
     return 0;
 }
 
 /* By Erwan
    Tranlate by X millimeters. */
-void translation(uint8_t right_wheel, uint8_t left_wheel,uint8_t ultrasonic_id, int distance) {
+void translation(uint8_t right_wheel, uint8_t left_wheel, int distance) {
     if (!distance) return;
 
     int max_speed, speed;
@@ -120,9 +120,6 @@ void translation(uint8_t right_wheel, uint8_t left_wheel,uint8_t ultrasonic_id, 
     set_tacho_command_inx(left_wheel, TACHO_RUN_TO_REL_POS);
     set_tacho_command_inx(right_wheel, TACHO_RUN_TO_REL_POS);
 
-    if (distance > 0){
-      waitncheck_wheels(right_wheel, left_wheel, ultrasonic_id, position_start);
-    }
     // Update the position
     /* get_tacho_position(left_wheel, &current_position);
     while((current_position - position_start) != rel_pos) {
@@ -374,7 +371,7 @@ void scan_distance(uint8_t ultrasonic_tacho, uint8_t sonar_id, int number_of_sca
 /* ********************** MAIN USED FOR TESTS ********************** */
 int main(int argc, char *argv[]) {
     if (argc != 6) {
-        printf("Usage: ./tacho translation_distance rotation_angle ultrasonic_tacho_rotation obstacle_carrier_rotation number_of_scan\n");
+        printf("Usage: ./tacho <translation_distance> <rotation_angle> <ultrasonic_tacho_rotation> <obstacle_carrier_rotation> <number_of_scan>\n");
         exit(-1);
     }
 
@@ -382,10 +379,10 @@ int main(int argc, char *argv[]) {
     uint8_t sonar_id, color_id, gyro_id, compass_id;
 
     int translation_dist = atoi(argv[1]);
-    int rotation_angle   = atoi(argv[2]);
+    int rotation_angle = atoi(argv[2]);
     int ultrasonic_tacho_rotation = atoi(argv[3]);
-    int obstacle_carrier_rotation   = atoi(argv[4]);
-    int number_of_scan  = atoi(argv[5]);
+    int obstacle_carrier_rotation = atoi(argv[4]);
+    int number_of_scan = atoi(argv[5]);
     int compass_starting_angle;
 
     ev3_sensor_init();
@@ -431,11 +428,11 @@ int main(int argc, char *argv[]) {
     printf("Done.\n");
 
     printf("Moving forward by %d mm and detecting obstacles... \n", translation_dist);
-    translation(right_wheel, left_wheel, sonar_id, translation_dist);
+    translation(right_wheel, left_wheel, translation_dist);
     printf("Done.\n");
 
     printf("Moving backward by %d mm... \n", translation_dist);
-    translation(right_wheel, left_wheel, sonar_id, -translation_dist);
+    translation(right_wheel, left_wheel, -translation_dist);
     wait_wheels(right_wheel, left_wheel);
     printf("Done.\n");
 

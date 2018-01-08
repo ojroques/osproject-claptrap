@@ -28,7 +28,7 @@ tachos_t tachos_id                        = {0, 0, 0, 0};       // Contains the 
 int current_direction                     = NORTH;              // Direction faced by the robot at the beginning
 const int ANGLES[NB_DIRECTION]            = {0, 90, 180, -90};  // Angles for each direction from east
 const char *DIRECTIONS_NAME[NB_DIRECTION] = {"E", "N", "W", "S"};    // Name of all 4 directions
-coordinate_t coordinate                   = {600, 300, 90, PTHREAD_MUTEX_INITIALIZER};    // The current position and angle
+coordinate_t coordinate                   = {600., 300., 90, PTHREAD_MUTEX_INITIALIZER};    // The current position and angle
 int mv_history[2]                         = {-1, -2};          // Holds the last two moves
 
 /* Drop non-movable obstacle. */
@@ -179,8 +179,8 @@ int goto_area(int16_t x_unexp, int16_t y_unexp) {
     int16_t delta_x, delta_y;    
     int goto_status;
 
-    delta_x = x_unexp - coordinate.x;
-    delta_y = y_unexp - coordinate.y;
+    delta_x = x_unexp - round(coordinate.x);
+    delta_y = y_unexp - round(coordinate.y);
     r = round(sqrt(pow(delta_x, 2) + pow(delta_y, 2)));
     theta = round(180 * 2 * atan((double)delta_y / (double)(delta_x + r)) / M_PI) - coordinate.theta;
     
@@ -220,8 +220,8 @@ int main(int argc, char *argv[]) {
     } else {
         map_width    = atoi(argv[1]);
         map_height   = atoi(argv[2]);
-        coordinate.x = atoi(argv[3]);
-        coordinate.y = atoi(argv[4]);
+        coordinate.x = atof(argv[3]);
+        coordinate.y = atof(argv[4]);
     }
 
     if (!config_all(&sensors_id, &tachos_id, map_width, map_height)) {
@@ -229,7 +229,7 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    int compass_starting_angle = get_compass_direction(sensors_id.compass_id);
+    /* int compass_starting_angle = get_compass_direction(sensors_id.compass_id); */
 
     // Run the position thread, sending the current position every 1.5s to the server
     if(pthread_create(&pos_thread, NULL, position_thread, NULL) == -1) {
@@ -258,7 +258,7 @@ int main(int argc, char *argv[]) {
             }
             printf("[3] MOVEMENT\n");
             move(chosen_direction, mesures);
-            recalibrate_theta(sensors_id.compass_id, compass_starting_angle);
+            /* recalibrate_theta(sensors_id.compass_id, compass_starting_angle); */
             printf("\n");
             if (difftime(time(NULL), start_time) < EXPLORATION_TIME) {
                 running = 0;
