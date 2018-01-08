@@ -455,11 +455,11 @@ int main(int argc, char *argv[]) {
     printf("Done.\n");
 
     printf("Turning carrier tacho of %d degree... ", obstacle_carrier_rotation);
-    carrier_middle_position(uint8_t obstacle_carrier);
+    carrier_middle_position(obstacle_carrier);
     wait_tacho(obstacle_carrier);
-    carrier_down_position(uint8_t obstacle_carrier);
+    carrier_down_position(obstacle_carrier);
     wait_tacho(obstacle_carrier);
-    carrier_up_position(uint8_t obstacle_carrier);
+    carrier_up_position(obstacle_carrier);
     wait_tacho(obstacle_carrier);
     printf("Done.\n");
 
