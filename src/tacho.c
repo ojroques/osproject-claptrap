@@ -372,6 +372,8 @@ int main(int argc, char *argv[]) {
     ev3_search_sensor(LEGO_EV3_COLOR, &color_id, 0);
     ev3_search_sensor(LEGO_EV3_GYRO, &gyro_id, 0);
     ev3_search_sensor(HT_NXT_COMPASS, &compass_id, 0);
+    Sleep(4000);
+    int compass_starting_angle = get_compass_direction(compass_id);
     printf("Initializing tachos...\n");
     if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &right_wheel, 0)) {
         printf("    [OK] Right wheel\n");
@@ -413,6 +415,13 @@ int main(int argc, char *argv[]) {
     translation(right_wheel, left_wheel, -translation_dist);
     waitncheck_wheels(right_wheel, left_wheel, sonar_id);
     printf("Done.\n");
+
+    printf("Rotating then using compass to recalibrate\n");
+    for(int i = 0; i < 1; i++){
+      rotation (right_wheel, left_wheel, 90);
+      wait_wheels(right_wheel, left_wheel);
+    }
+    recalibrate_theta(compass_id, compass_starting_angle);
 
     printf("Color detected: %d\n", get_avg_color(color_id, NB_SENSOR_MESURE));
     printf("Turning ultrasonic sensor of %d degree... ", ultrasonic_tacho_rotation);
