@@ -13,8 +13,6 @@
 #include "ev3_port.h"
 #include "ev3_tacho.h"
 
-#define TACHO_DEBUG
-
 #ifdef TACHO_DEBUG
 #include <pthread.h>
 coordinate_t coordinate = {60, 30, 90, PTHREAD_MUTEX_INITIALIZER};

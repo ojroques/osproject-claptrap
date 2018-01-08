@@ -20,7 +20,7 @@ Eurecom, 2017 - 2018. */
 #include "image.h"
 #include "client.h"
 
-#define MAIN_DEBUG 0
+#define MAIN_DEBUG 1
 
 volatile int quit_request                 = 0;    // To stop the position thread
 sensors_t sensors_id                      = {0, 0, 0, 0, 0};    // Contains the sensors' identifiant
@@ -108,7 +108,7 @@ void analyse_env(int mesures[NB_DIRECTION]) {
         mesures[current_direction] = sonar_value;
         if (MAIN_DEBUG) getchar();    // PAUSE PROGRAM
         if (i < NB_DIRECTION - 1) {   // To avoid returning to the initial direction
-            rotation(tachos_id.right_wheel, tachos_id.left_wheel, 90);
+            rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, 90);
             wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
         }
     }
@@ -160,7 +160,7 @@ void move(int direction, int mesures[NB_DIRECTION]) {
 
     // Rotate accordingly
     printf("    - Rotating by %d deg... ", ANGLES[ang]);
-    rotation(tachos_id.right_wheel, tachos_id.left_wheel, ANGLES[ang]);
+    rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, ANGLES[ang]);
     wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
     printf("Done.\n");
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
@@ -188,12 +188,18 @@ int goto_area(int16_t x_unexp, int16_t y_unexp) {
     r = round(sqrt(pow(delta_x, 2) + pow(delta_y, 2)));
     theta = round(180 * 2 * atan((double)delta_y / (double)(delta_x + r)) / M_PI) - coordinate.theta;
     
-    rotation(tachos_id.right_wheel, tachos_id.left_wheel, theta);
+    rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, theta);
     wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
     translation(tachos_id.right_wheel, tachos_id.left_wheel, r);
     goto_status = waitncheck_wheels(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.ultrasonic_sensor);
-    rotation(tachos_id.right_wheel, tachos_id.left_wheel, -theta);
+    rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, -theta);
     wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
+
+    if (MAIN_DEBUG) {
+        printf("r: %d, theta: %d", r, theta);
+        getchar();  // PAUSE PROGRAM
+    }
+
     return goto_status;
 }
 
@@ -230,13 +236,14 @@ int main(int argc, char *argv[]) {
 
     if (!config_all(&sensors_id, &tachos_id, map_width, map_height)) {
         printf("ERROR: Initialization has failed\n");
-        return EXIT_FAILURE;
+        clean_exit(0);
     }
 
     // Run the position thread, sending the current position every 1.5s to the server
-    if(pthread_create(&pos_thread, NULL, position_thread, NULL) == -1) {
+    int wheels_id[2] = {tachos_id.right_wheel, tachos_id.left_wheel}; 
+    if(pthread_create(&pos_thread, NULL, position_thread, wheels_id) == -1) {
         printf("ERROR: Could not start the position thread\n");
-        return EXIT_FAILURE;
+        clean_exit(0);
     }
 
     // The main algorithm
@@ -247,6 +254,7 @@ int main(int argc, char *argv[]) {
     printf("********** START OF EXPLORATION  **********\n\n");
 
     drop_obstacle();
+    if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
     while (running) {
         unexplored_area(&x_unexp, &y_unexp);
         printf("UNEXPLORED AREA: (%d, %d)\n\n", x_unexp, y_unexp);
