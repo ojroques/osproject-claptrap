@@ -40,15 +40,14 @@ void wait_wheels(uint8_t right_wheel, uint8_t left_wheel) {
 }
 
 /* By Nathan.
-   Wait for the ultrasonic sensor tacho to stop. */
-void wait_head(uint8_t ultrasonic_tacho) {
-    char head_state[TACHO_BUFFER_SIZE];
+   Wait for the tacho to stop. */
+void wait_tacho(uint8_t tacho) {
+    char tacho_state[TACHO_BUFFER_SIZE];
     do {
-        get_tacho_state(ultrasonic_tacho, head_state, TACHO_BUFFER_SIZE);
+        get_tacho_state(tacho, tacho_state, TACHO_BUFFER_SIZE);
         Sleep(200);
-    } while (strcmp("holding", head_state));
+    } while (strcmp("holding", tacho_state));
 }
-
 
 /* By Olivier.
    While moving, this function checks if there is an obstacle and stop tachos
@@ -182,7 +181,14 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
     current_angle = angle_start;
 
     //duty_cycle is the roughly the percentage of power given to the tacho
-    int duty_cycle = angle - (current_angle - angle_start);
+    int duty_cycle;
+    if(angle > 0 ){
+      //for positive value of angle
+      duty_cycle = angle - abs(current_angle - angle_start);
+    }else{
+      //for negative value of angle
+      duty_cycle = angle + abs(current_angle - angle_start);
+    }
 
     if (duty_cycle > SPEED_MAX || duty_cycle < ((-1) * SPEED_MAX)){
       duty_cycle = duty_cycle / abs(duty_cycle) * SPEED_MAX;
@@ -191,7 +197,7 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
       duty_cycle = duty_cycle / abs(duty_cycle) * SPEED_MIN;
     }
 
-    //set the tacho's rotation
+    //set the tacho's rotation1
     set_tacho_duty_cycle_sp(left_wheel, duty_cycle);
     set_tacho_duty_cycle_sp(right_wheel, (-1) * duty_cycle);
 
@@ -202,7 +208,18 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
     while ((abs(abs(angle_start - current_angle) - angle)) > RANGE_ANGLE){
 
       //recompute duty cycle value
-      duty_cycle = angle - (current_angle - angle_start);
+      if(angle > 0 ){
+        //for positive value of angle
+        duty_cycle = angle - abs(current_angle - angle_start);
+      }else{
+        //for negative value of angle
+        duty_cycle = angle + abs(current_angle - angle_start);
+      }
+
+      if (duty_cycle == 0){
+        break;
+      }
+
       if (duty_cycle > SPEED_MAX || duty_cycle < ((-1) * SPEED_MAX)){
         duty_cycle = duty_cycle / abs(duty_cycle) * SPEED_MAX;
       }
@@ -221,54 +238,118 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
     set_tacho_command_inx(right_wheel, TACHO_STOP);
 }
 
+
 //Nathan
-//function to turn the head to the right
+//function to operate tacho
 
-void turn_ultrasonic_tacho(uint8_t ultrasonic_tacho, int angle, int sleep_time){
-
+void operate_tacho(uint8_t tacho, int angle){
   if (!angle) return;
 
   int max_speed, speed;
-  int rel_pos;
 
   // Set behavior when tachos will stop
-  set_tacho_stop_action_inx(ultrasonic_tacho, TACHO_HOLD);
+  set_tacho_stop_action_inx(tacho, TACHO_HOLD);
 
   // Get the tachos current settings
-  get_tacho_max_speed(ultrasonic_tacho, &max_speed);
+  get_tacho_max_speed(tacho, &max_speed);
 
-  // Calculate the speed percentage and the number of rotation for the wheel
-  rel_pos = round(angle);
-  if (rel_pos > 135){
-    rel_pos = 135;
-  }
-  if (rel_pos < -135){
-    rel_pos = -135;
-  }
-  speed = round((float)max_speed / 8 ) ;
+  //Compute the speed of rotation
+  speed = round((float)max_speed / 8 );
 
   // Set the tachos speed to the one calculated
-  set_tacho_speed_sp(ultrasonic_tacho, speed);
+  set_tacho_speed_sp(tacho, speed);
 
   // Set the acceleration
-  set_tacho_ramp_up_sp(ultrasonic_tacho, RAMP_DURATION);
-  set_tacho_ramp_down_sp(ultrasonic_tacho, RAMP_DURATION);
-
-
-  // Set the number of wheel rotation
-  set_tacho_position_sp(ultrasonic_tacho, rel_pos);
-
-  // Run the specified command
-  set_tacho_command_inx(ultrasonic_tacho, TACHO_RUN_TO_REL_POS);
-
-  Sleep(sleep_time);
+  set_tacho_ramp_up_sp(tacho, RAMP_DURATION);
+  set_tacho_ramp_down_sp(tacho, RAMP_DURATION);
 
   // Set the number of wheel rotation
-  set_tacho_position_sp(ultrasonic_tacho, -1 * rel_pos);
+  set_tacho_position_sp(tacho, angle);
 
   // Run the specified command
-  set_tacho_command_inx(ultrasonic_tacho, TACHO_RUN_TO_REL_POS);
+  set_tacho_command_inx(tacho, TACHO_RUN_TO_REL_POS);
+}
 
+//Nathan
+//function to turn the head of the robot
+//NOTE : the max rotation angle that can be given to the tacho to turn the head
+//is 135 or -135 when the head is at the center position
+//The value may be a bit different due to non symetrical behavior of tacho
+
+void turn_ultrasonic_tacho(uint8_t ultrasonic_tacho, int angle){
+
+  int rel_pos;
+  rel_pos = round(angle);
+  if (rel_pos > THRESHOLD_ULTRASONIC_TACHO_SUP){
+    rel_pos = THRESHOLD_ULTRASONIC_TACHO_SUP;
+  }
+  if (rel_pos < THRESHOLD_ULTRASONIC_TACHO_INF){
+    rel_pos = THRESHOLD_ULTRASONIC_TACHO_INF;
+  }
+
+  //operate tacho with the right angle
+  operate_tacho(ultrasonic_tacho, rel_pos);
+}
+
+
+//Nathan
+//NOTE : the carrier tacho when is up needs -60 degree to get in position
+//in order to carry object
+//the carrier needs -75 more degrees to be in down position
+//the absolute position is set at the tacho initialisation
+//(can be reset by unplug replug it)
+//moving the tacho by hand doesn't change the absolute position stored in memory
+//it is safer to operate the tacho with relative position value
+
+//The following behavior order must be respected:
+//up (starting position) -> middle -> down -> up
+
+//Nathan
+//Function to get the carrier in middle position
+//NOTE : the carrier should ALWAYS start from up position
+void carrier_middle_position(uint8_t obstacle_carrier){
+  operate_tacho(obstacle_carrier, -60);
+}
+
+//Nathan
+//function to release object
+void carrier_down_position(uint8_t obstacle_carrier){
+  operate_tacho(obstacle_carrier, -75);
+}
+
+//Nathan
+//function to get the carrier back up
+void carrier_up_position(uint8_t obstacle_carrier){
+  operate_tacho(obstacle_carrier, 135);
+}
+
+//Nathan
+//Function to perform a single scan
+
+int single_scan(uint8_t ultrasonic_tacho, uint8_t sonar_id, int angle){
+  turn_ultrasonic_tacho(ultrasonic_tacho, angle);
+  return get_avg_distance(sonar_id, NB_SENSOR_MESURE);
+}
+
+//Nathan
+//Function to perform a scan of the area from the min angle to the max angle
+//need the min max angle to define range of scan and number of scan that is non zero
+//and the array with the right length
+
+void scan_distance(uint8_t ultrasonic_tacho, uint8_t sonar_id, int number_of_scan, int min_angle, int max_angle, int * array_of_scan_values){
+  if (!number_of_scan) return;
+  int angle_delta = round( (max_angle - min_angle) / (number_of_scan - 1) );
+  turn_ultrasonic_tacho(ultrasonic_tacho, min_angle);
+  wait_tacho(ultrasonic_tacho);
+  // get first value of scan
+  array_of_scan_values[0] = get_avg_distance(sonar_id, NB_SENSOR_MESURE);
+  //for remaining scan, turn head and scan
+  for(int i = 1; i < number_of_scan; i++){
+    array_of_scan_values[i] = single_scan(ultrasonic_tacho, sonar_id, angle_delta);
+    wait_tacho(ultrasonic_tacho);
+  }
+  //turn head back to center position
+  turn_ultrasonic_tacho(ultrasonic_tacho, -1 * max_angle);
 }
 
 
@@ -281,23 +362,25 @@ void turn_ultrasonic_tacho(uint8_t ultrasonic_tacho, int angle, int sleep_time){
 
 /* ********************** MAIN USED FOR TESTS ********************** */
 int main(int argc, char *argv[]) {
-    if (argc != 5) {
-        printf("Usage: ./tacho <translation_distance <rotation_angle> <ultrasonic_tacho_rotation> <obstacle_carrier_rotation>\n");
+    if (argc != 6) {
+        printf("Usage: ./tacho translation_distance rotation_angle ultrasonic_tacho_rotation obstacle_carrier_rotation number_of_scan\n");
         exit(-1);
     }
 
     uint8_t right_wheel, left_wheel, ultrasonic_tacho, obstacle_carrier;
-    uint8_t sonar_id, color_id;
+    uint8_t sonar_id, color_id, gyro_id;
 
     int translation_dist = atoi(argv[1]);
     int rotation_angle   = atoi(argv[2]);
     int ultrasonic_tacho_rotation = atoi(argv[3]);
     int obstacle_carrier_rotation   = atoi(argv[4]);
+    int number_of_scan  = atoi(argv[5]);
 
     ev3_sensor_init();
     ev3_tacho_init();
     ev3_search_sensor(LEGO_EV3_US, &sonar_id, 0);
     ev3_search_sensor(LEGO_EV3_COLOR, &color_id, 0);
+    ev3_search_sensor(LEGO_EV3_GYRO, &gyro_id, 0);
 
     printf("Initializing tachos...\n");
     if (ev3_search_tacho_plugged_in(RIGHT_WHEEL_PORT, 0, &right_wheel, 0)) {
@@ -327,8 +410,10 @@ int main(int argc, char *argv[]) {
     printf("Done.\n");
 
     printf("Rotating by %d degres... ", rotation_angle);
-    rotation(right_wheel, left_wheel, rotation_angle);
-    wait_wheels(right_wheel, left_wheel);
+    //rotation(right_wheel, left_wheel, rotation_angle);
+    //wait_wheels(right_wheel, left_wheel);
+    //rotation_gyro(right_wheel, left_wheel, gyro_id, rotation_angle);
+    //Sleep(5000);
     printf("Done.\n");
 
     printf("Moving forward by %d mm and detecting obstacles... ", translation_dist);
@@ -344,8 +429,26 @@ int main(int argc, char *argv[]) {
     printf("Color detected: %d\n", get_avg_color(color_id, NB_SENSOR_MESURE));
 
     printf("Turning ultrasonic sensor of %d degree... ", ultrasonic_tacho_rotation);
-    turn_ultrasonic_tacho(ultrasonic_tacho, ultrasonic_tacho_rotation, 1000);
-    wait_head(ultrasonic_tacho);
+    //turn_ultrasonic_tacho(ultrasonic_tacho, ultrasonic_tacho_rotation);
+    //wait_tacho(ultrasonic_tacho);
+    printf("Done.\n");
+
+    printf("Turning carrier tacho of %d degree... ", obstacle_carrier_rotation);
+    carrier_middle_position(uint8_t obstacle_carrier);
+    wait_tacho(obstacle_carrier);
+    carrier_down_position(uint8_t obstacle_carrier);
+    wait_tacho(obstacle_carrier);
+    carrier_up_position(uint8_t obstacle_carrier);
+    wait_tacho(obstacle_carrier);
+    printf("Done.\n");
+
+    printf("Performing %d scans... ", number_of_scan);
+    //int scanned_values[number_of_scan];
+    //scan_distance(ultrasonic_tacho, sonar_id, number_of_scan, -135, 135, scanned_values);
+    //for (int i = 0; i<number_of_scan; i++){
+    //  printf("value %d scanned = %d \n", i, scanned_values[i]);
+    //}
+    //wait_tacho(ultrasonic_tacho);
     printf("Done.\n");
 
     set_tacho_stop_action_inx(right_wheel, TACHO_COAST);
