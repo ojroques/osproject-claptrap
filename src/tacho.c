@@ -52,8 +52,10 @@ void wait_head(uint8_t ultrasonic_tacho) {
 
 /* By Olivier.
    While moving, this function checks if there is an obstacle and stop tachos
-   if indeed there is one. */
-void waitncheck_wheels(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasonic_id) {
+   if indeed there is one.
+   Return 0 if tachos stopped properly
+          1 if an obstacle has been detected. */
+int waitncheck_wheels(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasonic_id) {
     int current_distance;
     char right_state[TACHO_BUFFER_SIZE];
     char left_state[TACHO_BUFFER_SIZE];
@@ -62,12 +64,13 @@ void waitncheck_wheels(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrason
         if (current_distance < TRESHOLD_MANEUVER) {
             stop_tacho(right_wheel);
             stop_tacho(left_wheel);
-            break;
+            return 1;
         }
         get_tacho_state(right_wheel, right_state, TACHO_BUFFER_SIZE);
         get_tacho_state(left_wheel, left_state, TACHO_BUFFER_SIZE);
         Sleep(200);
     } while (strcmp("holding", right_state) && strcmp("holding", left_state));
+    return 0;
 }
 
 /* By Erwan

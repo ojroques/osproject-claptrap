@@ -11,6 +11,7 @@
 #define WEST                2
 #define SOUTH               3
 #define EAST                0
+#define NB_ANALYSIS         4
 
 void drop_obstacle();
 int obstacle_type(int *sonar_value);
@@ -18,5 +19,6 @@ void analyse_env(int mesures[NB_DIRECTION]);
 int choose_direction(int mesures[NB_DIRECTION]);
 void update_history(int new_direction);
 void move(int direction, int mesures[NB_DIRECTION]);
+int goto_area(int16_t x_unexp, int16_t y_unexp); 
 
 #endif

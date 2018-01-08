@@ -1,5 +1,6 @@
 *.o
 *.o_local
+*.swp
 main
 main_local
 image

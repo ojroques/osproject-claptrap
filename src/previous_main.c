@@ -9,7 +9,6 @@ Eurecom, 2017 - 2018. */
 #include <time.h>
 #include <signal.h>
 #include <pthread.h>
-#include <math.h>
 
 #include "main.h"
 #include "const.h"
@@ -174,54 +173,30 @@ void move(int direction, int mesures[NB_DIRECTION]) {
     // TODO: Update image accordingly
 }
 
-int goto_area(int16_t x_unexp, int16_t y_unexp) {
-    int r, theta;
-    int16_t delta_x, delta_y;    
-    int goto_status;
-
-    delta_x = x_unexp - coordinate.x;
-    delta_y = y_unexp - coordinate.y;
-    r = round(sqrt(pow(delta_x, 2) + pow(delta_y, 2)));
-    theta = round(180 * 2 * atan((double)delta_y / (double)(delta_x + r)) / M_PI) - coordinate.theta;
-    
-    rotation(tachos_id.right_wheel, tachos_id.left_wheel, theta);
-    wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
-    translation(tachos_id.right_wheel, tachos_id.left_wheel, r);
-    goto_status = waitncheck_wheels(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.ultrasonic_sensor);
-    rotation(tachos_id.right_wheel, tachos_id.left_wheel, -theta);
-    wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
-    return goto_status;
-}
-
 int main(int argc, char *argv[]) {
 
     // Getting the map dimensions
-    if (argc != 1 && argc != 5) {
-        printf("Usage 1: %s <map_width> <map_height> <x_init> <y_init>\n", argv[0]);
+    if (argc != 1 && argc != 3) {
+        printf("Usage 1: %s <map_width> <map_height>\n", argv[0]);
         printf("Usage 2: %s - Default values: (24, 40)\n", argv[0]);
         return EXIT_FAILURE;
     }
 
     // Variables initialization
     int map_width, map_height;          // The map dimensions
+    signal(SIGINT, clean_exit);         // Redirect CTRL + C to clean_exit in config.c
     pthread_t pos_thread;               // The position thread
     time_t start_time;                  // The robot stops after 3mn50
     int mesures[NB_DIRECTION] = {0};    // Contains the mesured distance of all 4 directions
     int chosen_direction;               // The direction the robot will move to
-    int16_t x_unexp, y_unexp;           // Position of an unexplored area
-    int i, running;
-    running = 1;                        // Exploration running or not
 
     // General configuration
-    signal(SIGINT, clean_exit);         // Redirect CTRL + C to clean_exit in config.c
     if (argc == 1) {
         map_width  = 24;
         map_height = 40;
     } else {
-        map_width    = atoi(argv[1]);
-        map_height   = atoi(argv[2]);
-        coordinate.x = atoi(argv[3]);
-        coordinate.y = atoi(argv[4]);
+        map_width  = atoi(argv[1]);
+        map_height = atoi(argv[2]);
     }
 
     if (!config_all(&sensors_id, &tachos_id, map_width, map_height)) {
@@ -235,33 +210,24 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    // The main algorithm
+    // The main algorithm composed of four parts
     printf("Press any key to begin exploration\n");
     getchar();
 
     start_time = time(NULL);
     printf("********** START OF EXPLORATION  **********\n\n");
 
-    while (running) {
-        unexplored_area(&x_unexp, &y_unexp);
-        printf("UNEXPLORED AREA: (%d, %d)\n\n", x_unexp, y_unexp);
-        goto_area(x_unexp, y_unexp);
-        for (i = 0; i < NB_ANALYSIS; i++) {
-            printf("[1] ENVIRONMENT ANALYSIS\n");
-            analyse_env(mesures);
-            printf("[2] DECISION\n");
-            chosen_direction = choose_direction(mesures);
-            if (chosen_direction == -1) {
-                break;
-            }
-            printf("[3] MOVEMENT\n");
-            move(chosen_direction, mesures);
-            printf("\n");
-            if (difftime(time(NULL), start_time) < EXPLORATION_TIME) {
-                running = 0;
-                break;
-            }
+    while (difftime(time(NULL), start_time) < EXPLORATION_TIME) {
+        printf("[1] ENVIRONMENT ANALYSIS\n");
+        analyse_env(mesures);
+        printf("[2] DECISION\n");
+        chosen_direction = choose_direction(mesures);
+        if (chosen_direction == -1) {
+            break;
         }
+        printf("[3] MOVEMENT\n");
+        move(chosen_direction, mesures);
+        printf("\n");
     }
 
     printf("********** END OF EXPLORATION **********\n\n");
