@@ -229,6 +229,8 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
+    int compass_starting_angle = get_compass_direction(sensors_id.compass_id);
+
     // Run the position thread, sending the current position every 1.5s to the server
     if(pthread_create(&pos_thread, NULL, position_thread, NULL) == -1) {
         printf("ERROR: Could not start the position thread\n");
@@ -256,6 +258,7 @@ int main(int argc, char *argv[]) {
             }
             printf("[3] MOVEMENT\n");
             move(chosen_direction, mesures);
+            recalibrate_theta(sensors_id.compass_id, compass_starting_angle);
             printf("\n");
             if (difftime(time(NULL), start_time) < EXPLORATION_TIME) {
                 running = 0;
