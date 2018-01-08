@@ -232,3 +232,19 @@ int get_continuous_distance(uint8_t sensor_id){
 int get_compass_direction(uint8_t sensor_id){
   return retrieve_single_value(sensor_id, HT_NXT_COMPASS_COMPASS);
 }
+
+
+/**
+ *Function which gives the average angle in degrees detected by the compass sensor.
+ *Returns an int between 0 and 359
+ **/
+int get_avg_compass(uint8_t sensor_id, int nb_mesure) {
+    int i, average;
+    average = 0;
+    Sleep(DELAY_SENSOR);
+    for (i = 0; i < nb_mesure; i++) {
+        average += get_compass_direction(sensor_id);
+        fflush(stdout);
+    }
+    return (average / nb_mesure);
+}
