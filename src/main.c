@@ -34,8 +34,10 @@ int mv_history[2]                         = {-1, -2};          // Holds the last
 /* Drop non-movable obstacle. */
 void drop_obstacle() {
     printf("    Dropping non-movable obstacle... ");
-    // TODO: Rewrite function
-    Sleep(1000);
+    carrier_down_position(tachos_id.obstacle_carrier);
+    wait_tacho(tachos_id.obstacle_carrier);
+    carrier_up_position(tachos_id.obstacle_carrier);
+    wait_tacho(tachos_id.obstacle_carrier);
     printf("Done.\n");
 }
 
@@ -174,6 +176,8 @@ void move(int direction, int mesures[NB_DIRECTION]) {
     // TODO: Update image accordingly
 }
 
+/* Go to position (x, y)
+ * Return 1 if stopped by an obstacle, else 0.*/
 int goto_area(int16_t x_unexp, int16_t y_unexp) {
     int r, theta;
     int16_t delta_x, delta_y;    
@@ -229,8 +233,6 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    /* int compass_starting_angle = get_compass_direction(sensors_id.compass_id); */
-
     // Run the position thread, sending the current position every 1.5s to the server
     if(pthread_create(&pos_thread, NULL, position_thread, NULL) == -1) {
         printf("ERROR: Could not start the position thread\n");
@@ -244,6 +246,7 @@ int main(int argc, char *argv[]) {
     start_time = time(NULL);
     printf("********** START OF EXPLORATION  **********\n\n");
 
+    drop_obstacle();
     while (running) {
         unexplored_area(&x_unexp, &y_unexp);
         printf("UNEXPLORED AREA: (%d, %d)\n\n", x_unexp, y_unexp);
@@ -258,7 +261,6 @@ int main(int argc, char *argv[]) {
             }
             printf("[3] MOVEMENT\n");
             move(chosen_direction, mesures);
-            /* recalibrate_theta(sensors_id.compass_id, compass_starting_angle); */
             printf("\n");
             if (difftime(time(NULL), start_time) < EXPLORATION_TIME) {
                 running = 0;

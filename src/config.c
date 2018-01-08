@@ -67,6 +67,7 @@ int config_all(sensors_t *sensors_id, tachos_t *tachos_id, int map_width, int ma
     // Sensors and tachos configuration
     config_sensors(sensors_id);
     config_tacho(tachos_id);
+    carrier_middle_position(tachos_id->obstacle_carrier);
 
     // Image initialization
     printf("Initializing image... ");
