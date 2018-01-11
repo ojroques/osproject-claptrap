@@ -54,8 +54,7 @@ int obstacle_type(int *sonar_value) {
     if (distance > TRESHOLD_COLOR) {
         distance = distance - TRESHOLD_COLOR;
     }
-    translation(tachos_id.right_wheel, tachos_id.left_wheel, distance);
-    waitncheck_wheels(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.ultrasonic_sensor);
+    translation(tachos_id.right_wheel, tachos_id.left_wheel, distance, tachos_id.ultrasonic_tacho, sensors_id.ultrasonic_sensor);
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
 
     // Check if there is really an obstacle
@@ -64,16 +63,14 @@ int obstacle_type(int *sonar_value) {
 
     // Check color, after multiplying TRESHOLD_COLOR by 2 as an error margin
     if (new_distance > 2*TRESHOLD_COLOR) {
-        translation(tachos_id.right_wheel, tachos_id.left_wheel, -distance);
-        wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
+        translation(tachos_id.right_wheel, tachos_id.left_wheel, -distance, tachos_id.ultrasonic_tacho, sensors_id.ultrasonic_sensor);
         printf("No obstacle (dist: %d)\n", new_distance);
         return NO_OBST;
     }
 
     // Get the obstacle color
     color = get_avg_color(sensors_id.color_sensor, NB_SENSOR_MESURE);
-    translation(tachos_id.right_wheel, tachos_id.left_wheel, -distance);
-    wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
+    translation(tachos_id.right_wheel, tachos_id.left_wheel, -distance, tachos_id.ultrasonic_tacho, sensors_id.ultrasonic_sensor);
     if (color == RED_ID) {
         printf("Movable obstacle (color: %d)\n", color);
         return MV_OBST;
@@ -169,8 +166,6 @@ void move(int direction, int mesures[NB_DIRECTION]) {
     // Go forward until an obstacle is detected
     travel_distance = mesures[direction] - TRESHOLD_MANEUVER;
     printf("    - Moving by %dmm and updating history... ", travel_distance);
-    translation(tachos_id.right_wheel, tachos_id.left_wheel, travel_distance);
-    waitncheck_wheels(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.ultrasonic_sensor);
     update_history(direction);
     printf("Done.\n");
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
@@ -179,10 +174,9 @@ void move(int direction, int mesures[NB_DIRECTION]) {
 
 /* Go to position (x, y)
  * Return 1 if stopped by an obstacle, else 0.*/
-int goto_area(int16_t x_unexp, int16_t y_unexp) {
+void goto_area(int16_t x_unexp, int16_t y_unexp) {
     int r, theta;
     int16_t delta_x, delta_y;
-    int goto_status;
 
     delta_x = x_unexp - round(coordinate.x);
     delta_y = y_unexp - round(coordinate.y);
@@ -191,8 +185,7 @@ int goto_area(int16_t x_unexp, int16_t y_unexp) {
 
     rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, theta);
     wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
-    translation(tachos_id.right_wheel, tachos_id.left_wheel, r);
-    goto_status = waitncheck_wheels(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.ultrasonic_sensor);
+    translation(tachos_id.right_wheel, tachos_id.left_wheel, r, tachos_id.ultrasonic_tacho, sensors_id.ultrasonic_sensor);
     rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, -theta);
     wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
 
@@ -200,8 +193,6 @@ int goto_area(int16_t x_unexp, int16_t y_unexp) {
         printf("r: %d, theta: %d", r, theta);
         getchar();  // PAUSE PROGRAM
     }
-
-    return goto_status;
 }
 
 /* Check both sides of the robot before rotating.
@@ -291,7 +282,7 @@ void algorithm() {
 
         while (is_rotation_impossible()) { // While rotation is impossible, move backward
             printf("Rotation impossible, moving backward");
-            translation(tachos_id.right_wheel, tachos_id.left_wheel, -100);
+            translation(tachos_id.right_wheel, tachos_id.left_wheel, -100, tachos_id.ultrasonic_tacho, sensors_id.ultrasonic_sensor);
         }
 
         for (i = 0; i < NB_ANALYSIS; i++) {

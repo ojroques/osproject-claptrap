@@ -19,7 +19,7 @@ void analyse_env(int mesures[NB_DIRECTION]);
 int choose_direction(int mesures[NB_DIRECTION]);
 void update_history(int new_direction);
 void move(int direction, int mesures[NB_DIRECTION]);
-int goto_area(int16_t x_unexp, int16_t y_unexp);
+void goto_area(int16_t x_unexp, int16_t y_unexp);
 int is_rotation_impossible();
 int get_dir_distance();
 int is_in_lane(int mesure, int angle);
