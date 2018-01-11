@@ -8,6 +8,7 @@
 #define RAMP_DURATION      100
 #define ROBOT_RADIUS       46.5
 #define WHEEL_PERIMETER    175.93
+#define LANE_WIDTH 170
 #define TACHO_BUFFER_SIZE  256
 
 void stop_tacho(uint8_t tacho_id);
