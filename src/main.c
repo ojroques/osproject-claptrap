@@ -181,14 +181,14 @@ void move(int direction, int mesures[NB_DIRECTION]) {
  * Return 1 if stopped by an obstacle, else 0.*/
 int goto_area(int16_t x_unexp, int16_t y_unexp) {
     int r, theta;
-    int16_t delta_x, delta_y;    
+    int16_t delta_x, delta_y;
     int goto_status;
 
     delta_x = x_unexp - round(coordinate.x);
     delta_y = y_unexp - round(coordinate.y);
     r = round(sqrt(pow(delta_x, 2) + pow(delta_y, 2)));
     theta = round(180 * 2 * atan((double)delta_y / (double)(delta_x + r)) / M_PI) - coordinate.theta;
-    
+
     rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, theta);
     wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
     translation(tachos_id.right_wheel, tachos_id.left_wheel, r);
@@ -237,7 +237,7 @@ int get_dir_distance() {
     scan_distance(tachos_id.ultrasonic_tacho, sensors_id.ultrasonic_sensor, DIR_NB_SCAN, DIR_ANG_MIN, DIR_ANG_MAX, scans);
     // This loop put in value the min mesure among those in lane
     for(i = 0; i < DIR_NB_SCAN; i++) {
-        angle_i = DIR_ANG_MIN + i * pas; 
+        angle_i = DIR_ANG_MIN + i * pas;
         if (is_in_lane(scans[i], angle_i)) {
             if (value == -1 || scans[i] < value) {
                 value = scans[i];
@@ -245,7 +245,22 @@ int get_dir_distance() {
         }
     }
     return value;
-}    
+}
+
+int is_in_line(int mesure, int angle){
+  if (angle == 0){
+    return 1;
+  }
+  else{
+    float threshold = LANE_WIDTH/(2*cos(90-abs(angle)));
+    if (mesure < threshold){
+      return 1;
+    }
+    else{
+      return 0;
+    }
+  }
+}
 
 int main(int argc, char *argv[]) {
 
@@ -284,7 +299,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Run the position thread, sending the current position every 1.5s to the server
-    int wheels_id[2] = {tachos_id.right_wheel, tachos_id.left_wheel}; 
+    int wheels_id[2] = {tachos_id.right_wheel, tachos_id.left_wheel};
     if(pthread_create(&pos_thread, NULL, position_thread, wheels_id) == -1) {
         printf("ERROR: Could not start the position thread\n");
         clean_exit(0);
@@ -303,7 +318,7 @@ int main(int argc, char *argv[]) {
         unexplored_area(&x_unexp, &y_unexp);
         printf("UNEXPLORED AREA: (%d, %d)\n\n", x_unexp, y_unexp);
         goto_area(x_unexp, y_unexp);
-        
+
         while (is_rotation_impossible()) { // While rotation is impossible, move backward
             translation(tachos_id.right_wheel, tachos_id.left_wheel, -100);
         }
