@@ -212,13 +212,13 @@ int is_rotation_impossible() {
     int side_mesures[2];                // Hold the 2 sonar values on both side of the robot
 
     scan_distance(tachos_id.ultrasonic_tacho, sensors_id.ultrasonic_sensor, 2, 20, 160, side_mesures);
-    if (side_mesures[0] < TRESHOLD_SIDE) {
+    if (side_mesures[0] < TRESHOLD_SIDE) {    // Obstacle on the left
         return -1;
     }
-    else if (side_mesures[1] < TRESHOLD_SIDE) {
+    else if (side_mesures[1] < TRESHOLD_SIDE) {    // Obstacle on the right
         return 1;
     }
-    else {
+    else {    // No obstacle on both sides
         return 0;
     }
 }
@@ -227,14 +227,15 @@ int is_rotation_impossible() {
  * return the minimum value in the lane in front of the robot */
 int get_dir_distance() {
     const int DIR_NB_SCAN = 13;
-    const int DIR_ANG_MIN = 30;
-    const int DIR_ANG_MAX = 150;
-    int scans[DIR_NB_SCAN];
+    const int DIR_ANG_MIN = -60;
+    const int DIR_ANG_MAX = 60;
+    int scans[DIR_NB_SCAN];    // Hold the mesures from the scan
     int value, pas, angle_i, i;
     pas = (DIR_ANG_MAX - DIR_ANG_MIN) / (DIR_NB_SCAN - 1);
     value = -1;
 
     scan_distance(tachos_id.ultrasonic_tacho, sensors_id.ultrasonic_sensor, DIR_NB_SCAN, DIR_ANG_MIN, DIR_ANG_MAX, scans);
+    // This loop put in value the min mesure among those in lane
     for(i = 0; i < DIR_NB_SCAN; i++) {
         angle_i = DIR_ANG_MIN + i * pas; 
         if (is_in_lane(scans[i], angle_i)) {
