@@ -76,7 +76,7 @@ void translation(uint8_t right_wheel, uint8_t left_wheel, int distance) {
     if (!distance) return;
 
     int max_speed, speed;
-    int count_per_rot, rel_pos, position_start;
+    int count_per_rot, rel_pos, position_start_left, position_start_right, position_start;
 
     // Set behavior when tachos will stop
     set_tacho_stop_action_inx(left_wheel, TACHO_HOLD);
@@ -85,7 +85,9 @@ void translation(uint8_t right_wheel, uint8_t left_wheel, int distance) {
     // Get the tachos current settings
     get_tacho_max_speed(left_wheel, &max_speed);
     get_tacho_count_per_rot(left_wheel, &count_per_rot);
-    get_tacho_position(left_wheel, &position_start);
+    get_tacho_position(left_wheel, &position_start_left);
+    get_tacho_position(right_wheel, &position_start_right);
+    position_start = round((position_start_left + position_start_right)/2);
 
     // Calculate the speed percentage and the number of rotation for the wheel
     rel_pos = round(((float)distance / WHEEL_PERIMETER) * count_per_rot + 0.5);
@@ -108,6 +110,52 @@ void translation(uint8_t right_wheel, uint8_t left_wheel, int distance) {
     // Run the specified command
     set_tacho_command_inx(left_wheel, TACHO_RUN_TO_REL_POS);
     set_tacho_command_inx(right_wheel, TACHO_RUN_TO_REL_POS);
+
+    //previously in waitncheck_wheels
+
+    int current_distance;
+    char right_state[TACHO_BUFFER_SIZE];
+    char left_state[TACHO_BUFFER_SIZE];
+    do {
+        current_distance = get_avg_distance(ultrasonic_id, NB_SENSOR_MESURE);
+        if (current_distance < TRESHOLD_MANEUVER && distance > 0) {
+            stop_tacho(right_wheel);
+            stop_tacho(left_wheel);
+            return 1;
+        }
+        get_tacho_state(right_wheel, right_state, TACHO_BUFFER_SIZE);
+        get_tacho_state(left_wheel, left_state, TACHO_BUFFER_SIZE);
+
+        //INSERT the code for robust position
+        //NOTE mais need to update at reduce frequency ?
+
+        //get the position of the tachos
+        int current_position_right;
+        int current_position_left;
+        get_tacho_position_sp(right_wheel, &current_position_right);
+        get_tacho_position_sp(left_wheel, &current_position_left);
+
+        //get the average postion of the two tachos
+        int current_position = round((current_position_left + current_position_right) / 2) ;
+
+        //compare it to the position rel_pos
+        int delta_position = rel_pos - (current_position - position_start);
+
+        //compute reached distance by doing the inverse computation from rel_pos
+
+
+        //compare it to the delta of distance from the sensor (fisrt value against current value)
+
+
+        //chose the best of the two
+
+
+        //update the distance with it
+
+
+        Sleep(200);
+    } while (strcmp("holding", right_state) && strcmp("holding", left_state));
+    return 0;
 }
 
 /* By Erwan
