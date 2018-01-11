@@ -85,7 +85,6 @@ int waitncheck_wheels(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasoni
 
 
 
-
 /* By Nathan
    Tranlate by X millimeters.
    And do the checking for obstacle and update coordinates
@@ -134,27 +133,54 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
     previous_traveled_distance = 0;
 
     current_distance = get_avg_distance(ultrasonic_id, NB_SENSOR_MESURE);
-    previous_distance = current_distance;
 
 
     // Run the specified command
     set_tacho_command_inx(left_wheel, TACHO_RUN_TO_REL_POS);
     set_tacho_command_inx(right_wheel, TACHO_RUN_TO_REL_POS);
+    int current_position_right;
+    int current_position_left;
+    int current_position, delta_position, traveled_distance, delta_traveled_distance, delta_distance;
 
     do {
         previous_distance = current_distance;
-        current_distance = update_distance(right_wheel, left_wheel, ultrasonic_id, position_start, count_per_rot, previous_traveled_distance, previous_distance);
+        current_distance = get_avg_distance(ultrasonic_id, NB_SENSOR_MESURE);
+
+
+        get_tacho_position(right_wheel, &current_position_right);
+        get_tacho_position(left_wheel, &current_position_left);
+
+        //get the average postion of the two tachos
+        current_position = round((current_position_left + current_position_right) / 2) ;
+
+        //compare it to the position rel_pos
+        delta_position = current_position - position_start;
+
+        //compute traveled distance by doing the inverse computation from rel_pos
+        traveled_distance = round((((float)delta_position - 0.5) / count_per_rot ) * WHEEL_PERIMETER);
+        delta_traveled_distance = traveled_distance - previous_traveled_distance;
+
+        //Compute the traveled distance from the distance sensor
+        delta_distance = (previous_distance - current_distance);
+
+        //compare it to the delta of distance from the sensor (fisrt value against current value)
+        //chose the best of the two
+        if (delta_distance < delta_traveled_distance + NAV_DIST_RANGE && delta_distance > delta_traveled_distance - NAV_DIST_RANGE){
+          delta_traveled_distance = delta_distance;
+          }
+
+
         if (current_distance < TRESHOLD_MANEUVER && distance > 0) {
             stop_tacho(right_wheel);
             stop_tacho(left_wheel);
-            current_distance = update_distance(right_wheel, left_wheel, ultrasonic_id, position_start, count_per_rot, previous_traveled_distance, previous_distance);
+            //update the distance with it
+            update_coordinate(delta_traveled_distance);
             return 1;
         }
+        //update the distance with it
+        update_coordinate(delta_traveled_distance);
         Sleep(200);
     } while (strcmp("holding", right_state) && strcmp("holding", left_state));
-
-    //update the coordinates values
-    current_distance = update_distance(right_wheel, left_wheel, ultrasonic_id, position_start, count_per_rot, previous_traveled_distance, previous_distance);
     return 0;
 }
 
@@ -174,11 +200,12 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
 
 
 
-
 /* By Nathan
    Tranlate by X millimeters.
-   And do the checking for obstacle and update coordinates
+   And do the checking for obstacle and update coordinatesprevious_distance = current_distance;
     */
+
+/*
 int translation(uint8_t right_wheel, uint8_t left_wheel, int distance, uint8_t ultrasonic_tacho, uint8_t ultrasonic_id) {
     if (!distance) return 0;
 
@@ -311,10 +338,14 @@ int translation(uint8_t right_wheel, uint8_t left_wheel, int distance, uint8_t u
     update_distance(right_wheel, left_wheel, ultrasonic_id, position_start, count_per_rot, previous_traveled_distance, previous_distance);
     return 0;
 }
+*/
+
 
 
 //Nathan
 //Function called to update the coordinates
+
+/*
 int update_distance(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasonic_id, int position_start, int count_per_rot, int previous_traveled_distance, int previous_distance){
   //get the position of the tachos
   int current_position_right;
@@ -346,8 +377,10 @@ int update_distance(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasonic_
   update_coordinate(delta_traveled_distance);
 
   //return the new value of previous_traveled_distance
-  return current_distance
+  return current_distance;
 }
+*/
+
 
 /* By Erwan
    Rotate by X degres */
@@ -644,7 +677,7 @@ int main(int argc, char *argv[]) {
     printf("Done.\n");
 
     printf("Moving forward by %d mm and detecting obstacles... \n", translation_dist);
-    int return_value = translation(right_wheel, left_wheel, translation_dist, ultrasonic_tacho, sonar_id)
+    int return_value = translation_light(right_wheel, left_wheel, translation_dist, ultrasonic_tacho, sonar_id);
     //waitncheck_wheels(right_wheel, left_wheel, sonar_id);
     printf("Done.\n");
 
