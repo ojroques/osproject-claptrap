@@ -143,6 +143,10 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
     int current_position, delta_position, traveled_distance, delta_traveled_distance, delta_distance;
 
     do {
+
+        get_tacho_state(right_wheel, right_state, TACHO_BUFFER_SIZE);
+        get_tacho_state(left_wheel, left_state, TACHO_BUFFER_SIZE);
+        
         previous_distance = current_distance;
         current_distance = get_avg_distance(ultrasonic_id, NB_SENSOR_MESURE);
 
