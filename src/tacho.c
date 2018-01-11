@@ -15,7 +15,7 @@
 
 #ifdef TACHO_DEBUG
 #include <pthread.h>
-coordinate_t coordinate = {60, 30, 90, PTHREAD_MUTEX_INITIALIZER};
+coordinate_t coordinate = {600, 300, 90, PTHREAD_MUTEX_INITIALIZER};
 volatile int quit_request = 0;   // To stop the position thread
 #endif
 
@@ -70,8 +70,10 @@ int waitncheck_wheels(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasoni
     return 0;
 }
 
-/* By Erwan
-   Tranlate by X millimeters. */
+/* By Nathan
+   Tranlate by X millimeters.
+   And do the checking for obstacle and update coordinates
+    */
 int translation(uint8_t right_wheel, uint8_t left_wheel, int distance, uint8_t ultrasonic_tacho, uint8_t ultrasonic_id) {
     if (!distance) return 0;
 
@@ -163,7 +165,7 @@ int translation(uint8_t right_wheel, uint8_t left_wheel, int distance, uint8_t u
         //step 0 = start center
         //step 1 = left
         //step 2 = center
-        //step 3 = rigth
+        //step 3 = right
         //loop
 
         if (step == 0 || step == 2){
@@ -205,6 +207,9 @@ int translation(uint8_t right_wheel, uint8_t left_wheel, int distance, uint8_t u
     return 0;
 }
 
+
+//Nathan
+//Function called to update the coordinates
 void update_distance(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasonic_id, int position_start, int count_per_rot, int previous_traveled_distance, int previous_distance){
   //get the position of the tachos
   int current_position_right;
@@ -531,7 +536,7 @@ int main(int argc, char *argv[]) {
     printf("Done.\n");
 
     printf("Moving forward by %d mm and detecting obstacles... \n", translation_dist);
-    //translation(right_wheel, left_wheel, translation_dist, sonar_id);
+    int return_value = translation(right_wheel, left_wheel, translation_dist, ultrasonic_tacho, sonar_id)
     //waitncheck_wheels(right_wheel, left_wheel, sonar_id);
     printf("Done.\n");
 
