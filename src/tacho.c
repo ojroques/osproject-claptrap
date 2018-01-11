@@ -242,7 +242,7 @@ void operate_tacho(uint8_t tacho, int angle){
   get_tacho_max_speed(tacho, &max_speed);
 
   //Compute the speed of rotation
-  speed = round((float)max_speed / 8 );
+  speed = round((float)max_speed / 6 );
 
   // Set the tachos speed to the one calculated
   set_tacho_speed_sp(tacho, speed);

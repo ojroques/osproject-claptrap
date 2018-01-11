@@ -23,5 +23,6 @@ int goto_area(int16_t x_unexp, int16_t y_unexp);
 int is_rotation_impossible();
 int get_dir_distance();
 int is_in_lane(int mesure, int angle);
+void algorithm();
 
 #endif

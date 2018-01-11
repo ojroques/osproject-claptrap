@@ -20,7 +20,7 @@ Eurecom, 2017 - 2018. */
 #include "image.h"
 #include "client.h"
 
-#define MAIN_DEBUG 1
+#define MAIN_DEBUG 0
 
 volatile int quit_request                 = 0;    // To stop the position thread
 sensors_t sensors_id                      = {0, 0, 0, 0, 0};    // Contains the sensors' identifiant
@@ -211,7 +211,11 @@ int goto_area(int16_t x_unexp, int16_t y_unexp) {
 int is_rotation_impossible() {
     int side_mesures[2];                // Hold the 2 sonar values on both side of the robot
 
-    scan_distance(tachos_id.ultrasonic_tacho, sensors_id.ultrasonic_sensor, 2, -90, 90, side_mesures);
+    scan_distance(tachos_id.ultrasonic_tacho, sensors_id.ultrasonic_sensor, 2, -100, 100, side_mesures);
+    if (MAIN_DEBUG) {
+        printf("[DEBUG] Scan distances: %d, %d\n", side_mesures[0], side_mesures[1]);
+        getchar();  // PAUSE PROGRAM
+    }
     if (side_mesures[0] < TRESHOLD_SIDE) {    // Obstacle on the left
         return -1;
     }
@@ -226,9 +230,9 @@ int is_rotation_impossible() {
 /* Perform a scan, then check the mesured distances and
  * return the minimum value in the lane in front of the robot */
 int get_dir_distance() {
-    const int DIR_NB_SCAN = 13;
-    const int DIR_ANG_MIN = -60;
-    const int DIR_ANG_MAX = 60;
+    const int DIR_NB_SCAN = 7;
+    const int DIR_ANG_MIN = -70;
+    const int DIR_ANG_MAX = 70;
     int scans[DIR_NB_SCAN];    // Hold the mesures from the scan
     int value, pas, angle_i, i, angle_value;
     pas = (DIR_ANG_MAX - DIR_ANG_MIN) / (DIR_NB_SCAN - 1);
@@ -258,10 +262,53 @@ int is_in_lane(int mesure, int angle){
     
     float threshold = LANE_WIDTH / (2 * cos(90 - abs(angle)));
     if (mesure < threshold) {
-        printf("mesure in lane\n");
         return 1;
     }
     return 0;
+}
+
+void algorithm() {
+    time_t start_time;                  // The robot stops after 3mn50
+    int mesures[NB_DIRECTION] = {0};    // Contains the mesured distance of all 4 directions
+    int chosen_direction;               // The direction the robot will move to
+    int16_t x_unexp, y_unexp;           // Position of an unexplored area
+    int i, running;
+
+    running = 1;                        // Exploration running or not
+    start_time = time(NULL);
+    printf("********** START OF EXPLORATION  **********\n\n");
+
+    drop_obstacle();
+    if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
+    while (running) {
+         unexplored_area(&x_unexp, &y_unexp);
+         printf("UNEXPLORED AREA: (%d, %d)\n\n", x_unexp, y_unexp);
+         goto_area(x_unexp, y_unexp);
+
+        while (is_rotation_impossible()) { // While rotation is impossible, move backward
+            printf("Rotation impossible, moving backward");
+            translation(tachos_id.right_wheel, tachos_id.left_wheel, -100);
+        }
+
+        for (i = 0; i < NB_ANALYSIS; i++) {
+            printf("[1] ENVIRONMENT ANALYSIS\n");
+            analyse_env(mesures);
+            printf("[2] DECISION\n");
+            chosen_direction = choose_direction(mesures);
+            if (chosen_direction == -1) {
+                break;
+            }
+            printf("[3] MOVEMENT\n");
+            move(chosen_direction, mesures);
+            printf("\n");
+            if (difftime(time(NULL), start_time) < EXPLORATION_TIME) {
+                running = 0;
+                break;
+            }
+        }
+    }
+
+    printf("********** END OF EXPLORATION **********\n\n");
 }
 
 int main(int argc, char *argv[]) {
@@ -276,12 +323,6 @@ int main(int argc, char *argv[]) {
     // Variables initialization
     int map_width, map_height;          // The map dimensions
     pthread_t pos_thread;               // The position thread
-    time_t start_time;                  // The robot stops after 3mn50
-    int mesures[NB_DIRECTION] = {0};    // Contains the mesured distance of all 4 directions
-    int chosen_direction;               // The direction the robot will move to
-    int16_t x_unexp, y_unexp;           // Position of an unexplored area
-    int i, running;
-    running = 1;                        // Exploration running or not
 
     // General configuration
     signal(SIGINT, clean_exit);         // Redirect CTRL + C to clean_exit in config.c
@@ -311,39 +352,13 @@ int main(int argc, char *argv[]) {
     printf("Press any key to begin exploration\n");
     getchar();
 
-    start_time = time(NULL);
-    printf("********** START OF EXPLORATION  **********\n\n");
-
-    drop_obstacle();
-    if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
-    while (running) {
-        // unexplored_area(&x_unexp, &y_unexp);
-        // printf("UNEXPLORED AREA: (%d, %d)\n\n", x_unexp, y_unexp);
-        // goto_area(x_unexp, y_unexp);
-
-        while (is_rotation_impossible()) { // While rotation is impossible, move backward
-            translation(tachos_id.right_wheel, tachos_id.left_wheel, -100);
+    if (MAIN_DEBUG) {
+        while(1) {
+            is_rotation_impossible();
         }
-
-        for (i = 0; i < NB_ANALYSIS; i++) {
-            printf("[1] ENVIRONMENT ANALYSIS\n");
-            analyse_env(mesures);
-            printf("[2] DECISION\n");
-            chosen_direction = choose_direction(mesures);
-            if (chosen_direction == -1) {
-                break;
-            }
-            printf("[3] MOVEMENT\n");
-            move(chosen_direction, mesures);
-            printf("\n");
-            if (difftime(time(NULL), start_time) < EXPLORATION_TIME) {
-                running = 0;
-                break;
-            }
-        }
+    } else {
+        algorithm();
     }
-
-    printf("********** END OF EXPLORATION **********\n\n");
 
     // Stop sending the current position
     printf("Killing position thread...");
