@@ -70,6 +70,111 @@ int waitncheck_wheels(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasoni
     return 0;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* By Nathan
+   Tranlate by X millimeters.
+   And do the checking for obstacle and update coordinates
+    */
+int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uint8_t ultrasonic_tacho, uint8_t ultrasonic_id) {
+    if (!distance) return 0;
+
+    int max_speed, speed;
+    int count_per_rot, rel_pos, position_start_left, position_start_right, position_start;
+
+    // Set behavior when tachos will stop
+    set_tacho_stop_action_inx(left_wheel, TACHO_HOLD);
+    set_tacho_stop_action_inx(right_wheel, TACHO_HOLD);
+
+    // Get the tachos current settings
+    get_tacho_max_speed(left_wheel, &max_speed);
+    get_tacho_count_per_rot(left_wheel, &count_per_rot);
+    get_tacho_position(left_wheel, &position_start_left);
+    get_tacho_position(right_wheel, &position_start_right);
+    position_start = round((position_start_left + position_start_right)/2);
+
+    // Calculate the speed percentage and the number of rotation for the wheel
+    rel_pos = round(((float)distance / WHEEL_PERIMETER) * count_per_rot + 0.5);
+    speed = round((float)max_speed * TRANSLATION_SPEED / 100.0 + 0.5);
+
+    // Set the tachos speed to the one calculated
+    set_tacho_speed_sp(left_wheel, speed);
+    set_tacho_speed_sp(right_wheel, speed);
+
+    // Set the acceleration
+    set_tacho_ramp_up_sp(left_wheel, RAMP_DURATION);
+    set_tacho_ramp_up_sp(right_wheel, RAMP_DURATION);
+    set_tacho_ramp_down_sp(left_wheel, RAMP_DURATION);
+    set_tacho_ramp_down_sp(right_wheel, RAMP_DURATION);
+
+    // Set the number of wheel rotation
+    set_tacho_position_sp(left_wheel, rel_pos);
+    set_tacho_position_sp(right_wheel, rel_pos);
+
+    //DURING NAVIGATION
+    //previously in waitncheck_wheels
+
+    int current_distance, previous_distance, previous_traveled_distance;
+    char right_state[TACHO_BUFFER_SIZE];
+    char left_state[TACHO_BUFFER_SIZE];
+    previous_traveled_distance = 0;
+
+    current_distance = get_avg_distance(ultrasonic_id, NB_SENSOR_MESURE);
+    previous_distance = current_distance;
+
+
+    // Run the specified command
+    set_tacho_command_inx(left_wheel, TACHO_RUN_TO_REL_POS);
+    set_tacho_command_inx(right_wheel, TACHO_RUN_TO_REL_POS);
+
+    do {
+        previous_distance = current_distance;
+        current_distance = update_distance(right_wheel, left_wheel, ultrasonic_id, position_start, count_per_rot, previous_traveled_distance, previous_distance);
+        if (current_distance < TRESHOLD_MANEUVER && distance > 0) {
+            stop_tacho(right_wheel);
+            stop_tacho(left_wheel);
+            current_distance = update_distance(right_wheel, left_wheel, ultrasonic_id, position_start, count_per_rot, previous_traveled_distance, previous_distance);
+            return 1;
+        }
+        Sleep(200);
+    } while (strcmp("holding", right_state) && strcmp("holding", left_state));
+
+    //update the coordinates values
+    current_distance = update_distance(right_wheel, left_wheel, ultrasonic_id, position_start, count_per_rot, previous_traveled_distance, previous_distance);
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* By Nathan
    Tranlate by X millimeters.
    And do the checking for obstacle and update coordinates
@@ -241,7 +346,7 @@ int update_distance(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasonic_
   update_coordinate(delta_traveled_distance);
 
   //return the new value of previous_traveled_distance
-  return traveled_distance
+  return current_distance
 }
 
 /* By Erwan
