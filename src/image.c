@@ -178,21 +178,26 @@ void send_image() {
         for (j = 0; j < img_width; j++) {
             col = val_to_color(get_cell(i, j));
             send_mapdata(i, j, col.red, col.green, col.blue);
+            Sleep(50);
         }
     }
     send_mapdone();
 }
 
-/* For test purposes
 int main() {
-    uint16_t x_free, y_free;
+    int16_t x_free, y_free;
     init_image(24, 40);
     set_cell(20, 12, 2);
     place_obstacle(12, 12);
     place_obstacle(12, 12);
+    place_obstacle(5, 5);
     print_image();
     printf("La case (20, 12) a pour valeur %d\n", get_cell(20, 12));
     unexplored_area(&x_free, &y_free);
     printf("Centre de la zone inexploree: (%d, %d)\n", x_free, y_free);
+    open_connection();
+    printf("Envoi de la map... ");
+    send_image();
+    printf("Done.\n");
     return 0;
-} */
+}

@@ -36,6 +36,7 @@ void drop_obstacle() {
     printf("    Dropping non-movable obstacle... ");
     carrier_down_position(tachos_id.obstacle_carrier);
     wait_tacho(tachos_id.obstacle_carrier);
+    Sleep(1000);
     carrier_up_position(tachos_id.obstacle_carrier);
     wait_tacho(tachos_id.obstacle_carrier);
     printf("Done.\n");
@@ -64,7 +65,7 @@ int obstacle_type(int *sonar_value) {
     // Check color, after multiplying TRESHOLD_COLOR by 2 as an error margin
     if (new_distance > 2*TRESHOLD_COLOR) {
         translation(tachos_id.right_wheel, tachos_id.left_wheel, -distance);
-        waitncheck_wheels(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.ultrasonic_sensor);
+        wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
         printf("No obstacle (dist: %d)\n", new_distance);
         return NO_OBST;
     }
@@ -72,7 +73,7 @@ int obstacle_type(int *sonar_value) {
     // Get the obstacle color
     color = get_avg_color(sensors_id.color_sensor, NB_SENSOR_MESURE);
     translation(tachos_id.right_wheel, tachos_id.left_wheel, -distance);
-    waitncheck_wheels(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.ultrasonic_sensor);
+    wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
     if (color == RED_ID) {
         printf("Movable obstacle (color: %d)\n", color);
         return MV_OBST;
@@ -93,7 +94,7 @@ void analyse_env(int mesures[NB_DIRECTION]) {
     for (i = 0; i < NB_DIRECTION; i++) {
         // Mesure distance of the current direction
         current_direction = (initial_direction + i) % NB_DIRECTION;
-        sonar_value = get_avg_distance(sensors_id.ultrasonic_sensor, NB_SENSOR_MESURE);
+        sonar_value = get_dir_distance(sensors_id.ultrasonic_sensor, NB_SENSOR_MESURE);
         printf("    - %s: %dmm, OBST: ", DIRECTIONS_NAME[current_direction], sonar_value);
 
         // If non-movable obstacle detected, place obstacle
@@ -122,7 +123,7 @@ int choose_direction(int mesures[NB_DIRECTION]) {
 
     for (i = 0; i < NB_DIRECTION; i++) {
         // is_looping indicates if direction i would result in a looping route
-        is_looping = (mv_history[1] == (mv_history[0] + 2) % NB_DIRECTION && i == mv_history[0]);
+        is_looping = (mv_history[1] == ((mv_history[0] + 2) % NB_DIRECTION) && i == mv_history[0]);
         if (mesures[i] >= TRESHOLD_MANEUVER && !is_looping) {
             if (direction == -1 || mesures[i] > mesures[direction]) {
                 direction = i;
@@ -203,6 +204,48 @@ int goto_area(int16_t x_unexp, int16_t y_unexp) {
     return goto_status;
 }
 
+/* Check both sides of the robot before rotating.
+ * Return 0 if no obstacles detected (can turn)
+ * Else 1 if there is an obstacle on the right side
+ * Or -1 if there is an obstacle on the left side */
+int is_rotation_impossible() {
+    int side_mesures[2];                // Hold the 2 sonar values on both side of the robot
+
+    scan_distance(tachos_id.ultrasonic_tacho, sensors_id.ultrasonic_sensor, 2, 20, 160, side_mesures);
+    if (side_mesures[0] < TRESHOLD_SIDE) {
+        return -1;
+    }
+    else if (side_mesures[1] < TRESHOLD_SIDE) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
+/* Perform a scan, then check the mesured distances and
+ * return the minimum value in the lane in front of the robot */
+int get_dir_distance() {
+    const int DIR_NB_SCAN = 13;
+    const int DIR_ANG_MIN = 30;
+    const int DIR_ANG_MAX = 150;
+    int scans[DIR_NB_SCAN];
+    int value, pas, angle_i, i;
+    pas = (DIR_ANG_MAX - DIR_ANG_MIN) / (DIR_NB_SCAN - 1);
+    value = -1;
+
+    scan_distance(tachos_id.ultrasonic_tacho, sensors_id.ultrasonic_sensor, DIR_NB_SCAN, DIR_ANG_MIN, DIR_ANG_MAX, scans);
+    for(i = 0; i < DIR_NB_SCAN; i++) {
+        angle_i = DIR_ANG_MIN + i * pas; 
+        if (is_in_lane(scans[i], angle_i)) {
+            if (value == -1 || scans[i] < value) {
+                value = scans[i];
+            }
+        }
+    }
+    return value;
+}    
+
 int main(int argc, char *argv[]) {
 
     // Getting the map dimensions
@@ -259,6 +302,11 @@ int main(int argc, char *argv[]) {
         unexplored_area(&x_unexp, &y_unexp);
         printf("UNEXPLORED AREA: (%d, %d)\n\n", x_unexp, y_unexp);
         goto_area(x_unexp, y_unexp);
+        
+        while (is_rotation_impossible()) { // While rotation is impossible, move backward
+            translation(tachos_id.right_wheel, tachos_id.left_wheel, -100);
+        }
+
         for (i = 0; i < NB_ANALYSIS; i++) {
             printf("[1] ENVIRONMENT ANALYSIS\n");
             analyse_env(mesures);
