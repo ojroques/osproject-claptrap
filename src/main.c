@@ -247,7 +247,7 @@ int get_dir_distance() {
     return value;
 }
 
-int is_in_line(int mesure, int angle){
+int is_in_lane(int mesure, int angle){
   if (angle == 0){
     return 1;
   }
@@ -315,9 +315,9 @@ int main(int argc, char *argv[]) {
     drop_obstacle();
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
     while (running) {
-        unexplored_area(&x_unexp, &y_unexp);
-        printf("UNEXPLORED AREA: (%d, %d)\n\n", x_unexp, y_unexp);
-        goto_area(x_unexp, y_unexp);
+        // unexplored_area(&x_unexp, &y_unexp);
+        // printf("UNEXPLORED AREA: (%d, %d)\n\n", x_unexp, y_unexp);
+        // goto_area(x_unexp, y_unexp);
 
         while (is_rotation_impossible()) { // While rotation is impossible, move backward
             translation(tachos_id.right_wheel, tachos_id.left_wheel, -100);
