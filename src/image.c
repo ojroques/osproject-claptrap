@@ -178,12 +178,13 @@ void send_image() {
         for (j = 0; j < img_width; j++) {
             col = val_to_color(get_cell(i, j));
             send_mapdata(i, j, col.red, col.green, col.blue);
-            Sleep(50);
+            Sleep(10);
         }
     }
     send_mapdone();
 }
 
+/* For test purposes
 int main() {
     int16_t x_free, y_free;
     init_image(24, 40);
@@ -200,4 +201,4 @@ int main() {
     send_image();
     printf("Done.\n");
     return 0;
-}
+} */
