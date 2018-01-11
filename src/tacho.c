@@ -170,15 +170,15 @@ int translation(uint8_t right_wheel, uint8_t left_wheel, int distance, uint8_t u
 
         if (step == 0 || step == 2){
           //update the coordinates values
-          update_distance(right_wheel, left_wheel, ultrasonic_id, position_start, count_per_rot, previous_traveled_distance, previous_distance);
+          previous_traveled_distance = update_distance(right_wheel, left_wheel, ultrasonic_id, position_start, count_per_rot, previous_traveled_distance, previous_distance);
 
-          step += 1;
           if (step == 0){
             turn_ultrasonic_tacho(ultrasonic_tacho, NAV_ANGLE_RANGE);
-          }else{
+          }
+          if(step == 2){
             turn_ultrasonic_tacho(ultrasonic_tacho, -NAV_ANGLE_RANGE);
           }
-
+          step += 1;
         }else{
           if (step == 1){
             step += 1;
@@ -210,7 +210,7 @@ int translation(uint8_t right_wheel, uint8_t left_wheel, int distance, uint8_t u
 
 //Nathan
 //Function called to update the coordinates
-void update_distance(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasonic_id, int position_start, int count_per_rot, int previous_traveled_distance, int previous_distance){
+int update_distance(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasonic_id, int position_start, int count_per_rot, int previous_traveled_distance, int previous_distance){
   //get the position of the tachos
   int current_position_right;
   int current_position_left;
@@ -239,6 +239,9 @@ void update_distance(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasonic
 
   //update the distance with it
   update_coordinate(delta_traveled_distance);
+
+  //return the new value of previous_traveled_distance
+  return traveled_distance
 }
 
 /* By Erwan
