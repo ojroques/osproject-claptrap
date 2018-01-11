@@ -230,7 +230,7 @@ int is_rotation_impossible() {
 /* Perform a scan, then check the mesured distances and
  * return the minimum value in the lane in front of the robot */
 int get_dir_distance() {
-    const int DIR_NB_SCAN = 7;
+    const int DIR_NB_SCAN = 6;
     const int DIR_ANG_MIN = -70;
     const int DIR_ANG_MAX = 70;
     int scans[DIR_NB_SCAN];    // Hold the mesures from the scan
@@ -244,6 +244,10 @@ int get_dir_distance() {
 
     for(i = 0; i < DIR_NB_SCAN; i++) {
         angle_i = DIR_ANG_MIN + i * pas;
+        if (MAIN_DEBUG) {
+            printf("is_in_lane: %d\n", is_in_lane(scans[i], angle_i));        
+            printf("angle_i: %d\n", angle_i);
+        }
         if (is_in_lane(scans[i], angle_i)) {
             if (value == -1 || scans[i] < value) {
                 value = scans[i];
@@ -354,7 +358,9 @@ int main(int argc, char *argv[]) {
 
     if (MAIN_DEBUG) {
         while(1) {
-            is_rotation_impossible();
+            printf("Rotation impossible ? %d\n", is_rotation_impossible());
+            getchar();
+            printf("Sonar value: %d\n", get_dir_distance());
         }
     } else {
         algorithm();
