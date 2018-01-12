@@ -191,7 +191,7 @@ void goto_area(int16_t x_unexp, int16_t y_unexp) {
     wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
 
     if (MAIN_DEBUG) {
-        printf("r: %d, theta: %d", r, theta);
+        printf("[DEBUG] r: %d, theta: %d", r, theta);
         getchar();  // PAUSE PROGRAM
     }
 }
@@ -237,8 +237,8 @@ int get_dir_distance() {
     for(i = 0; i < DIR_NB_SCAN; i++) {
         angle_i = DIR_ANG_MIN + i * pas;
         if (MAIN_DEBUG) {
-            printf("is_in_lane: %d\n", is_in_lane(scans[i], angle_i));
-            printf("angle_i: %d\n", angle_i);
+            printf("[DEBUG] is_in_lane: %d\n", is_in_lane(scans[i], angle_i));
+            printf("[DEBUG] angle_i: %d\n", angle_i);
         }
         if (is_in_lane(scans[i], angle_i)) {
             if (value == -1 || scans[i] < value) {
@@ -351,6 +351,12 @@ int main(int argc, char *argv[]) {
     getchar();
 
     if (MAIN_DEBUG) {
+        int16_t x_goto, y_goto;
+        x_goto = 525;
+        y_goto = 575;
+        printf("Currently at (%f, %f)\n", coordinate.x, coordinate.y);
+        printf("Going to (%d, %d)\n", x_goto, y_goto);
+        goto_area(x_goto, y_goto);
         while(1) {
             printf("Rotation impossible ? %d\n", is_rotation_impossible());
             getchar();
