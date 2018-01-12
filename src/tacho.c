@@ -146,7 +146,7 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
 
         get_tacho_state(right_wheel, right_state, TACHO_BUFFER_SIZE);
         get_tacho_state(left_wheel, left_state, TACHO_BUFFER_SIZE);
-        
+
         previous_distance = current_distance;
         current_distance = get_avg_distance(ultrasonic_id, NB_SENSOR_MESURE);
 
@@ -632,8 +632,8 @@ void scan_distance(uint8_t ultrasonic_tacho, uint8_t sonar_id, int number_of_sca
 
 /* ********************** MAIN USED FOR TESTS ********************** */
 int main(int argc, char *argv[]) {
-    if (argc != 6) {
-        printf("Usage: ./tacho <translation_distance> <rotation_angle> <ultrasonic_tacho_rotation> <obstacle_carrier_rotation> <number_of_scan>\n");
+    if (argc != 7) {
+        printf("Usage: ./tacho <translation_distance> <rotation_angle> <ultrasonic_tacho_rotation> <obstacle_carrier_rotation> <number_of_scan> <angle_scan>\n");
         exit(EXIT_SUCCESS);
     }
 
@@ -645,6 +645,7 @@ int main(int argc, char *argv[]) {
     int ultrasonic_tacho_rotation = atoi(argv[3]);
     int obstacle_carrier_rotation = atoi(argv[4]);
     int number_of_scan = atoi(argv[5]);
+    int angle_scan = atoi(argv[6]);
 
     ev3_sensor_init();
     ev3_tacho_init();
@@ -687,7 +688,7 @@ int main(int argc, char *argv[]) {
     printf("Done.\n");
 
     printf("Moving forward by %d mm and detecting obstacles... \n", translation_dist);
-    int return_value = translation_light(right_wheel, left_wheel, translation_dist, ultrasonic_tacho, sonar_id);
+    //int return_value = translation_light(right_wheel, left_wheel, translation_dist, ultrasonic_tacho, sonar_id);
     //waitncheck_wheels(right_wheel, left_wheel, sonar_id);
     printf("Done.\n");
 
@@ -719,12 +720,12 @@ int main(int argc, char *argv[]) {
     printf("Done.\n");
 
     printf("Performing %d scans... ", number_of_scan);
-    //int scanned_values[number_of_scan];
-    //scan_distance(ultrasonic_tacho, sonar_id, number_of_scan, -135, 135, scanned_values);
-    //for (int i = 0; i < number_of_scan; i++){
-    //    printf("value %d scanned = %d \n", i, scanned_values[i]);
-    //}
-    //wait_tacho(ultrasonic_tacho);
+    int scanned_values[number_of_scan];
+    scan_distance(ultrasonic_tacho, sonar_id, number_of_scan, (-1)*angle_scan, angle_scan, scanned_values);
+    for (int i = 0; i < number_of_scan; i++){
+        printf("value %d scanned = %d \n", i, scanned_values[i]);
+    }
+    wait_tacho(ultrasonic_tacho);
     printf("Done.\n");
 
     set_tacho_stop_action_inx(right_wheel, TACHO_COAST);
