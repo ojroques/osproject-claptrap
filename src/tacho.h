@@ -28,6 +28,6 @@ void carrier_up_position(uint8_t obstacle_carrier);
 
 int single_scan(uint8_t ultrasonic_tacho, uint8_t sonar_id, int angle);
 void scan_distance(uint8_t ultrasonic_tacho, uint8_t sonar_id, int number_of_scan, int min_angle, int max_angle, int * array_of_scan_values);
-void update_distance(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasonic_id, int position_start, int count_per_rot, int previous_traveled_distance, int previous_distance);
+int update_distance(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasonic_id, int position_start, int count_per_rot, int previous_traveled_distance, int previous_distance);
 
 #endif
