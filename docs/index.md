@@ -5,7 +5,8 @@
 1. [Presentation](#presentation)
 2. [Links](#links)
 3. [Source code and instructions](#instructions)
-4. [Claptrap architecture](#architecture)
+4. [Claptrap specifications](#specs)
+3. [Code architecture](#architecture)
 5. [Algorithms](#algorithms)
 6. [Work division](#division)
 7. [Videos and Pictures](#videos)
@@ -90,7 +91,7 @@ cd OSproject-Claptrap/src/
 make run
 ```
 
-## <a name="architecture"></a>Claptrap architecture
+## <a name="specs"></a>Claptrap specifications
 
 #### Sensors
 Claptrap uses 3 sensors:
@@ -104,9 +105,65 @@ Claptrap uses 4 tachos:
 * One large tacho in its back for the obstacle carrier
 * One [medium tacho](https://shop.lego.com/en-CA/EV3-Medium-Servo-Motor-45503) to control the rotation of the ultrasonic sensor
 
+## <a name="architecture"></a>Code architecture
+
+The repository contains 3 folders:
+- **docs** : website content
+- **src** : the project source code
+- **tests** : general tests for sensors and tachos
+
+#### _src_ structure
+The source code is split into 8 parts:
+- **main.c** and **main.h** : the main algorithm
+- **client.c** and **client.h** : client-server communications
+- **config.c** and **config.h** : Claptrap initialization (tachos, sensors, network, image) and uninitialization
+- **image.c** and **image.h** : map functions
+- **position.c** and **position.h** : position thread and functions
+- **sensors.c** and **sensors.h** : to use the sensors
+- **tachos.c** and **tachos.h** : to control the tachos
+- **const.h** : general constants
+
 ## <a name="algorithms"></a>Algorithms
 
-Coming soon
+Claptrap is initialized with a map of arbitrary size filled with 0 (unexplored) and a starting position, as well as a timer (4 minutes).
+
+#### The exploration algorithm
+An infinite loop is started. There are two parts to this loop:
+1. First, the center of the largest unexplored area is given to Claptrap, which then tries to go there. Once arrived or if it encounters an obstacle, it stops and go to the next step. This part aims to maximize the surface explored.
+2. The area exploration procedure is then executed 4 times.
+
+###### Area exploration
+This second part is split into 5 sections:
+1. **ANALYSE** :
+    - Claptrap faces one direction (North for instance)
+    - If it detects an object at less than 25cm, it calls the procedure `obstacle_type` detailed below
+    - If there is in fact an unmovable object, we update the map accordingly
+    - In any cases, we save the sonar value for the current direction (North here)
+    - Claptrap rotate by 90 deg.
+    - We start over until each direction has been analyzed
+2. **DECISION** :
+    - Claptrap selects the direction with largest leeway and greater than 15cm (to allow it to move without bumping into obstacles)
+    - If this direction would result in a loop (Claptrap goes back and forth), it is ignored
+    - The chosen direction is saved (if there is one)
+3. **MOVEMENT** :
+    - Claptrap turns to face the chosen direction
+    - It goes forward until an obstacle is detected
+4. **LOOPING AND STOPPING CONDITIONS**
+    - Claptrap restarts at **analyse**
+    - Exploration is stopped when time is up or Claptrap is stuck (no direction available)
+5. **MAPPING**
+    - The map is sent to the server: 0 indicates free area, 1 indicates obstacles
+
+###### *OBSTACLE_TYPE* procedure
+
+This function returns the type of obstacle Claptrap is currently facing:
+1. Claptrap moves closer to the object (typically at 3cm from the object to make color detection possible and reliable)
+2. The color is analyzed: red indicates a movable obstacle
+3. Claptrap moves backward to its previous position
+4. An integer is returned indicating the obstacle type or if there is none
+
+#### Position thread
+In parallel of the main algorithm, a thread updates Claptrap position. This position is then sent to the server every 1.5s.
 
 ## <a name="division"></a>Work division
 

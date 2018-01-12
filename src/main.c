@@ -166,6 +166,7 @@ void move(int direction, int mesures[NB_DIRECTION]) {
     // Go forward until an obstacle is detected
     travel_distance = mesures[direction] - TRESHOLD_MANEUVER;
     printf("    - Moving by %dmm and updating history... ", travel_distance);
+    translation(tachos_id.right_wheel, tachos_id.left_wheel, travel_distance, tachos_id.ultrasonic_tacho, sensors_id.ultrasonic_sensor);
     update_history(direction);
     printf("Done.\n");
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
@@ -236,7 +237,7 @@ int get_dir_distance() {
     for(i = 0; i < DIR_NB_SCAN; i++) {
         angle_i = DIR_ANG_MIN + i * pas;
         if (MAIN_DEBUG) {
-            printf("is_in_lane: %d\n", is_in_lane(scans[i], angle_i));        
+            printf("is_in_lane: %d\n", is_in_lane(scans[i], angle_i));
             printf("angle_i: %d\n", angle_i);
         }
         if (is_in_lane(scans[i], angle_i)) {
@@ -254,7 +255,7 @@ int get_dir_distance() {
  return if yes or not the mesure is in the lane */
 int is_in_lane(int mesure, int angle){
     if (angle == 0) return 1;
-    
+
     float threshold = LANE_WIDTH / (2 * cos(90 - abs(angle)));
     if (mesure < threshold) {
         return 1;
@@ -276,9 +277,10 @@ void algorithm() {
     drop_obstacle();
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
     while (running) {
-         unexplored_area(&x_unexp, &y_unexp);
-         printf("UNEXPLORED AREA: (%d, %d)\n\n", x_unexp, y_unexp);
-         goto_area(x_unexp, y_unexp);
+        unexplored_area(&x_unexp, &y_unexp);
+        printf("UNEXPLORED AREA: (%d, %d)\n\n", x_unexp, y_unexp);
+        goto_area(x_unexp, y_unexp);
+
 
         while (is_rotation_impossible()) { // While rotation is impossible, move backward
             printf("Rotation impossible, moving backward");
@@ -291,6 +293,7 @@ void algorithm() {
             printf("[2] DECISION\n");
             chosen_direction = choose_direction(mesures);
             if (chosen_direction == -1) {
+                running = 0;
                 break;
             }
             printf("[3] MOVEMENT\n");
@@ -308,7 +311,7 @@ void algorithm() {
 
 int main(int argc, char *argv[]) {
 
-    // Getting the map dimensions
+    // Retrieve the map dimensions
     if (argc != 1 && argc != 5) {
         printf("Usage 1: %s <map_width> <map_height> <x_init> <y_init>\n", argv[0]);
         printf("Usage 2: %s - Default values: (24, 40)\n", argv[0]);
