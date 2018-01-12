@@ -680,6 +680,7 @@ int main(int argc, char *argv[]) {
     printf("Done.\n");
 
     printf("Moving backward by %d mm... \n", translation_dist);
+    translation_light(right_wheel, left_wheel, translation_dist, ultrasonic_tacho, sonar_id)
     //translation(right_wheel, left_wheel, -translation_dist, sonar_id);
     //waitncheck_wheels(right_wheel, left_wheel, sonar_id);
     printf("Done.\n");
@@ -707,12 +708,11 @@ int main(int argc, char *argv[]) {
     printf("Done.\n");
 
     printf("Performing %d scans... ", number_of_scan);
-    int scanned_values[number_of_scan];
-    scan_distance(ultrasonic_tacho, sonar_id, number_of_scan, (-1)*angle_scan, angle_scan, scanned_values);
-    for (int i = 0; i < number_of_scan; i++){
-        printf("value %d scanned = %d \n", i, scanned_values[i]);
-    }
-    wait_tacho(ultrasonic_tacho);
+    //int scanned_values[number_of_scan];
+    //scan_distance(ultrasonic_tacho, sonar_id, number_of_scan, (-1)*angle_scan, angle_scan, scanned_values);
+    //for (int i = 0; i < number_of_scan; i++){
+    //    printf("value %d scanned = %d \n", i, scanned_values[i]);
+    //}
     printf("Done.\n");
 
     set_tacho_stop_action_inx(right_wheel, TACHO_COAST);
