@@ -20,7 +20,6 @@ void rotation(uint8_t right_wheel, uint8_t left_wheel, int angle);
 void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int angle);
 
 void operate_tacho(uint8_t tacho, int angle);
-void turn_ultrasonic_tacho(uint8_t ultrasonic_tacho, int angle);
 
 void carrier_middle_position(uint8_t obstacle_carrier);
 void carrier_down_position(uint8_t obstacle_carrier);
