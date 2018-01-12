@@ -508,6 +508,8 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
     }
 }
 
+//##################TACHO OPERATING US SENSOR AND CARRIER###############
+
 
 //Nathan
 //function to operate tacho
@@ -541,28 +543,6 @@ void operate_tacho(uint8_t tacho, int angle){
 }
 
 //Nathan
-//function to turn the head of the robot
-//NOTE : the max rotation angle that can be given to the tacho to turn the head
-//is 135 or -135 when the head is at the center position
-//The value may be a bit different due to non symetrical behavior of tacho
-
-void turn_ultrasonic_tacho(uint8_t ultrasonic_tacho, int angle){
-
-  int rel_pos;
-  rel_pos = round(angle);
-  if (rel_pos > THRESHOLD_ULTRASONIC_TACHO_SUP){
-    rel_pos = THRESHOLD_ULTRASONIC_TACHO_SUP;
-  }
-  if (rel_pos < THRESHOLD_ULTRASONIC_TACHO_INF){
-    rel_pos = THRESHOLD_ULTRASONIC_TACHO_INF;
-  }
-
-  //operate tacho with the right angle
-  operate_tacho(ultrasonic_tacho, rel_pos);
-}
-
-
-//Nathan
 //NOTE : the carrier tacho when is up needs -60 degree to get in position
 //in order to carry object
 //the carrier needs -75 more degrees to be in down position
@@ -594,10 +574,32 @@ void carrier_up_position(uint8_t obstacle_carrier){
 }
 
 //Nathan
+//function to turn the head of the robot
+//NOTE : the max rotation angle that can be given to the tacho to turn the head
+//is 135 or -135 when the head is at the center position
+//The value may be a bit different due to non symetrical behavior of tacho
+
+void turn_ultrasonic_tacho(uint8_t ultrasonic_tacho, int angle){
+
+  int rel_pos;
+  rel_pos = round(angle);
+  if (rel_pos > THRESHOLD_ULTRASONIC_TACHO_SUP){
+    rel_pos = THRESHOLD_ULTRASONIC_TACHO_SUP;
+  }
+  if (rel_pos < THRESHOLD_ULTRASONIC_TACHO_INF){
+    rel_pos = THRESHOLD_ULTRASONIC_TACHO_INF;
+  }
+
+  //operate tacho with the right angle
+  operate_tacho(ultrasonic_tacho, rel_pos);
+}
+
+//Nathan
 //Function to perform a single scan
 
 int single_scan(uint8_t ultrasonic_tacho, uint8_t sonar_id, int angle){
   turn_ultrasonic_tacho(ultrasonic_tacho, angle);
+  wait_tacho(ultrasonic_tacho);
   return get_avg_distance(sonar_id, NB_SENSOR_MESURE);
 }
 
@@ -616,7 +618,6 @@ void scan_distance(uint8_t ultrasonic_tacho, uint8_t sonar_id, int number_of_sca
   //for remaining scan, turn head and scan
   for(int i = 1; i < number_of_scan; i++){
     array_of_scan_values[i] = single_scan(ultrasonic_tacho, sonar_id, angle_delta);
-    wait_tacho(ultrasonic_tacho);
   }
   //turn head back to center position
   turn_ultrasonic_tacho(ultrasonic_tacho, -1 * max_angle);
