@@ -206,7 +206,6 @@ int get_distance(uint8_t sensor_id){
 int get_avg_distance(uint8_t sensor_id, int nb_mesure) {
     int i, average;
     average = 0;
-    Sleep(DELAY_SENSOR);
     for (i = 0; i < nb_mesure; i++) {
         average += get_distance(sensor_id);
         fflush(stdout);
