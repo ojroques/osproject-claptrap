@@ -93,7 +93,7 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
     if (!distance) return 0;
 
     int max_speed, speed;
-    int count_per_rot, rel_pos, position_start_left, position_start_right, position_start;
+    int count_per_rot, rel_pos;
 
     // Set behavior when tachos will stop
     set_tacho_stop_action_inx(left_wheel, TACHO_HOLD);
@@ -102,9 +102,6 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
     // Get the tachos current settings
     get_tacho_max_speed(left_wheel, &max_speed);
     get_tacho_count_per_rot(left_wheel, &count_per_rot);
-    get_tacho_position(left_wheel, &position_start_left);
-    get_tacho_position(right_wheel, &position_start_right);
-    position_start = round((position_start_left + position_start_right)/2);
 
     // Calculate the speed percentage and the number of rotation for the wheel
     rel_pos = round(((float)distance / WHEEL_PERIMETER) * count_per_rot + 0.5);
@@ -127,64 +124,87 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
     //DURING NAVIGATION
     //previously in waitncheck_wheels
 
-    int current_distance, previous_distance, previous_traveled_distance;
+    //#####first Initialize navigation variables
+
+    //the variables to store the tacho state
     char right_state[TACHO_BUFFER_SIZE];
     char left_state[TACHO_BUFFER_SIZE];
-    previous_traveled_distance = 0;
 
+    //################distance (values of the ultrasonic sensor) variables##########################
+    //current distance store distance to the obstacle returned by ultrasonic sensor
+    //previous distance stores the previous value;
+    //delta_distance stores the distanced traveled by the robot (diff of previous and current dist)
+    int current_distance, previous_distance, delta_distance;
     current_distance = get_avg_distance(ultrasonic_id, NB_SENSOR_MESURE);
 
+    //#################position of the tachos variables############################################
+    //position of the right tacho and left tacho
+    //current position of the mean of the positions of the tachos,
+    //previous idem position and delta between the two
+    int current_position_right, current_position_left;
+    float current_position, previous_position;
+    get_tacho_position(right_wheel, &current_position_right);
+    get_tacho_position(left_wheel, &current_position_left);
+    current_position = (float)(current_position_left + current_position_right) / 2;
+
+
+    //The variable storing the distance traveled since the previous loop
+    //is computed from the most precise value between the tacho position_start
+    //and the distance sensor
+    int traveled_distance;
 
     // Run the specified command
     set_tacho_command_inx(left_wheel, TACHO_RUN_TO_REL_POS);
     set_tacho_command_inx(right_wheel, TACHO_RUN_TO_REL_POS);
-    int current_position_right;
-    int current_position_left;
-    int current_position, delta_position, traveled_distance, delta_traveled_distance, delta_distance;
 
     do {
-
-        get_tacho_state(right_wheel, right_state, TACHO_BUFFER_SIZE);
-        get_tacho_state(left_wheel, left_state, TACHO_BUFFER_SIZE);
-
+        //######Compute distances with the ultrasonic sensor#################
+        //save previous value of the ultrasonic sensor
         previous_distance = current_distance;
+        //get a new value of the ultrasonic sensor
         current_distance = get_avg_distance(ultrasonic_id, NB_SENSOR_MESURE);
+        //Compute the traveled distance from the last last loop up until now
+        //using the distance sensor
+        delta_distance = (previous_distance - current_distance);
 
-
+        //######Compute positions with the tachos values#################
+        //store the previous position
+        previous_position = current_position;
+        //update position value of the tachos
         get_tacho_position(right_wheel, &current_position_right);
         get_tacho_position(left_wheel, &current_position_left);
-
-        //get the average postion of the two tachos
-        current_position = round((current_position_left + current_position_right) / 2) ;
-
-        //compare it to the position rel_pos
-        delta_position = current_position - position_start;
-
-        //compute traveled distance by doing the inverse computation from rel_pos
-        traveled_distance = round((((float)delta_position - 0.5) / count_per_rot ) * WHEEL_PERIMETER);
-        delta_traveled_distance = traveled_distance - previous_traveled_distance;
-
-        //Compute the traveled distance from the distance sensor
-        delta_distance = (previous_distance - current_distance);
+        //update the current position = the average postion of the two tachos
+        current_position = (float)(current_position_left + current_position_right) / 2;
+        //compute traveled distance by doing the inverse computation with
+        //the diff of the two positions.
+        traveled_distance = round((((current_position - previous_position) - 0.5) / count_per_rot ) * WHEEL_PERIMETER);
 
         //compare it to the delta of distance from the sensor (fisrt value against current value)
         //chose the best of the two
-        if (delta_distance < delta_traveled_distance + NAV_DIST_RANGE && delta_distance > delta_traveled_distance - NAV_DIST_RANGE){
-          delta_traveled_distance = delta_distance;
+        if (delta_distance < traveled_distance + NAV_DIST_RANGE && delta_distance > traveled_distance - NAV_DIST_RANGE){
+          traveled_distance = delta_distance;
+          printf("used value of ultrasonic sensor to update coordinates !\n");
           }
 
-        printf('delta_traveled_distance = %d \n', delta_traveled_distance);
+        printf("delta_traveled_distance = %d \n", traveled_distance);
 
-
+        //Checking for obstacle in front of the robot.
         if (current_distance < TRESHOLD_MANEUVER && distance > 0) {
             stop_tacho(right_wheel);
             stop_tacho(left_wheel);
             //update the distance with it
-            update_coordinate(delta_traveled_distance);
+            update_coordinate(traveled_distance);
             return 1;
         }
+
         //update the distance with it
-        update_coordinate(delta_traveled_distance);
+        update_coordinate(traveled_distance);
+
+        //update the tacho state values
+        get_tacho_state(right_wheel, right_state, TACHO_BUFFER_SIZE);
+        get_tacho_state(left_wheel, left_state, TACHO_BUFFER_SIZE);
+
+        //sleep
         Sleep(200);
     } while (strcmp("holding", right_state) && strcmp("holding", left_state));
     return 0;
