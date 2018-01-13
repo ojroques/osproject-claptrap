@@ -537,9 +537,11 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
     set_tacho_command_inx(right_wheel, TACHO_STOP);
     if (angle < 0){
       update_theta(-abs(angle_start - current_angle));
+      printf("updated angle of value : %d\n", -abs(angle_start - current_angle));
     }
     else{
       update_theta(abs(angle_start - current_angle));
+      printf("updated angle of value : %d\n", abs(angle_start - current_angle));
     }
 }
 
