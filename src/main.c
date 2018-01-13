@@ -226,42 +226,18 @@ int get_dir_distance() {
     const int DIR_ANG_MIN = -70;
     const int DIR_ANG_MAX = 70;
     int scans[DIR_NB_SCAN];    // Hold the mesures from the scan
-    int value, i; 
-    /* int pas, angle_i, angle_value; */
-    /* pas = (DIR_ANG_MAX - DIR_ANG_MIN) / (DIR_NB_SCAN - 1); */
+    int value, i;
     value = -1;
-    /* angle_value = 0; */
 
     scan_distance(tachos_id.ultrasonic_tacho, sensors_id.ultrasonic_sensor, DIR_NB_SCAN, DIR_ANG_MIN, DIR_ANG_MAX, scans);
-    // This loop put in value the min mesure among those in lane
 
+    // This loop put in value the min mesure of scans
     for(i = 0; i < DIR_NB_SCAN; i++) {
-        /* angle_i = DIR_ANG_MIN + i * pas; */
-        /* if (MAIN_DEBUG) { */
-        /*     printf("[DEBUG] is_in_lane: %d\n", is_in_lane(scans[i], angle_i)); */
-        /*     printf("[DEBUG] angle_i: %d\n", angle_i); */
-        /* } */
-        /* if (is_in_lane(scans[i], angle_i)) { */
         if (value == -1 || scans[i] < value) {
             value = scans[i];
-            /* angle_value = angle_i; */
         }
     }
-    // We return the projection of the mesure on the axe of deplacement of the robot
-    /* return floor(value * sin(90 - abs(angle_value))); */
     return value;
-}
-
-/* Erwan
- return if yes or not the mesure is in the lane */
-int is_in_lane(int mesure, int angle){
-    /* if (angle == 0) return 1; */
-
-    /* float threshold = LANE_WIDTH / (2 * cos(90 - abs(angle))); */
-    /* if (mesure < threshold) { */
-    /*     return 1; */
-    /* } */
-    return 0;
 }
 
 void algorithm() {
@@ -288,6 +264,7 @@ void algorithm() {
             translation_light(tachos_id.right_wheel, tachos_id.left_wheel, -100, sensors_id.ultrasonic_sensor);
         }
 
+        recalibrate_gyro(sensors_id.gyro_sensor);
         for (i = 0; i < NB_ANALYSIS; i++) {
             printf("[1] ENVIRONMENT ANALYSIS\n");
             analyse_env(mesures);
@@ -301,7 +278,7 @@ void algorithm() {
             printf("[3] MOVEMENT\n");
             move(chosen_direction, mesures);
             printf("\n");
-            if (difftime(time(NULL), start_time) < EXPLORATION_TIME) {
+            if (difftime(time(NULL), start_time) > EXPLORATION_TIME) {
                 printf("Time is up!\n");
                 running = 0;
                 break;

@@ -10,6 +10,8 @@
 #include "position.h"
 #include <stdio.h>
 
+#define POSITION_DEBUG 0
+
 extern coordinate_t coordinate;
 extern volatile int quit_request;
 
@@ -39,7 +41,7 @@ void recalibrate_theta(uint8_t compass_id, int compass_starting_angle){
     pthread_mutex_lock(&(coordinate.coordinate_lock));
     // We check if the derivation of theta is not too much
     if (abs((coordinate.theta - 90) - (compass_angle - compass_starting_angle)) > 2){
-      printf("modification of theta, old value = %d, new value = %d\n", coordinate.theta,compass_angle - compass_starting_angle + 90);
+      if (POSITION_DEBUG) printf("modification of theta, old value = %d, new value = %d\n", coordinate.theta,compass_angle - compass_starting_angle + 90);
       coordinate.theta = compass_angle - compass_starting_angle + 90; // if it is we recalibrate by trusting the compass
     }
     pthread_mutex_unlock(&(coordinate.coordinate_lock));
@@ -51,7 +53,7 @@ void update_coordinate(int distance) {
     float rad = M_PI * (float)coordinate.theta / 180. ;
     coordinate.x = coordinate.x + (distance * cos(rad));
     coordinate.y = coordinate.y + (distance * sin(rad));
-    printf("coordinate X = %lf, coordinate Y = %lf\n", coordinate.x, coordinate.y);
+    if (POSITION_DEBUG) printf("coordinate X = %lf, coordinate Y = %lf\n", coordinate.x, coordinate.y);
     pthread_mutex_unlock(&(coordinate.coordinate_lock));
 }
 
