@@ -487,7 +487,7 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
 
     //init angle start angle
     angle_start = get_angle(gyro_id);
-    printf("The starting angle is : %d \n",angle_start);
+    //printf("The starting angle is : %d \n",angle_start);
     current_angle = angle_start;
 
     //duty_cycle is the roughly the percentage of power given to the tacho
@@ -545,16 +545,16 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
       current_angle = get_angle(gyro_id);
     }
     current_angle = get_angle(gyro_id);
-    printf("The finishing angle is : %d \n",current_angle);
+    //printf("The finishing angle is : %d \n",current_angle);
     set_tacho_command_inx(left_wheel, TACHO_STOP);
     set_tacho_command_inx(right_wheel, TACHO_STOP);
     if (angle < 0){
       update_theta(-abs(angle_start - current_angle));
-      printf("updated angle of value : %d\n", -abs(angle_start - current_angle));
+      //printf("updated angle of value : %d\n", -abs(angle_start - current_angle));
     }
     else{
       update_theta(abs(angle_start - current_angle));
-      printf("updated angle of value : %d\n", abs(angle_start - current_angle));
+      //printf("updated angle of value : %d\n", abs(angle_start - current_angle));
     }
 }
 
