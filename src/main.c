@@ -294,6 +294,7 @@ void algorithm() {
             printf("[2] DECISION\n");
             chosen_direction = choose_direction(mesures);
             if (chosen_direction == -1) {
+                printf("Chosen direction = -1\n");
                 running = 0;
                 break;
             }
@@ -301,6 +302,7 @@ void algorithm() {
             move(chosen_direction, mesures);
             printf("\n");
             if (difftime(time(NULL), start_time) < EXPLORATION_TIME) {
+                printf("Time is up!\n");
                 running = 0;
                 break;
             }
