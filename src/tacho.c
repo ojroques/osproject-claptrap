@@ -402,7 +402,7 @@ int update_distance(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasonic_
   if (delta_distance < delta_traveled_distance + NAV_DIST_RANGE && delta_distance > delta_traveled_distance - NAV_DIST_RANGE){
     delta_traveled_distance = delta_distance;
   }
-
+delta_distance
   //update the distance with it
   update_coordinate(delta_traveled_distance);
 
@@ -452,8 +452,14 @@ void rotation(uint8_t right_wheel, uint8_t left_wheel, int angle) {
     set_tacho_command_inx(right_wheel, TACHO_RUN_TO_REL_POS);
 }
 
+
+
+
+
 // Nathan
 // Make the robot turn based on angle from gyro sensor
+//TODO prevent blocking of robot in rotation at low speed
+//-> check the angle and at the end of a certain amount of time quit rotating.
 void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int angle) {
     if (!angle) return;
 
@@ -468,6 +474,7 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
 
     //init angle start angle
     angle_start = get_angle(gyro_id);
+    printf("The starting angle is : %d \n",angle_start);
     current_angle = angle_start;
 
     //duty_cycle is the roughly the percentage of power given to the tacho
@@ -487,7 +494,7 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
       duty_cycle = duty_cycle / abs(duty_cycle) * SPEED_MIN;
     }
 
-    //set the tacho's rotation1
+    //set the tacho's rotation
     set_tacho_duty_cycle_sp(left_wheel, duty_cycle);
     set_tacho_duty_cycle_sp(right_wheel, (-1) * duty_cycle);
 
@@ -524,6 +531,8 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
       //update current angle
       current_angle = get_angle(gyro_id);
     }
+    current_angle = get_angle(gyro_id);
+    printf("The finishing angle is : %d \n",current_angle);
     set_tacho_command_inx(left_wheel, TACHO_STOP);
     set_tacho_command_inx(right_wheel, TACHO_STOP);
     if (angle < 0){
