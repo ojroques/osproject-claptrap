@@ -532,8 +532,8 @@ void operate_tacho(uint8_t tacho, int angle){
   set_tacho_speed_sp(tacho, speed);
 
   // Set the acceleration
-  set_tacho_ramp_up_sp(tacho, RAMP_DURATION);
-  set_tacho_ramp_down_sp(tacho, RAMP_DURATION);
+  set_tacho_ramp_up_sp(tacho, RAMP_DURATION_TACHO);
+  set_tacho_ramp_down_sp(tacho, RAMP_DURATION_TACHO);
 
   // Set the number of wheel rotation
   set_tacho_position_sp(tacho, angle);
