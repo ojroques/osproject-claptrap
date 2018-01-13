@@ -82,7 +82,7 @@ int obstacle_type(int *sonar_value) {
 /* Analyse all four directions and write the corresponding sonar value into
 the given array */
 void analyse_env(int mesures[NB_DIRECTION]) {
-    int sonar_value, initial_direction, i;
+    int sonar_value, initial_direction, modulo_angle, i;
     int16_t x_obstacle, y_obstacle;
 
     printf("    Mesures:\n");
@@ -106,6 +106,19 @@ void analyse_env(int mesures[NB_DIRECTION]) {
         mesures[current_direction] = sonar_value;
         if (MAIN_DEBUG) getchar();    // PAUSE PROGRAM
         if (i < NB_DIRECTION - 1) {   // To avoid returning to the initial direction
+            // Correct any deviation before turning
+            modulo_angle = get_angle(sensors_id.gyro_sensor) % 90;
+            if (abs(modulo_angle < 45)) {
+                rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, -modulo_angle);
+            } else {
+                if (modulo_angle > 0) {
+                    rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, 90 - modulo_angle);
+                } else {
+                    rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, -90 - modulo_angle);
+                {
+            }
+            wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
+            // Turn by 90 deg.
             rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, 90);
             wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
         }
@@ -251,13 +264,12 @@ void algorithm() {
     start_time = time(NULL);
     printf("********** START OF EXPLORATION  **********\n\n");
 
-    drop_obstacle();
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
     while (running) {
         unexplored_area(&x_unexp, &y_unexp);
         printf("UNEXPLORED AREA: (%d, %d)\n\n", x_unexp, y_unexp);
         goto_area(x_unexp, y_unexp);
-
+        drop_obstacle();
 
         while (is_rotation_impossible()) { // While rotation is impossible, move backward
             printf("Rotation impossible, moving backward");
