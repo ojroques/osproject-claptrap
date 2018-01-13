@@ -476,11 +476,17 @@ void rotation(uint8_t right_wheel, uint8_t left_wheel, int angle) {
 void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int angle) {
     if (!angle) return;
 
-    const int RANGE_ANGLE = 1;
+    const int RANGE_ANGLE = 2;
     const int SPEED_MAX   = 40;
     const int SPEED_MIN   = 18;
 
-    int angle_start, current_angle;
+    //angle_start stores the angle at the beginning
+    //the current angle is stored in current_angle
+    //the count counts the number of consecutive time the angle is the same
+    //for when the robot is stuck
+    recalibrate_gyro(gyro_id);
+    int angle_start, current_angle, count, previous_angle;
+    count = 0;
 
     set_tacho_stop_action_inx(left_wheel, TACHO_HOLD);
     set_tacho_stop_action_inx(right_wheel, TACHO_HOLD);
@@ -515,6 +521,8 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
     set_tacho_command_inx(left_wheel, TACHO_RUN_DIRECT );
     set_tacho_command_inx(right_wheel, TACHO_RUN_DIRECT );
 
+    //###############LOOP FOR TURNING####################################
+
     while ((abs(abs(angle_start - current_angle) - angle)) > RANGE_ANGLE){
 
       //recompute duty cycle value
@@ -542,21 +550,40 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
       set_tacho_duty_cycle_sp(right_wheel, (-1) * duty_cycle);
       Sleep(50);
       //update current angle
+      //previous_angle = current_angle;
       current_angle = get_angle(gyro_id);
-    }
+/*
+      if (current_angle == previous_angle){
+        count += 1;
+        if (count > COUNT_THRESHOLD){
+
+        }
+      }
+      if (count !=0 && current_angle != previous_angle){
+        count = 0;
+      }
+    }*/
+
     current_angle = get_angle(gyro_id);
-    //printf("The finishing angle is : %d \n",current_angle);
-    set_tacho_command_inx(left_wheel, TACHO_STOP);
-    set_tacho_command_inx(right_wheel, TACHO_STOP);
-    if (angle < 0){
-      update_theta(-abs(angle_start - current_angle));
-      //printf("updated angle of value : %d\n", -abs(angle_start - current_angle));
+    if (abs(current_angle - angle_start) > 360){
+      recalibrate_gyro(gyro_id);
+      break;
     }
-    else{
-      update_theta(abs(angle_start - current_angle));
-      //printf("updated angle of value : %d\n", abs(angle_start - current_angle));
-    }
+    //################## END OF LOOP ####################################
+  }
+  //printf("The finishing angle is : %d \n",current_angle);
+  set_tacho_command_inx(left_wheel, TACHO_STOP);
+  set_tacho_command_inx(right_wheel, TACHO_STOP);
+  if (angle < 0){
+    update_theta(-abs(angle_start - current_angle));
+    //printf("updated angle of value : %d\n", -abs(angle_start - current_angle));
+  }else{
+    update_theta(abs(angle_start - current_angle));
+    //printf("updated angle of value : %d\n", abs(angle_start - current_angle));
+  }
 }
+
+
 
 //##################TACHO OPERATING US SENSOR AND CARRIER###############
 

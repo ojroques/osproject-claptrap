@@ -181,6 +181,7 @@ DoubleValue get_angle_and_rot_speed(uint8_t sensor_id){
  **/
 void recalibrate_gyro(uint8_t sensor_id) {
     set_sensor_mode_inx(sensor_id, LEGO_EV3_GYRO_GYRO_FAS);
+    Sleep(100);
     set_sensor_mode_inx(sensor_id, LEGO_EV3_GYRO_GYRO_ANG);
 }
 

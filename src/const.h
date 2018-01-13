@@ -15,5 +15,6 @@
 #define NAV_ANGLE_RANGE      110     // Min/max angle for the scan
 #define TRESHOLD_MANEUVER_SIDE          60     // Min/max angle for the scan
 #define NAV_DIST_RANGE       5     // Min/max angle for the scan
+#define COUNT_THRESHOLD      30    //MAx number of loop before considering the angle is the same and the robot is stuck
 
 #endif

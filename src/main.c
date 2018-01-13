@@ -264,7 +264,6 @@ void algorithm() {
             translation_light(tachos_id.right_wheel, tachos_id.left_wheel, -100, sensors_id.ultrasonic_sensor, sensors_id.gyro_sensor);
         }
 
-        recalibrate_gyro(sensors_id.gyro_sensor);
         for (i = 0; i < NB_ANALYSIS; i++) {
             printf("[1] ENVIRONMENT ANALYSIS\n");
             analyse_env(mesures);
