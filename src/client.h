@@ -1,7 +1,7 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#define SERV_ADDR          "00:28:f8:51:71:4b"   /* The address of the server */
+#define SERV_ADDR          "7c:5c:f8:24:df:96"   /* The address of the server */
 #define TEAM_ID           7    /* The team ID */
 #define MSG_ACK           0
 #define MSG_START         1
