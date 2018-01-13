@@ -130,6 +130,7 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
     char right_state[TACHO_BUFFER_SIZE];
     char left_state[TACHO_BUFFER_SIZE];
 
+
     //################distance (values of the ultrasonic sensor) variables##########################
     //current distance store distance to the obstacle returned by ultrasonic sensor
     //previous distance stores the previous value;
@@ -146,12 +147,11 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
     get_tacho_position(right_wheel, &current_position_right);
     get_tacho_position(left_wheel, &current_position_left);
     current_position = (float)(current_position_left + current_position_right) / 2;
-
-
     //The variable storing the distance traveled since the previous loop
     //is computed from the most precise value between the tacho position_start
     //and the distance sensor
     int traveled_distance;
+
 
     // Run the specified command
     set_tacho_command_inx(left_wheel, TACHO_RUN_TO_REL_POS);
@@ -166,6 +166,8 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
         //Compute the traveled distance from the last last loop up until now
         //using the distance sensor
         delta_distance = (previous_distance - current_distance);
+        printf("value of delta distance =%d \n",delta_distance);
+
 
         //######Compute positions with the tachos values#################
         //store the previous position
@@ -178,6 +180,7 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
         //compute traveled distance by doing the inverse computation with
         //the diff of the two positions.
         traveled_distance = round((((current_position - previous_position) - 0.5) / count_per_rot ) * WHEEL_PERIMETER);
+        printf("Value of traveled distance = %d\n", travel_distance);
 
         //compare it to the delta of distance from the sensor (fisrt value against current value)
         //chose the best of the two
