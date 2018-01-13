@@ -173,6 +173,8 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
           delta_traveled_distance = delta_distance;
           }
 
+        printf('delta_traveled_distance = %d \n', delta_traveled_distance);
+
 
         if (current_distance < TRESHOLD_MANEUVER && distance > 0) {
             stop_tacho(right_wheel);
