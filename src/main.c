@@ -203,7 +203,7 @@ void goto_area(int16_t x_unexp, int16_t y_unexp) {
 int is_rotation_impossible() {
     int side_mesures[2];                // Hold the 2 sonar values on both side of the robot
 
-    scan_distance(tachos_id.ultrasonic_tacho, sensors_id.ultrasonic_sensor, 2, -100, 100, side_mesures);
+    scan_distance(tachos_id.ultrasonic_tacho, sensors_id.ultrasonic_sensor, 2, THRESHOLD_ULTRASONIC_TACHO_INF, THRESHOLD_ULTRASONIC_TACHO_SUP, side_mesures);
     if (MAIN_DEBUG) {
         printf("[DEBUG] Scan distances: %d, %d\n", side_mesures[0], side_mesures[1]);
         getchar();  // PAUSE PROGRAM
@@ -226,40 +226,41 @@ int get_dir_distance() {
     const int DIR_ANG_MIN = -70;
     const int DIR_ANG_MAX = 70;
     int scans[DIR_NB_SCAN];    // Hold the mesures from the scan
-    int value, pas, angle_i, i, angle_value;
-    pas = (DIR_ANG_MAX - DIR_ANG_MIN) / (DIR_NB_SCAN - 1);
+    int value, i; 
+    /* int pas, angle_i, angle_value; */
+    /* pas = (DIR_ANG_MAX - DIR_ANG_MIN) / (DIR_NB_SCAN - 1); */
     value = -1;
-    angle_value = 0;
+    /* angle_value = 0; */
 
     scan_distance(tachos_id.ultrasonic_tacho, sensors_id.ultrasonic_sensor, DIR_NB_SCAN, DIR_ANG_MIN, DIR_ANG_MAX, scans);
     // This loop put in value the min mesure among those in lane
 
     for(i = 0; i < DIR_NB_SCAN; i++) {
-        angle_i = DIR_ANG_MIN + i * pas;
-        if (MAIN_DEBUG) {
-            printf("[DEBUG] is_in_lane: %d\n", is_in_lane(scans[i], angle_i));
-            printf("[DEBUG] angle_i: %d\n", angle_i);
-        }
-        if (is_in_lane(scans[i], angle_i)) {
-            if (value == -1 || scans[i] < value) {
-                value = scans[i];
-                angle_value = angle_i;
-            }
+        /* angle_i = DIR_ANG_MIN + i * pas; */
+        /* if (MAIN_DEBUG) { */
+        /*     printf("[DEBUG] is_in_lane: %d\n", is_in_lane(scans[i], angle_i)); */
+        /*     printf("[DEBUG] angle_i: %d\n", angle_i); */
+        /* } */
+        /* if (is_in_lane(scans[i], angle_i)) { */
+        if (value == -1 || scans[i] < value) {
+            value = scans[i];
+            /* angle_value = angle_i; */
         }
     }
     // We return the projection of the mesure on the axe of deplacement of the robot
-    return floor(value * sin(90 - abs(angle_value)));
+    /* return floor(value * sin(90 - abs(angle_value))); */
+    return value;
 }
 
 /* Erwan
  return if yes or not the mesure is in the lane */
 int is_in_lane(int mesure, int angle){
-    if (angle == 0) return 1;
+    /* if (angle == 0) return 1; */
 
-    float threshold = LANE_WIDTH / (2 * cos(90 - abs(angle)));
-    if (mesure < threshold) {
-        return 1;
-    }
+    /* float threshold = LANE_WIDTH / (2 * cos(90 - abs(angle))); */
+    /* if (mesure < threshold) { */
+    /*     return 1; */
+    /* } */
     return 0;
 }
 
