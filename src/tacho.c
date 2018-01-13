@@ -87,9 +87,9 @@ int waitncheck_wheels(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasoni
 
 /* By Nathan
    Tranlate by X millimeters.
-   And do the checking for obstacle and update coordinates
+   And do the checking for obstacle and update coordinates and angle while moving
     */
-int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uint8_t ultrasonic_id) {
+int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uint8_t ultrasonic_id, uint8_t gyro_id){
     if (!distance) return 0;
 
     int max_speed, speed;
@@ -152,6 +152,10 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
     //and the distance sensor
     int traveled_distance;
 
+    //#################angle of the robot#########################################################
+    int current_angle, previous_angle, delta_angle;
+    //init angle start angle
+    current_angle = get_angle(gyro_id);
 
     // Run the specified command
     set_tacho_command_inx(left_wheel, TACHO_RUN_TO_REL_POS);
@@ -163,11 +167,11 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
         previous_distance = current_distance;
         //get a new value of the ultrasonic sensor
         current_distance = get_avg_distance(ultrasonic_id, NB_SENSOR_MESURE);
-        printf("value of distance from the distance sensor =%d \n",current_distance);
+        //printf("value of distance from the distance sensor =%d \n",current_distance);
         //Compute the traveled distance from the last last loop up until now
         //using the distance sensor
         delta_distance = (previous_distance - current_distance);
-        printf("value of delta distance =%d \n",delta_distance);
+        //printf("value of delta distance =%d \n",delta_distance);
 
 
         //######Compute positions with the tachos values#################
@@ -181,16 +185,23 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
         //compute traveled distance by doing the inverse computation with
         //the diff of the two positions.
         traveled_distance = round((((current_position - previous_position) - 0.5) / count_per_rot ) * WHEEL_PERIMETER);
-        printf("Value of traveled distance = %d\n", traveled_distance);
+        //printf("Value of traveled distance = %d\n", traveled_distance);
 
         //compare it to the delta of distance from the sensor (fisrt value against current value)
         //chose the best of the two
         if (delta_distance < traveled_distance + NAV_DIST_RANGE && delta_distance > traveled_distance - NAV_DIST_RANGE){
           traveled_distance = delta_distance;
-          printf("used value of ultrasonic sensor to update coordinates !\n");
+          //printf("used value of ultrasonic sensor to update coordinates !\n");
           }
 
-        printf("delta_traveled_distance = %d \n", traveled_distance);
+        //printf("delta_traveled_distance = %d \n", traveled_distance);
+
+        //####################Get the angle and update it###############################
+        //Get the current angle
+        previous_angle = current_angle;
+        current_angle = get_angle(gyro_id);
+        delta_angle = current_angle - previous_angle;
+
 
         //Checking for obstacle in front of the robot.
         if (current_distance < TRESHOLD_MANEUVER && distance > 0) {
@@ -198,11 +209,13 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
             stop_tacho(left_wheel);
             //update the distance with it
             update_coordinate(traveled_distance);
+            update_theta(delta_angle);
             return 1;
         }
 
         //update the distance with it
         update_coordinate(traveled_distance);
+        update_theta(delta_angle);
 
         //update the tacho state values
         get_tacho_state(right_wheel, right_state, TACHO_BUFFER_SIZE);
@@ -463,7 +476,7 @@ void rotation(uint8_t right_wheel, uint8_t left_wheel, int angle) {
 void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int angle) {
     if (!angle) return;
 
-    const int RANGE_ANGLE = 2;
+    const int RANGE_ANGLE = 1;
     const int SPEED_MAX   = 40;
     const int SPEED_MIN   = 18;
 
