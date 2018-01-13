@@ -89,7 +89,7 @@ int waitncheck_wheels(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasoni
    Tranlate by X millimeters.
    And do the checking for obstacle and update coordinates
     */
-int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uint8_t ultrasonic_tacho, uint8_t ultrasonic_id) {
+int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uint8_t ultrasonic_id) {
     if (!distance) return 0;
 
     int max_speed, speed;
@@ -163,6 +163,7 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
         previous_distance = current_distance;
         //get a new value of the ultrasonic sensor
         current_distance = get_avg_distance(ultrasonic_id, NB_SENSOR_MESURE);
+        printf("value of distance from the distance sensor =%d \n",current_distance);
         //Compute the traveled distance from the last last loop up until now
         //using the distance sensor
         delta_distance = (previous_distance - current_distance);
@@ -180,7 +181,7 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
         //compute traveled distance by doing the inverse computation with
         //the diff of the two positions.
         traveled_distance = round((((current_position - previous_position) - 0.5) / count_per_rot ) * WHEEL_PERIMETER);
-        printf("Value of traveled distance = %d\n", travel_distance);
+        printf("Value of traveled distance = %d\n", traveled_distance);
 
         //compare it to the delta of distance from the sensor (fisrt value against current value)
         //chose the best of the two
@@ -705,7 +706,7 @@ int main(int argc, char *argv[]) {
     printf("Done.\n");
 
     printf("Moving backward by %d mm... \n", translation_dist);
-    translation_light(right_wheel, left_wheel, translation_dist, ultrasonic_tacho, sonar_id);
+    translation_light(right_wheel, left_wheel, translation_dist, sonar_id);
     //translation(right_wheel, left_wheel, -translation_dist, sonar_id);
     //waitncheck_wheels(right_wheel, left_wheel, sonar_id);
     printf("Done.\n");

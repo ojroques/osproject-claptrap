@@ -17,7 +17,7 @@ void wait_wheels(uint8_t right_wheel, uint8_t left_wheel);
 int  waitncheck_wheels(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasonic_id);
 void wait_tacho(uint8_t tacho);
 int translation(uint8_t right_wheel, uint8_t left_wheel, int distance, uint8_t ultrasonic_tacho, uint8_t ultrasonic_id);
-int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uint8_t ultrasonic_tacho, uint8_t ultrasonic_id);
+int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uint8_t ultrasonic_id);
 void rotation(uint8_t right_wheel, uint8_t left_wheel, int angle);
 void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int angle);
 
