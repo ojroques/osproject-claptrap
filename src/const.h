@@ -5,7 +5,7 @@
 
 /* GENERAL */
 #define Sleep( msec ) usleep(( msec ) * 1000 )
-#define NB_SENSOR_MESURE       8              // Number of mesures to average
+#define NB_SENSOR_MESURE       4              // Number of mesures to average
 #define TRESHOLD_COLOR        30              // Dist in mm to detect color reliably
 #define TRESHOLD_MANEUVER    150              // Dist in mm to maneuver correctly
 #define TRESHOLD_CHECK_OBST  250              // Dist in mm to go check the obst type
@@ -15,5 +15,6 @@
 #define NAV_ANGLE_RANGE      110     // Min/max angle for the scan
 #define TRESHOLD_MANEUVER_SIDE          60     // Min/max angle for the scan
 #define NAV_DIST_RANGE       5     // Min/max angle for the scan
+#define COUNT_THRESHOLD      30    //MAx number of loop before considering the angle is the same and the robot is stuck
 
 #endif

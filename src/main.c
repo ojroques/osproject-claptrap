@@ -54,7 +54,7 @@ int obstacle_type(int *sonar_value) {
     if (distance > TRESHOLD_COLOR) {
         distance = distance - TRESHOLD_COLOR;
     }
-    translation_light(tachos_id.right_wheel, tachos_id.left_wheel, distance, sensors_id.ultrasonic_sensor);
+    translation_light(tachos_id.right_wheel, tachos_id.left_wheel, distance, sensors_id.ultrasonic_sensor, sensors_id.gyro_sensor);
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
 
     // Check if there is really an obstacle
@@ -63,14 +63,14 @@ int obstacle_type(int *sonar_value) {
 
     // Check color, after multiplying TRESHOLD_COLOR by 2 as an error margin
     if (new_distance > 2*TRESHOLD_COLOR) {
-        translation_light(tachos_id.right_wheel, tachos_id.left_wheel, -distance, sensors_id.ultrasonic_sensor);
+        translation_light(tachos_id.right_wheel, tachos_id.left_wheel, -distance, sensors_id.ultrasonic_sensor, sensors_id.gyro_sensor);
         printf("No obstacle (dist: %d)\n", new_distance);
         return NO_OBST;
     }
 
     // Get the obstacle color
     color = get_avg_color(sensors_id.color_sensor, NB_SENSOR_MESURE);
-    translation_light(tachos_id.right_wheel, tachos_id.left_wheel, -distance, sensors_id.ultrasonic_sensor);
+    translation_light(tachos_id.right_wheel, tachos_id.left_wheel, -distance, sensors_id.ultrasonic_sensor, sensors_id.gyro_sensor);
     if (color == RED_ID) {
         printf("Movable obstacle (color: %d)\n", color);
         return MV_OBST;
@@ -82,7 +82,7 @@ int obstacle_type(int *sonar_value) {
 /* Analyse all four directions and write the corresponding sonar value into
 the given array */
 void analyse_env(int mesures[NB_DIRECTION]) {
-    int sonar_value, initial_direction, i;
+    int sonar_value, initial_direction, modulo_angle, i;
     int16_t x_obstacle, y_obstacle;
 
     printf("    Mesures:\n");
@@ -106,6 +106,19 @@ void analyse_env(int mesures[NB_DIRECTION]) {
         mesures[current_direction] = sonar_value;
         if (MAIN_DEBUG) getchar();    // PAUSE PROGRAM
         if (i < NB_DIRECTION - 1) {   // To avoid returning to the initial direction
+            // Correct any deviation before turning
+            modulo_angle = get_angle(sensors_id.gyro_sensor) % 90;
+            if (abs(modulo_angle < 45)) {
+                rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, -modulo_angle);
+            } else {
+                if (modulo_angle > 0) {
+                    rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, 90 - modulo_angle);
+                } else {
+                    rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, -90 - modulo_angle);
+                }
+            }
+            wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
+            // Turn by 90 deg.
             rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, 90);
             wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
         }
@@ -166,7 +179,7 @@ void move(int direction, int mesures[NB_DIRECTION]) {
     // Go forward until an obstacle is detected
     travel_distance = mesures[direction] - TRESHOLD_MANEUVER;
     printf("    - Moving by %dmm and updating history... ", travel_distance);
-    translation_light(tachos_id.right_wheel, tachos_id.left_wheel, travel_distance, sensors_id.ultrasonic_sensor);
+    translation_light(tachos_id.right_wheel, tachos_id.left_wheel, travel_distance, sensors_id.ultrasonic_sensor, sensors_id.gyro_sensor);
     update_history(direction);
     printf("Done.\n");
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
@@ -186,7 +199,7 @@ void goto_area(int16_t x_unexp, int16_t y_unexp) {
 
     rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, theta);
     wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
-    translation_light(tachos_id.right_wheel, tachos_id.left_wheel, r, sensors_id.ultrasonic_sensor);
+    translation_light(tachos_id.right_wheel, tachos_id.left_wheel, r, sensors_id.ultrasonic_sensor, sensors_id.gyro_sensor);
     rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, -theta);
     wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
 
@@ -208,11 +221,11 @@ int is_rotation_impossible() {
         printf("[DEBUG] Scan distances: %d, %d\n", side_mesures[0], side_mesures[1]);
         getchar();  // PAUSE PROGRAM
     }
-    if (side_mesures[0] < TRESHOLD_SIDE) {    // Obstacle on the left
-        return -1;
-    }
-    else if (side_mesures[1] < TRESHOLD_SIDE) {    // Obstacle on the right
+    if (side_mesures[0] < TRESHOLD_SIDE) {    // Obstacle on the right
         return 1;
+    }
+    else if (side_mesures[1] < TRESHOLD_SIDE) {    // Obstacle on the left
+        return -1;
     }
     else {    // No obstacle on both sides
         return 0;
@@ -226,41 +239,30 @@ int get_dir_distance() {
     const int DIR_ANG_MIN = -70;
     const int DIR_ANG_MAX = 70;
     int scans[DIR_NB_SCAN];    // Hold the mesures from the scan
-    int value, i; 
-    /* int pas, angle_i, angle_value; */
-    /* pas = (DIR_ANG_MAX - DIR_ANG_MIN) / (DIR_NB_SCAN - 1); */
+    int value, i;
     value = -1;
-    /* angle_value = 0; */
 
     scan_distance(tachos_id.ultrasonic_tacho, sensors_id.ultrasonic_sensor, DIR_NB_SCAN, DIR_ANG_MIN, DIR_ANG_MAX, scans);
-    // This loop put in value the min mesure among those in lane
 
+    // This loop put in value the min mesure of scans
     for(i = 0; i < DIR_NB_SCAN; i++) {
-        /* angle_i = DIR_ANG_MIN + i * pas; */
-        /* if (MAIN_DEBUG) { */
-        /*     printf("[DEBUG] is_in_lane: %d\n", is_in_lane(scans[i], angle_i)); */
-        /*     printf("[DEBUG] angle_i: %d\n", angle_i); */
-        /* } */
-        /* if (is_in_lane(scans[i], angle_i)) { */
         if (value == -1 || scans[i] < value) {
             value = scans[i];
-            /* angle_value = angle_i; */
         }
     }
-    // We return the projection of the mesure on the axe of deplacement of the robot
-    /* return floor(value * sin(90 - abs(angle_value))); */
     return value;
 }
 
-/* Erwan
- return if yes or not the mesure is in the lane */
-int is_in_lane(int mesure, int angle){
-    /* if (angle == 0) return 1; */
 
-    /* float threshold = LANE_WIDTH / (2 * cos(90 - abs(angle))); */
-    /* if (mesure < threshold) { */
-    /*     return 1; */
-    /* } */
+/* Erwan
+   Return if yes or not the mesure is in the lane */
+int is_in_lane(int mesure, int angle) {
+    if (angle == 0) return 1;
+
+    float threshold = LANE_WIDTH / (2 * cos(90 - abs(angle)));
+    if (mesure < threshold) {
+        return 1;
+    }
     return 0;
 }
 
@@ -275,17 +277,16 @@ void algorithm() {
     start_time = time(NULL);
     printf("********** START OF EXPLORATION  **********\n\n");
 
-    drop_obstacle();
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
     while (running) {
         unexplored_area(&x_unexp, &y_unexp);
         printf("UNEXPLORED AREA: (%d, %d)\n\n", x_unexp, y_unexp);
         goto_area(x_unexp, y_unexp);
-
+        drop_obstacle();
 
         while (is_rotation_impossible()) { // While rotation is impossible, move backward
             printf("Rotation impossible, moving backward");
-            translation_light(tachos_id.right_wheel, tachos_id.left_wheel, -100, sensors_id.ultrasonic_sensor);
+            translation_light(tachos_id.right_wheel, tachos_id.left_wheel, -100, sensors_id.ultrasonic_sensor, sensors_id.gyro_sensor);
         }
 
         for (i = 0; i < NB_ANALYSIS; i++) {
@@ -294,15 +295,14 @@ void algorithm() {
             printf("[2] DECISION\n");
             chosen_direction = choose_direction(mesures);
             if (chosen_direction == -1) {
-                printf("Chosen direction = -1\n");
                 running = 0;
                 break;
             }
             printf("[3] MOVEMENT\n");
             move(chosen_direction, mesures);
             printf("\n");
-            if (difftime(time(NULL), start_time) < EXPLORATION_TIME) {
-                printf("Time is up!\n");
+            if (difftime(time(NULL), start_time) > EXPLORATION_TIME) {
+                printf("Time is up!\n\n");
                 running = 0;
                 break;
             }

@@ -176,6 +176,15 @@ DoubleValue get_angle_and_rot_speed(uint8_t sensor_id){
   return retrieve_double_value(sensor_id, LEGO_EV3_GYRO_GYRO_G_AND_A);
 }
 
+/**
+ * Function which recalibrates the gyro by switching mode
+ **/
+void recalibrate_gyro(uint8_t sensor_id) {
+    set_sensor_mode_inx(sensor_id, LEGO_EV3_GYRO_GYRO_FAS);
+    Sleep(100);
+    set_sensor_mode_inx(sensor_id, LEGO_EV3_GYRO_GYRO_ANG);
+}
+
 //####################ULTRA_SONIC_ENSOR################################
 //NOTE : the sensor might lock if the mode is written too often
 //--> maybe we should be aware of reading too many times the mode get_color
@@ -198,7 +207,6 @@ int get_distance(uint8_t sensor_id){
 int get_avg_distance(uint8_t sensor_id, int nb_mesure) {
     int i, average;
     average = 0;
-    Sleep(DELAY_SENSOR);
     for (i = 0; i < nb_mesure; i++) {
         average += get_distance(sensor_id);
         fflush(stdout);

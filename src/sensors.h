@@ -32,6 +32,7 @@ TripleValue get_raw_rgb(uint8_t sensor_id);
 int get_angle(uint8_t sensor_id);
 int get_rot_speed(uint8_t sensor_id);
 int get_raw_gyro(uint8_t sensor_id);
+void recalibrate_gyro(uint8_t sensor_id);
 DoubleValue get_angle_and_rot_speed(uint8_t sensor_id);
 //Ultra sonic sensor access functions
 int get_distance(uint8_t sensor_id);
