@@ -115,7 +115,7 @@ void analyse_env(int mesures[NB_DIRECTION]) {
                     rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, 90 - modulo_angle);
                 } else {
                     rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, -90 - modulo_angle);
-                {
+                }
             }
             wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
             // Turn by 90 deg.
@@ -221,11 +221,11 @@ int is_rotation_impossible() {
         printf("[DEBUG] Scan distances: %d, %d\n", side_mesures[0], side_mesures[1]);
         getchar();  // PAUSE PROGRAM
     }
-    if (side_mesures[0] < TRESHOLD_SIDE) {    // Obstacle on the left
-        return -1;
-    }
-    else if (side_mesures[1] < TRESHOLD_SIDE) {    // Obstacle on the right
+    if (side_mesures[0] < TRESHOLD_SIDE) {    // Obstacle on the right
         return 1;
+    }
+    else if (side_mesures[1] < TRESHOLD_SIDE) {    // Obstacle on the left
+        return -1;
     }
     else {    // No obstacle on both sides
         return 0;
@@ -251,6 +251,19 @@ int get_dir_distance() {
         }
     }
     return value;
+}
+
+
+/* Erwan
+   Return if yes or not the mesure is in the lane */
+int is_in_lane(int mesure, int angle) {
+    if (angle == 0) return 1;
+
+    float threshold = LANE_WIDTH / (2 * cos(90 - abs(angle)));
+    if (mesure < threshold) {
+        return 1;
+    }
+    return 0;
 }
 
 void algorithm() {
