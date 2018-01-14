@@ -22,14 +22,14 @@ Eurecom, 2017 - 2018. */
 
 #define MAIN_DEBUG 0
 
-volatile int quit_request                 = 0;    // To stop the position thread
-sensors_t sensors_id                      = {0, 0, 0, 0, 0};    // Contains the sensors' identifiant
-tachos_t tachos_id                        = {0, 0, 0, 0};       // Contains the tachos' identifiant
-int current_direction                     = NORTH;              // Direction faced by the robot at the beginning
-const int ANGLES[NB_DIRECTION]            = {0, 90, 180, -90};  // Angles for each direction from east
-const char *DIRECTIONS_NAME[NB_DIRECTION] = {"E", "N", "W", "S"};    // Name of all 4 directions
+volatile int quit_request                 = 0;                      // To stop the position thread
+sensors_t sensors_id                      = {0, 0, 0, 0, 0};        // Contains the sensors' identifiant
+tachos_t tachos_id                        = {0, 0, 0, 0};           // Contains the tachos' identifiant
+int current_direction                     = NORTH;                  // Direction faced by the robot at the beginning
+const int ANGLES[NB_DIRECTION]            = {0, 90, 180, -90};      // Angles for each direction from east
+const char *DIRECTIONS_NAME[NB_DIRECTION] = {"E", "N", "W", "S"};   // Name of all 4 directions
 coordinate_t coordinate                   = {600., 300., 90, PTHREAD_MUTEX_INITIALIZER};    // The current position and angle
-int mv_history[2]                         = {-1, -2};          // Holds the last two moves
+int mv_history[2]                         = {-1, -2};               // Holds the last two moves
 
 /* Drop non-movable obstacle. */
 void drop_obstacle() {
@@ -117,10 +117,8 @@ void analyse_env(int mesures[NB_DIRECTION]) {
                     rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, -90 - modulo_angle);
                 }
             }
-            wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
             // Turn by 90 deg.
             rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, 90);
-            wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
         }
     }
 }
@@ -172,7 +170,6 @@ void move(int direction, int mesures[NB_DIRECTION]) {
     // Rotate accordingly
     printf("    - Rotating by %d deg... ", ANGLES[ang]);
     rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, ANGLES[ang]);
-    wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
     printf("Done.\n");
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
 
@@ -197,10 +194,8 @@ void goto_area(int16_t x_unexp, int16_t y_unexp) {
     theta = round(180 * 2 * atan((double)delta_y / (double)(delta_x + r)) / M_PI) - coordinate.theta;
 
     rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, theta);
-    wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
     translation_light(tachos_id.right_wheel, tachos_id.left_wheel, r, sensors_id.ultrasonic_sensor, sensors_id.gyro_sensor, TRESHOLD_MANEUVER);
     rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, -theta);
-    wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
 
     if (MAIN_DEBUG) {
         printf("[DEBUG] (goto_area) r: %d, theta: %d", r, theta);

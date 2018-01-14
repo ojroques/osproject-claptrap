@@ -13,12 +13,9 @@
 #define TACHO_BUFFER_SIZE  256
 
 void stop_tacho(uint8_t tacho_id);
-void wait_wheels(uint8_t right_wheel, uint8_t left_wheel);
-int  waitncheck_wheels(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasonic_id);
 void wait_tacho(uint8_t tacho);
-int translation(uint8_t right_wheel, uint8_t left_wheel, int distance, uint8_t ultrasonic_tacho, uint8_t ultrasonic_id);
+
 int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uint8_t ultrasonic_id, uint8_t gyro_id, int threshold);
-void rotation(uint8_t right_wheel, uint8_t left_wheel, int angle);
 void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int angle);
 
 void operate_tacho(uint8_t tacho, int angle);
@@ -29,6 +26,5 @@ void carrier_up_position(uint8_t obstacle_carrier);
 
 int single_scan(uint8_t ultrasonic_tacho, uint8_t sonar_id, int angle);
 void scan_distance(uint8_t ultrasonic_tacho, uint8_t sonar_id, int number_of_scan, int min_angle, int max_angle, int * array_of_scan_values);
-int update_distance(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasonic_id, int position_start, int count_per_rot, int previous_traveled_distance, int previous_distance);
 
 #endif
