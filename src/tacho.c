@@ -822,6 +822,10 @@ int main(int argc, char *argv[]) {
     //}
     printf("Done.\n");
 
+    printf("Recalibration of gyro ...\n")
+    recalibrate_gyro(gyro_id);
+    printf("Done\n");
+
     set_tacho_stop_action_inx(right_wheel, TACHO_COAST);
     set_tacho_stop_action_inx(left_wheel, TACHO_COAST);
     set_tacho_stop_action_inx(ultrasonic_tacho, TACHO_COAST);

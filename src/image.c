@@ -237,7 +237,7 @@ void explored_line(int16_t x_start, int16_t x_finish, int16_t y_start, int16_t y
     }
 }
 
-/* For test purposes 
+/* For test purposes
 int main() {
     int16_t x_free, y_free;
     init_image(24, 40);
@@ -245,7 +245,7 @@ int main() {
     place_obstacle(12, 12);
     place_obstacle(12, 12);
     place_obstacle(5, 5);
-    explored_line(0,600,0,400);
+    explored_line(0,600,400,0);
     print_image();
     // printf("La case (20, 12) a pour valeur %d\n", get_cell(20, 12));
     // unexplored_area(&x_free, &y_free);
