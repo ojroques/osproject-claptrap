@@ -92,7 +92,7 @@ int waitncheck_wheels(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasoni
 int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uint8_t ultrasonic_id, uint8_t gyro_id){
     if (!distance) return 0;
 
-    float old_x,old_x;
+    float old_x,old_y, current_x, current_y;
     int max_speed, speed;
     int count_per_rot, rel_pos;
 
@@ -224,6 +224,17 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
         //update the distance with it
         update_coordinate(traveled_distance);
         update_theta(delta_angle);
+
+        //get x and y
+        current_x = get_coordinate_x();
+        current_y = get_coordinate_y();
+
+        //check if any of them is negative
+        if(current_x < 0 || current_y < 0){
+          stop_tacho(right_wheel);
+          stop_tacho(left_wheel);
+          return 2
+        }
 
         //update the tacho state values
         get_tacho_state(right_wheel, right_state, TACHO_BUFFER_SIZE);
