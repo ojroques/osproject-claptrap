@@ -788,7 +788,7 @@ int main(int argc, char *argv[]) {
     printf("Done.\n");
 
     printf("Moving backward by %d mm... \n", translation_dist);
-    translation_light(right_wheel, left_wheel, translation_dist, sonar_id);
+    //translation_light(right_wheel, left_wheel, translation_dist, sonar_id);
     //translation(right_wheel, left_wheel, -translation_dist, sonar_id);
     //waitncheck_wheels(right_wheel, left_wheel, sonar_id);
     printf("Done.\n");
