@@ -285,11 +285,11 @@ void algorithm() {
     printf("********** START OF EXPLORATION  **********\n\n");
 
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
+    drop_obstacle();
     while (running) {
         unexplored_area(&x_unexp, &y_unexp);
         printf("UNEXPLORED AREA: (%d, %d)\n\n", x_unexp, y_unexp);
         goto_area(x_unexp, y_unexp);
-        drop_obstacle();
 
         while (is_rotation_impossible()) { // While rotation is impossible, move backward
             printf("Rotation impossible, moving backward");
