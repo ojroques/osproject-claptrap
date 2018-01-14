@@ -180,9 +180,17 @@ DoubleValue get_angle_and_rot_speed(uint8_t sensor_id){
  * Function which recalibrates the gyro by switching mode
  **/
 void recalibrate_gyro(uint8_t sensor_id) {
-    set_sensor_mode_inx(sensor_id, LEGO_EV3_GYRO_GYRO_FAS);
-    Sleep(100);
-    set_sensor_mode_inx(sensor_id, LEGO_EV3_GYRO_GYRO_ANG);
+    // set_sensor_mode_inx(sensor_id, LEGO_EV3_GYRO_GYRO_FAS);
+    // Sleep(100);
+    // set_sensor_mode_inx(sensor_id, LEGO_EV3_GYRO_GYRO_ANG);
+    set_sensor_mode_inx(sensor_id, LEGO_EV3_GYRO_GYRO_CAL);
+    int number = get_angle();
+    while(number <= 0 && number > 0){
+      printf("Still not a number ...\n");
+      number = get_angle();
+      Sleep(100);
+    }
+    printf("recalibration ... complete\n");
 }
 
 //####################ULTRA_SONIC_ENSOR################################
