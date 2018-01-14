@@ -188,43 +188,53 @@ void send_image() {
 /* Erwan
 Update matrix after the robot moved */
 void explored_line(int16_t x_start, int16_t x_finish, int16_t y_start, int16_t y_finish){
-  int16_t delta_x = x_finish-x_start;
-  int16_t delta_y = y_finish-y_start;
-  if( delta_x != 0){
-  float slope = ((float)delta_y)/((float)delta_x);
-  float intercept = -slope*x_start + y_start;
-  int16_t x_previous_update = x_start;
-  int16_t y_previous_update = y_start;
-  set_cell(coord_to_index(x_previous_update), coord_to_index(y_previous_update),1);
-  int precision = floor(abs(slope*(delta_x)) + 1);
-  float current_x;
-  float current_y;
-  int i;
-  for (i = 0; i <= precision; i++){
-    current_x = x_start + i*(delta_x)/precision;
-    current_y = slope*current_x + intercept;
-    if(coord_to_index((round)(current_x + 0.5)) != coord_to_index(x_previous_update) || coord_to_index((round)(current_y + 0.5)) != coord_to_index(y_previous_update)){
-      x_previous_update = (round)(current_x + 0.5);
-      y_previous_update = (round)(current_y + 0.5);
-      set_cell(coord_to_index(y_previous_update), coord_to_index(x_previous_update),1);
+    int16_t delta_x = x_finish-x_start;
+    int16_t delta_y = y_finish-y_start;
+    if( delta_x != 0) {
+        float slope = ((float)delta_y)/((float)delta_x);
+        float intercept = -slope*x_start + y_start;
+        int16_t x_previous_update = x_start;
+        int16_t y_previous_update = y_start;
+
+        if (!is_out_of_bounds(coord_to_index(y_previous_update), coord_to_index(x_previous_update))) {
+            set_cell(coord_to_index(y_previous_update), coord_to_index(x_previous_update), 1);
+        }
+
+        int precision = floor(abs(slope*(delta_x)) + 1);
+        float current_x;
+        float current_y;
+        int i;
+        for (i = 0; i <= precision; i++){
+            current_x = x_start + i*(delta_x)/precision;
+            current_y = slope*current_x + intercept;
+            if(coord_to_index((round)(current_x + 0.5)) != coord_to_index(x_previous_update) || coord_to_index((round)(current_y + 0.5)) != coord_to_index(y_previous_update)){
+                x_previous_update = (round)(current_x + 0.5);
+                y_previous_update = (round)(current_y + 0.5);
+                if (!is_out_of_bounds(coord_to_index(y_previous_update), coord_to_index(x_previous_update))) {
+                    set_cell(coord_to_index(y_previous_update), coord_to_index(x_previous_update), 1);
+                }
+            }
+        }
     }
-  }
-  }
-  else{
-    int16_t y_previous_update = y_start;
-    int16_t x_previous_update = x_start;
-    set_cell(coord_to_index(x_previous_update), coord_to_index(y_previous_update),1);
-    int precision = floor(abs(delta_y)+1);
-    float current_y;
-    int i;
-    for (i = 0; i <= precision; i++){
-      current_y = y_start + i*(delta_y)/precision;
-      if(coord_to_index((round)(current_y + 0.5)) != coord_to_index(y_previous_update)){
-        y_previous_update = (round)(current_y + 0.5);
-        set_cell(coord_to_index(y_previous_update), coord_to_index(x_previous_update),1);
-      }
+    else {
+        int16_t y_previous_update = y_start;
+        int16_t x_previous_update = x_start;
+        if (!is_out_of_bounds(coord_to_index(y_previous_update), coord_to_index(x_previous_update))) {
+            set_cell(coord_to_index(y_previous_update), coord_to_index(x_previous_update), 1);
+        }
+        int precision = floor(abs(delta_y)+1);
+        float current_y;
+        int i;
+        for (i = 0; i <= precision; i++){
+            current_y = y_start + i*(delta_y)/precision;
+            if(coord_to_index((round)(current_y + 0.5)) != coord_to_index(y_previous_update)){
+                y_previous_update = (round)(current_y + 0.5);
+                if (!is_out_of_bounds(coord_to_index(y_previous_update), coord_to_index(x_previous_update))) {
+                    set_cell(coord_to_index(y_previous_update), coord_to_index(x_previous_update), 1);
+                }
+            }
+        }
     }
-  }
 }
 
 /* For test purposes 
