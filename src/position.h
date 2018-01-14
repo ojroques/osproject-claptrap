@@ -8,6 +8,8 @@ void update_theta(int angle);
 void update_coordinate(int distance);
 void get_obst_position(int r, int theta, int16_t *x_obst, int16_t *y_obst);
 void recalibrate_theta(uint8_t compass_id, int compass_starting_angle);
+float get_coordinate_y();
+float get_coordinate_x();
 
 typedef struct coordinate_t{
     double x, y;

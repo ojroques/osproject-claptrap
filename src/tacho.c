@@ -92,8 +92,13 @@ int waitncheck_wheels(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasoni
 int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uint8_t ultrasonic_id, uint8_t gyro_id){
     if (!distance) return 0;
 
+    float old_x,old_x;
     int max_speed, speed;
     int count_per_rot, rel_pos;
+
+    //get current coordinate
+    old_x = get_coordinate_x();
+    old_y = get_coordinate_y();
 
     // Set behavior when tachos will stop
     set_tacho_stop_action_inx(left_wheel, TACHO_HOLD);
@@ -210,6 +215,9 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
             //update the distance with it
             update_coordinate(traveled_distance);
             update_theta(delta_angle);
+            float new_x = get_coordinate_x();
+            float new_y = get_coordinate_y();
+            explored_line(old_x, new_x, old_y, new_y);
             return 1;
         }
 
@@ -224,6 +232,9 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
         //sleep
         Sleep(200);
     } while (strcmp("holding", right_state) && strcmp("holding", left_state));
+    float new_x = get_coordinate_x();
+    float new_y = get_coordinate_y();
+    explored_line(old_x, new_x, old_y, new_y);
     return 0;
 }
 
