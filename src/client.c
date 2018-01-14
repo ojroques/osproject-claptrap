@@ -53,7 +53,7 @@ int sent_to_server(char *buffer, size_t maxSize) {
         close_connection(s);
         return CONNECTION_ERROR;
     }
-    Sleep( 500 );
+    Sleep(300);
     if (CLIENT_DEBUG) {
         printf("[DEBUG] sent %d bytes\n", bytes_sent);
     }
@@ -187,7 +187,7 @@ void close_connection() {
     close(s);
 }
 
-/*
+/* For test purposes
 int main() {
     int16_t x     = 4;
     int16_t y     = 6;

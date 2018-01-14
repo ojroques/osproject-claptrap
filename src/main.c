@@ -268,6 +268,7 @@ int is_in_lane(int mesure, int angle) {
     return 0;
 }
 
+/* The main algorithm for room exploration and mapping */
 void algorithm() {
     time_t start_time;                  // The robot stops after 3mn50
     int mesures[NB_DIRECTION] = {0};    // Contains the mesured distance of all 4 directions
@@ -357,17 +358,7 @@ int main(int argc, char *argv[]) {
     getchar();
 
     if (MAIN_DEBUG) {
-        /* int16_t x_goto, y_goto; */
-        /* x_goto = 525; */
-        /* y_goto = 575; */
-        /* printf("Currently at (%f, %f)\n", coordinate.x, coordinate.y); */
-        /* printf("Going to (%d, %d)\n", x_goto, y_goto); */
-        /* goto_area(x_goto, y_goto); */
-        /* while(1) { */
-        /*     printf("Rotation impossible ? %d\n", is_rotation_impossible()); */
-        /*     getchar(); */
-        /*     printf("Sonar value: %d\n", get_dir_distance()); */
-        /* } */
+        /* You can place your tests here */
         algorithm();
     } else {
         algorithm();

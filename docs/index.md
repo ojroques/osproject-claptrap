@@ -184,6 +184,7 @@ In parallel of the main algorithm, a thread updates Claptrap position. This posi
 * Robot movements: rotation, translation
 * Positioning: calculation, thread
 * Robot configuration in `config.c`
+* Images and videos
 
 ## <a name="videos"></a>Videos and Pictures
 

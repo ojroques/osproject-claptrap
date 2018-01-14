@@ -11,7 +11,7 @@
 #define WEST                2
 #define SOUTH               3
 #define EAST                0
-#define NB_ANALYSIS         4
+#define NB_ANALYSIS         4  // The number of iteration for the analysis step
 
 void drop_obstacle();
 int obstacle_type(int *sonar_value);

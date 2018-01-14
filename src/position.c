@@ -41,8 +41,8 @@ void recalibrate_theta(uint8_t compass_id, int compass_starting_angle){
     pthread_mutex_lock(&(coordinate.coordinate_lock));
     // We check if the derivation of theta is not too much
     if (abs((coordinate.theta - 90) - (compass_angle - compass_starting_angle)) > 2){
-      if (POSITION_DEBUG) printf("modification of theta, old value = %d, new value = %d\n", coordinate.theta,compass_angle - compass_starting_angle + 90);
-      coordinate.theta = compass_angle - compass_starting_angle + 90; // if it is we recalibrate by trusting the compass
+        if (POSITION_DEBUG) printf("[DEBUG] (recalibrate_theta) old theta = %d, new theta = %d\n", coordinate.theta,compass_angle - compass_starting_angle + 90);
+            coordinate.theta = compass_angle - compass_starting_angle + 90; // if it is we recalibrate by trusting the compass
     }
     pthread_mutex_unlock(&(coordinate.coordinate_lock));
 }
@@ -53,7 +53,7 @@ void update_coordinate(int distance) {
     float rad = M_PI * (float)coordinate.theta / 180. ;
     coordinate.x = coordinate.x + (distance * cos(rad));
     coordinate.y = coordinate.y + (distance * sin(rad));
-    if (POSITION_DEBUG) printf("coordinate X = %lf, coordinate Y = %lf\n", coordinate.x, coordinate.y);
+    if (POSITION_DEBUG) printf("[DEBUG] (update_coordinate) X = %lf, Y = %lf\n", coordinate.x, coordinate.y);
     pthread_mutex_unlock(&(coordinate.coordinate_lock));
 }
 
@@ -68,15 +68,15 @@ void get_obst_position(int r, int theta, int16_t *x_obst, int16_t *y_obst) {
 }
 
 float get_coordinate_x(){
-  pthread_mutex_lock(&(coordinate.coordinate_lock));
-  float buffer = (float)coordinate.x;
-  pthread_mutex_unlock(&(coordinate.coordinate_lock));
-  return buffer;
+    pthread_mutex_lock(&(coordinate.coordinate_lock));
+    float buffer = (float)coordinate.x;
+    pthread_mutex_unlock(&(coordinate.coordinate_lock));
+    return buffer;
 }
 
 float get_coordinate_y(){
-  pthread_mutex_lock(&(coordinate.coordinate_lock));
-  float buffer = (float)coordinate.y;
-  pthread_mutex_unlock(&(coordinate.coordinate_lock));
-  return buffer;
+    pthread_mutex_lock(&(coordinate.coordinate_lock));
+    float buffer = (float)coordinate.y;
+    pthread_mutex_unlock(&(coordinate.coordinate_lock));
+    return buffer;
 }

@@ -244,18 +244,18 @@ void explored_line(int16_t x_start, int16_t x_finish, int16_t y_start, int16_t y
 int main() {
     int16_t x_free, y_free;
     init_image(24, 40);
+    open_connection();
     set_cell(20, 12, 2);
     place_obstacle(12, 12);
     place_obstacle(12, 12);
     place_obstacle(5, 5);
     explored_line(0,600,400,0);
     print_image();
-    // printf("La case (20, 12) a pour valeur %d\n", get_cell(20, 12));
-    // unexplored_area(&x_free, &y_free);
-    // printf("Centre de la zone inexploree: (%d, %d)\n", x_free, y_free);
-    // open_connection();
-    // printf("Envoi de la map... ");
-    // send_image();
-    // printf("Done.\n");
+    printf("La case (20, 12) a pour valeur %d\n", get_cell(20, 12));
+    unexplored_area(&x_free, &y_free);
+    printf("Centre de la zone inexploree: (%d, %d)\n", x_free, y_free);
+    printf("Envoi de la map... ");
+    send_image();
+    printf("Done.\n");
     return 0;
 } */
