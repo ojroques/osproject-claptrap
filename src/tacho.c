@@ -314,6 +314,9 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
 
     int max_speed, speed;
     int count_per_rot, rel_pos;
+    float old_x, old_y, current_x, current_y;
+    old_x = get_coordinate_x();
+    old_y = get_coordinate_y();
 
     // Set behavior when tachos will stop
     set_tacho_stop_action_inx(left_wheel, TACHO_HOLD);
@@ -430,12 +433,28 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
             //update the distance with it
             update_coordinate(traveled_distance);
             update_theta(delta_angle);
+            float new_x = get_coordinate_x();
+            float new_y = get_coordinate_y();
+            explored_line(old_x, new_x, old_y, new_y);
             return 1;
         }
 
         //update the distance with it
         update_coordinate(traveled_distance);
         update_theta(delta_angle);
+
+        current_x = get_coordinate_x();
+        current_y = get_coordinate_y();
+
+        //check if any of them is negative
+        if(current_x < 0 || current_y < 0){
+          stop_tacho(right_wheel);
+          stop_tacho(left_wheel);
+          float new_x = get_coordinate_x();
+          float new_y = get_coordinate_y();
+          explored_line(old_x, new_x, old_y, new_y);
+          return 2;
+        }
 
         //update the tacho state values
         get_tacho_state(right_wheel, right_state, TACHO_BUFFER_SIZE);
@@ -462,6 +481,11 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
     current_angle = get_angle(gyro_id);
     delta_angle = current_angle - previous_angle;
     update_theta(delta_angle);
+
+    //add explored path to map matrix
+    float new_x = get_coordinate_x();
+    float new_y = get_coordinate_y();
+    explored_line(old_x, new_x, old_y, new_y);
     return 0;
 }
 
