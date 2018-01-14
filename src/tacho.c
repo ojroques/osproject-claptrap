@@ -312,7 +312,7 @@ void rotation(uint8_t right_wheel, uint8_t left_wheel, int angle) {
    Tranlate by X millimeters.
    And do the checking for obstacle and update coordinates and angle while moving
     */
-int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uint8_t ultrasonic_id, uint8_t gyro_id){
+int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uint8_t ultrasonic_id, uint8_t gyro_id, int threshold){
     if (!distance) return 0;
 
     int max_speed, speed;
@@ -430,7 +430,7 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
 
 
         //Checking for obstacle in front of the robot.
-        if (current_distance < TRESHOLD_MANEUVER && distance > 0) {
+        if (current_distance < threshold && distance > 0) {
             stop_tacho(right_wheel);
             stop_tacho(left_wheel);
             //update the distance with it
@@ -503,9 +503,6 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
     const int RANGE_ANGLE = 2;
     const int SPEED_MAX   = 40;
     const int SPEED_MIN   = 18;
-
-    //Before doing anything recalibrate the gyro
-    recalibrate_gyro(gyro_id);
 
     //angle_start stores the angle at the beginning
     //the current angle is stored in current_angle
@@ -586,16 +583,20 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
 
       //try to prevent the robot being stuck while turning
       if (difftime(time(NULL), start_time) > TURNING_TIME) {
+          set_tacho_command_inx(left_wheel, TACHO_STOP);
+          set_tacho_command_inx(right_wheel, TACHO_STOP);
           recalibrate_gyro(gyro_id);
-          break;
+          return;
       }
 
       //if the gyro gets crazy, or an angle bigger than 360 was sent
       //the turning maneuver is stopped
       current_angle = get_angle(gyro_id);
       if (abs(current_angle - angle_start) > 360){
+        set_tacho_command_inx(left_wheel, TACHO_STOP);
+        set_tacho_command_inx(right_wheel, TACHO_STOP);
         recalibrate_gyro(gyro_id);
-        break;
+        return;
       }
     //################## END OF LOOP ####################################
   }
@@ -787,7 +788,7 @@ int main(int argc, char *argv[]) {
     printf("Done.\n");
 
     printf("Moving backward by %d mm... \n", translation_dist);
-    translation_light(right_wheel, left_wheel, translation_dist, sonar_id);
+    //translation_light(right_wheel, left_wheel, translation_dist, sonar_id);
     //translation(right_wheel, left_wheel, -translation_dist, sonar_id);
     //waitncheck_wheels(right_wheel, left_wheel, sonar_id);
     printf("Done.\n");

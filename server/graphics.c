@@ -65,7 +65,7 @@ struct obstacleCoordinate {
 	int r;
 	int g;
 	int b;
-};
+};	
 
 /* Init SDL */
 int graphicsInit () {
@@ -97,7 +97,7 @@ int nbpositions[15];
 int nbPlayers;
 pthread_mutex_t lock;
 pthread_t tid;
-	/* Arena size: */
+	/* Arena size: */ 
 	int width=200;
 	int height=400;
 
@@ -195,7 +195,7 @@ void drawPath () {
                 drawCurrentPos ((newCoord-1)->x, (newCoord-1)->y);
             }
 
-
+			
         }
     }
 
@@ -491,6 +491,7 @@ void addObstacle (int team, int x, int y, int r, int g, int b) {
     if (teamIndex[team] == 255 || teamIndex[team]<0 || teamIndex[team]>3) {
         return;
     }
+
 
 	nbpoints[team]++;
 	if (nbpoints[team] >= OBS_PER_PLAYER){

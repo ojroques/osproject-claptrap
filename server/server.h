@@ -10,7 +10,7 @@
 
 #define MAXMSG              58
 #define MAXNAMESIZE         15
-#define MAXTEAM             14
+#define MAXTEAM             15
 
 #define RBT_MISS            0
 #define RBT_EV3_BT          1
