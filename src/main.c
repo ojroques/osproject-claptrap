@@ -94,7 +94,7 @@ void analyse_env(int mesures[NB_DIRECTION]) {
         sonar_value = get_dir_distance(sensors_id.ultrasonic_sensor, NB_SENSOR_MESURE);
         printf("    - %s: %dmm, OBST: ", DIRECTIONS_NAME[current_direction], sonar_value);
 
-        // If non-movable obstacle detected, place obstacle
+        // If non-movable obstacle detected, place obstacle and mark free space as explored
         if (sonar_value < TRESHOLD_CHECK_OBST && obstacle_type(&sonar_value) == NONMV_OBST) {
             get_obst_position(sonar_value, ANGLES[current_direction], &x_obstacle, &y_obstacle);
             place_obstacle(x_obstacle, y_obstacle);
@@ -235,19 +235,24 @@ int is_rotation_impossible() {
 /* Perform a scan, then check the mesured distances and
  * return the minimum value in the lane in front of the robot */
 int get_dir_distance() {
-    const int DIR_NB_SCAN = 6;
-    const int DIR_ANG_MIN = -70;
-    const int DIR_ANG_MAX = 70;
+    const int DIR_NB_SCAN = 5;
+    const int DIR_ANG_MIN = -60;
+    const int DIR_ANG_MAX = 60;
     int scans[DIR_NB_SCAN];    // Hold the mesures from the scan
-    int value, i;
+    int value, i, angle_i, pas;
+    pas = (DIR_ANG_MAX - DIR_ANG_MIN) / (DIR_NB_SCAN - 1);
     value = -1;
 
     scan_distance(tachos_id.ultrasonic_tacho, sensors_id.ultrasonic_sensor, DIR_NB_SCAN, DIR_ANG_MIN, DIR_ANG_MAX, scans);
 
     // This loop put in value the min mesure of scans
     for(i = 0; i < DIR_NB_SCAN; i++) {
-        if (value == -1 || scans[i] < value) {
-            value = scans[i];
+        angle_i = (DIR_ANG_MIN + i * pas) / 2;
+        if (MAIN_DEBUG) printf("[DEBUG] (get_dir_distance) mesure: %d, angle_i: %d, is_in_lane(): %d\n", scans[i], angle_i, is_in_lane(scans[i], angle_i));
+        if (is_in_lane(scans[i], angle_i)) {
+            if (value == -1 || scans[i] < value) {
+                value = scans[i];
+            }
         }
     }
     return value;
