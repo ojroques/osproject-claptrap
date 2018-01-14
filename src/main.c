@@ -54,7 +54,7 @@ int obstacle_type(int *sonar_value) {
     if (distance > TRESHOLD_COLOR) {
         distance = distance - TRESHOLD_COLOR;
     }
-    translation_light(tachos_id.right_wheel, tachos_id.left_wheel, distance, sensors_id.ultrasonic_sensor, sensors_id.gyro_sensor);
+    translation_light(tachos_id.right_wheel, tachos_id.left_wheel, distance, sensors_id.ultrasonic_sensor, sensors_id.gyro_sensor, TRESHOLD_COLOR);
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
 
     // Check if there is really an obstacle
@@ -63,14 +63,14 @@ int obstacle_type(int *sonar_value) {
 
     // Check color, after multiplying TRESHOLD_COLOR by 2 as an error margin
     if (new_distance > 2*TRESHOLD_COLOR) {
-        translation_light(tachos_id.right_wheel, tachos_id.left_wheel, -distance, sensors_id.ultrasonic_sensor, sensors_id.gyro_sensor);
+        translation_light(tachos_id.right_wheel, tachos_id.left_wheel, -distance, sensors_id.ultrasonic_sensor, sensors_id.gyro_sensor, TRESHOLD_MANEUVER);
         printf("No obstacle (dist: %d)\n", new_distance);
         return NO_OBST;
     }
 
     // Get the obstacle color
     color = get_avg_color(sensors_id.color_sensor, NB_SENSOR_MESURE);
-    translation_light(tachos_id.right_wheel, tachos_id.left_wheel, -distance, sensors_id.ultrasonic_sensor, sensors_id.gyro_sensor);
+    translation_light(tachos_id.right_wheel, tachos_id.left_wheel, -distance, sensors_id.ultrasonic_sensor, sensors_id.gyro_sensor, TRESHOLD_MANEUVER);
     if (color == RED_ID) {
         printf("Movable obstacle (color: %d)\n", color);
         return MV_OBST;
@@ -179,7 +179,7 @@ void move(int direction, int mesures[NB_DIRECTION]) {
     // Go forward until an obstacle is detected
     travel_distance = mesures[direction] - TRESHOLD_MANEUVER;
     printf("    - Moving by %dmm and updating history... ", travel_distance);
-    translation_light(tachos_id.right_wheel, tachos_id.left_wheel, travel_distance, sensors_id.ultrasonic_sensor, sensors_id.gyro_sensor);
+    translation_light(tachos_id.right_wheel, tachos_id.left_wheel, travel_distance, sensors_id.ultrasonic_sensor, sensors_id.gyro_sensor, TRESHOLD_MANEUVER);
     update_history(direction);
     printf("Done.\n");
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
@@ -198,7 +198,7 @@ void goto_area(int16_t x_unexp, int16_t y_unexp) {
 
     rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, theta);
     wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
-    translation_light(tachos_id.right_wheel, tachos_id.left_wheel, r, sensors_id.ultrasonic_sensor, sensors_id.gyro_sensor);
+    translation_light(tachos_id.right_wheel, tachos_id.left_wheel, r, sensors_id.ultrasonic_sensor, sensors_id.gyro_sensor, TRESHOLD_MANEUVER);
     rotation_gyro(tachos_id.right_wheel, tachos_id.left_wheel, sensors_id.gyro_sensor, -theta);
     wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
 
@@ -293,7 +293,7 @@ void algorithm() {
 
         while (is_rotation_impossible()) { // While rotation is impossible, move backward
             printf("Rotation impossible, moving backward");
-            translation_light(tachos_id.right_wheel, tachos_id.left_wheel, -100, sensors_id.ultrasonic_sensor, sensors_id.gyro_sensor);
+            translation_light(tachos_id.right_wheel, tachos_id.left_wheel, -100, sensors_id.ultrasonic_sensor, sensors_id.gyro_sensor, TRESHOLD_MANEUVER);
         }
 
         for (i = 0; i < NB_ANALYSIS; i++) {
