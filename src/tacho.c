@@ -73,198 +73,6 @@ int waitncheck_wheels(uint8_t right_wheel, uint8_t left_wheel, uint8_t ultrasoni
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-/* By Nathan
-   Tranlate by X millimeters.
-   And do the checking for obstacle and update coordinates and angle while moving
-    */
-int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uint8_t ultrasonic_id, uint8_t gyro_id){
-    if (!distance) return 0;
-
-    float old_x,old_y, current_x, current_y;
-    int max_speed, speed;
-    int count_per_rot, rel_pos;
-
-    //get current coordinate
-    old_x = get_coordinate_x();
-    old_y = get_coordinate_y();
-
-    // Set behavior when tachos will stop
-    set_tacho_stop_action_inx(left_wheel, TACHO_HOLD);
-    set_tacho_stop_action_inx(right_wheel, TACHO_HOLD);
-
-    // Get the tachos current settings
-    get_tacho_max_speed(left_wheel, &max_speed);
-    get_tacho_count_per_rot(left_wheel, &count_per_rot);
-
-    // Calculate the speed percentage and the number of rotation for the wheel
-    rel_pos = round(((float)distance / WHEEL_PERIMETER) * count_per_rot + 0.5);
-    speed = round((float)max_speed * TRANSLATION_SPEED / 100.0 + 0.5);
-
-    // Set the tachos speed to the one calculated
-    set_tacho_speed_sp(left_wheel, speed);
-    set_tacho_speed_sp(right_wheel, speed);
-
-    // Set the acceleration
-    set_tacho_ramp_up_sp(left_wheel, RAMP_DURATION);
-    set_tacho_ramp_up_sp(right_wheel, RAMP_DURATION);
-    set_tacho_ramp_down_sp(left_wheel, RAMP_DURATION);
-    set_tacho_ramp_down_sp(right_wheel, RAMP_DURATION);
-
-    // Set the number of wheel rotation
-    set_tacho_position_sp(left_wheel, rel_pos);
-    set_tacho_position_sp(right_wheel, rel_pos);
-
-    //DURING NAVIGATION
-    //previously in waitncheck_wheels
-
-    //#####first Initialize navigation variables
-
-    //the variables to store the tacho state
-    char right_state[TACHO_BUFFER_SIZE];
-    char left_state[TACHO_BUFFER_SIZE];
-
-
-    //################distance (values of the ultrasonic sensor) variables##########################
-    //current distance store distance to the obstacle returned by ultrasonic sensor
-    //previous distance stores the previous value;
-    //delta_distance stores the distanced traveled by the robot (diff of previous and current dist)
-    int current_distance, previous_distance, delta_distance;
-    current_distance = get_avg_distance(ultrasonic_id, NB_SENSOR_MESURE);
-
-    //#################position of the tachos variables############################################
-    //position of the right tacho and left tacho
-    //current position of the mean of the positions of the tachos,
-    //previous idem position and delta between the two
-    int current_position_right, current_position_left;
-    float current_position, previous_position;
-    get_tacho_position(right_wheel, &current_position_right);
-    get_tacho_position(left_wheel, &current_position_left);
-    current_position = (float)(current_position_left + current_position_right) / 2;
-    //The variable storing the distance traveled since the previous loop
-    //is computed from the most precise value between the tacho position_start
-    //and the distance sensor
-    int traveled_distance;
-
-    //#################angle of the robot#########################################################
-    int current_angle, previous_angle, delta_angle;
-    //init angle start angle
-    current_angle = get_angle(gyro_id);
-
-    // Run the specified command
-    set_tacho_command_inx(left_wheel, TACHO_RUN_TO_REL_POS);
-    set_tacho_command_inx(right_wheel, TACHO_RUN_TO_REL_POS);
-
-    do {
-        //######Compute distances with the ultrasonic sensor#################
-        //save previous value of the ultrasonic sensor
-        previous_distance = current_distance;
-        //get a new value of the ultrasonic sensor
-        current_distance = get_avg_distance(ultrasonic_id, NB_SENSOR_MESURE);
-        //printf("value of distance from the distance sensor =%d \n",current_distance);
-        //Compute the traveled distance from the last last loop up until now
-        //using the distance sensor
-        delta_distance = (previous_distance - current_distance);
-        //printf("value of delta distance =%d \n",delta_distance);
-
-
-        //######Compute positions with the tachos values#################
-        //store the previous position
-        previous_position = current_position;
-        //update position value of the tachos
-        get_tacho_position(right_wheel, &current_position_right);
-        get_tacho_position(left_wheel, &current_position_left);
-        //update the current position = the average postion of the two tachos
-        current_position = (float)(current_position_left + current_position_right) / 2;
-        //compute traveled distance by doing the inverse computation with
-        //the diff of the two positions.
-        traveled_distance = round((((current_position - previous_position) - 0.5) / count_per_rot ) * WHEEL_PERIMETER);
-        //printf("Value of traveled distance = %d\n", traveled_distance);
-
-        //compare it to the delta of distance from the sensor (fisrt value against current value)
-        //chose the best of the two
-        if (delta_distance < traveled_distance + NAV_DIST_RANGE && delta_distance > traveled_distance - NAV_DIST_RANGE){
-          traveled_distance = delta_distance;
-          //printf("used value of ultrasonic sensor to update coordinates !\n");
-          }
-
-        //printf("delta_traveled_distance = %d \n", traveled_distance);
-
-        //####################Get the angle and update it###############################
-        //Get the current angle
-        previous_angle = current_angle;
-        current_angle = get_angle(gyro_id);
-        delta_angle = current_angle - previous_angle;
-
-
-        //Checking for obstacle in front of the robot.
-        if (current_distance < TRESHOLD_MANEUVER && distance > 0) {
-            stop_tacho(right_wheel);
-            stop_tacho(left_wheel);
-            //update the distance with it
-            update_coordinate(traveled_distance);
-            update_theta(delta_angle);
-            float new_x = get_coordinate_x();
-            float new_y = get_coordinate_y();
-            explored_line(old_x, new_x, old_y, new_y);
-            return 1;
-        }
-
-        //update the distance with it
-        update_coordinate(traveled_distance);
-        update_theta(delta_angle);
-
-        //get x and y
-        current_x = get_coordinate_x();
-        current_y = get_coordinate_y();
-
-        //check if any of them is negative
-        if(current_x < 0 || current_y < 0){
-          stop_tacho(right_wheel);
-          stop_tacho(left_wheel);
-          return 2
-        }
-
-        //update the tacho state values
-        get_tacho_state(right_wheel, right_state, TACHO_BUFFER_SIZE);
-        get_tacho_state(left_wheel, left_state, TACHO_BUFFER_SIZE);
-
-        //sleep
-        Sleep(200);
-    } while (strcmp("holding", right_state) && strcmp("holding", left_state));
-    float new_x = get_coordinate_x();
-    float new_y = get_coordinate_y();
-    explored_line(old_x, new_x, old_y, new_y);
-    return 0;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* By Nathan
    Tranlate by X millimeters.
    And do the checking for obstacle and update coordinatesprevious_distance = current_distance;
@@ -491,35 +299,203 @@ void rotation(uint8_t right_wheel, uint8_t left_wheel, int angle) {
 
 
 
+
+
+
+
+//#########################################SECTION OF TACHO OPERATORS TO TURN AND TRANSLATE#########################################
+
+/* By Nathan
+   Tranlate by X millimeters.
+   And do the checking for obstacle and update coordinates and angle while moving
+    */
+int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uint8_t ultrasonic_id, uint8_t gyro_id){
+    if (!distance) return 0;
+
+    int max_speed, speed;
+    int count_per_rot, rel_pos;
+
+    // Set behavior when tachos will stop
+    set_tacho_stop_action_inx(left_wheel, TACHO_HOLD);
+    set_tacho_stop_action_inx(right_wheel, TACHO_HOLD);
+
+    // Get the tachos current settings
+    get_tacho_max_speed(left_wheel, &max_speed);
+    get_tacho_count_per_rot(left_wheel, &count_per_rot);
+
+    // Calculate the speed percentage and the number of rotation for the wheel
+    rel_pos = round(((float)distance / WHEEL_PERIMETER) * count_per_rot + 0.5);
+    speed = round((float)max_speed * TRANSLATION_SPEED / 100.0 + 0.5);
+
+    // Set the tachos speed to the one calculated
+    set_tacho_speed_sp(left_wheel, speed);
+    set_tacho_speed_sp(right_wheel, speed);
+
+    // Set the acceleration
+    set_tacho_ramp_up_sp(left_wheel, RAMP_DURATION);
+    set_tacho_ramp_up_sp(right_wheel, RAMP_DURATION);
+    set_tacho_ramp_down_sp(left_wheel, RAMP_DURATION);
+    set_tacho_ramp_down_sp(right_wheel, RAMP_DURATION);
+
+    // Set the number of wheel rotation
+    set_tacho_position_sp(left_wheel, rel_pos);
+    set_tacho_position_sp(right_wheel, rel_pos);
+
+    //DURING NAVIGATION
+    //previously in waitncheck_wheels
+
+    //#####first Initialize navigation variables
+
+    //the variables to store the tacho state
+    char right_state[TACHO_BUFFER_SIZE];
+    char left_state[TACHO_BUFFER_SIZE];
+
+
+    //################distance (values of the ultrasonic sensor) variables##########################
+    //current distance store distance to the obstacle returned by ultrasonic sensor
+    //previous distance stores the previous value;
+    //delta_distance stores the distanced traveled by the robot (diff of previous and current dist)
+    int current_distance, previous_distance, delta_distance;
+    current_distance = get_avg_distance(ultrasonic_id, NB_SENSOR_MESURE);
+
+    //#################position of the tachos variables############################################
+    //position of the right tacho and left tacho
+    //current position of the mean of the positions of the tachos,
+    //previous idem position and delta between the two
+    int current_position_right, current_position_left;
+    float current_position, previous_position;
+    get_tacho_position(right_wheel, &current_position_right);
+    get_tacho_position(left_wheel, &current_position_left);
+    current_position = (float)(current_position_left + current_position_right) / 2;
+    //The variable storing the distance traveled since the previous loop
+    //is computed from the most precise value between the tacho position_start
+    //and the distance sensor
+    int traveled_distance;
+
+    //#################angle of the robot#########################################################
+    int current_angle, previous_angle, delta_angle;
+    //init angle start angle
+    current_angle = get_angle(gyro_id);
+
+    // Run the specified command
+    set_tacho_command_inx(left_wheel, TACHO_RUN_TO_REL_POS);
+    set_tacho_command_inx(right_wheel, TACHO_RUN_TO_REL_POS);
+
+    do {
+        //######Compute distances with the ultrasonic sensor#################
+        //save previous value of the ultrasonic sensor
+        previous_distance = current_distance;
+        //get a new value of the ultrasonic sensor
+        current_distance = get_avg_distance(ultrasonic_id, NB_SENSOR_MESURE);
+        //printf("value of distance from the distance sensor =%d \n",current_distance);
+        //Compute the traveled distance from the last last loop up until now
+        //using the distance sensor
+        delta_distance = (previous_distance - current_distance);
+        //printf("value of delta distance =%d \n",delta_distance);
+
+
+        //######Compute positions with the tachos values#################
+        //store the previous position
+        previous_position = current_position;
+        //update position value of the tachos
+        get_tacho_position(right_wheel, &current_position_right);
+        get_tacho_position(left_wheel, &current_position_left);
+        //update the current position = the average postion of the two tachos
+        current_position = (float)(current_position_left + current_position_right) / 2;
+        //compute traveled distance by doing the inverse computation with
+        //the diff of the two positions.
+        traveled_distance = round((((current_position - previous_position) - 0.5) / count_per_rot ) * WHEEL_PERIMETER);
+        //printf("Value of traveled distance = %d\n", traveled_distance);
+
+        //compare it to the delta of distance from the sensor (fisrt value against current value)
+        //chose the best of the two
+        if (delta_distance < traveled_distance + NAV_DIST_RANGE && delta_distance > traveled_distance - NAV_DIST_RANGE){
+          traveled_distance = delta_distance;
+          //printf("used value of ultrasonic sensor to update coordinates !\n");
+          }
+
+        //printf("delta_traveled_distance = %d \n", traveled_distance);
+
+        //####################Get the angle and update it###############################
+        //Get the current angle
+        previous_angle = current_angle;
+        current_angle = get_angle(gyro_id);
+        delta_angle = current_angle - previous_angle;
+
+
+        //Checking for obstacle in front of the robot.
+        if (current_distance < TRESHOLD_MANEUVER && distance > 0) {
+            stop_tacho(right_wheel);
+            stop_tacho(left_wheel);
+            //update the distance with it
+            update_coordinate(traveled_distance);
+            update_theta(delta_angle);
+            return 1;
+        }
+
+        //update the distance with it
+        update_coordinate(traveled_distance);
+        update_theta(delta_angle);
+
+        //update the tacho state values
+        get_tacho_state(right_wheel, right_state, TACHO_BUFFER_SIZE);
+        get_tacho_state(left_wheel, left_state, TACHO_BUFFER_SIZE);
+
+        //sleep
+        Sleep(200);
+    } while (strcmp("holding", right_state) && strcmp("holding", left_state));
+
+    //update one last time position of the robot and angle
+    previous_distance = current_distance;
+    current_distance = get_avg_distance(ultrasonic_id, NB_SENSOR_MESURE);
+    delta_distance = (previous_distance - current_distance);
+    previous_position = current_position;
+    get_tacho_position(right_wheel, &current_position_right);
+    get_tacho_position(left_wheel, &current_position_left);
+    current_position = (float)(current_position_left + current_position_right) / 2;
+    traveled_distance = round((((current_position - previous_position) - 0.5) / count_per_rot ) * WHEEL_PERIMETER);
+    if (delta_distance < traveled_distance + NAV_DIST_RANGE && delta_distance > traveled_distance - NAV_DIST_RANGE){
+      traveled_distance = delta_distance;
+      }
+    update_coordinate(traveled_distance);
+    previous_angle = current_angle;
+    current_angle = get_angle(gyro_id);
+    delta_angle = current_angle - previous_angle;
+    update_theta(delta_angle);
+    return 0;
+}
+
+
 // Nathan
 // Make the robot turn based on angle from gyro sensor
-//TODO prevent blocking of robot in rotation at low speed
-//-> check the angle and at the end of a certain amount of time quit rotating.
+//and update the abgle at the end of rotation
 void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int angle) {
     if (!angle) return;
 
+    //Constant for the rotation
     const int RANGE_ANGLE = 2;
     const int SPEED_MAX   = 40;
     const int SPEED_MIN   = 18;
 
+    //Before doing anything recalibrate the gyro
+    recalibrate_gyro(gyro_id);
+
     //angle_start stores the angle at the beginning
     //the current angle is stored in current_angle
-    //the count counts the number of consecutive time the angle is the same
     //for when the robot is stuck
-    recalibrate_gyro(gyro_id);
-    int angle_start, current_angle, count, previous_angle;
-    count = 0;
+    int angle_start, current_angle;
+    angle_start = get_angle(gyro_id);
+    current_angle = angle_start;
+    //printf("The starting angle is : %d \n",angle_start);
 
+    //set the tachos to hold when stopped
     set_tacho_stop_action_inx(left_wheel, TACHO_HOLD);
     set_tacho_stop_action_inx(right_wheel, TACHO_HOLD);
 
-    //init angle start angle
-    angle_start = get_angle(gyro_id);
-    //printf("The starting angle is : %d \n",angle_start);
-    current_angle = angle_start;
-
     //duty_cycle is the roughly the percentage of power given to the tacho
     int duty_cycle;
+
+    //set duty cycle according to the the turning direction of the robot
     if(angle > 0 ){
       //for positive value of angle
       duty_cycle = angle - abs(current_angle - angle_start);
@@ -528,6 +504,7 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
       duty_cycle = angle + abs(current_angle - angle_start);
     }
 
+    //Cut values of duty cycle too big or too low
     if (duty_cycle > SPEED_MAX || duty_cycle < ((-1) * SPEED_MAX)){
       duty_cycle = duty_cycle / abs(duty_cycle) * SPEED_MAX;
     }
@@ -538,6 +515,9 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
     //set the tacho's rotation
     set_tacho_duty_cycle_sp(left_wheel, duty_cycle);
     set_tacho_duty_cycle_sp(right_wheel, (-1) * duty_cycle);
+
+    //to prevent being stuck : watch time spent truning
+    time_t start_time = time(NULL);
 
     //launch tachos
     set_tacho_command_inx(left_wheel, TACHO_RUN_DIRECT );
@@ -556,10 +536,12 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
         duty_cycle = angle + abs(current_angle - angle_start);
       }
 
+      //if no more power were to be sent to the tachos
       if (duty_cycle == 0){
         break;
       }
 
+      //cut the too big or too low values of duty cycle.
       if (duty_cycle > SPEED_MAX || duty_cycle < ((-1) * SPEED_MAX)){
         duty_cycle = duty_cycle / abs(duty_cycle) * SPEED_MAX;
       }
@@ -571,31 +553,31 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
       set_tacho_duty_cycle_sp(left_wheel, duty_cycle);
       set_tacho_duty_cycle_sp(right_wheel, (-1) * duty_cycle);
       Sleep(50);
+
       //update current angle
-      //previous_angle = current_angle;
       current_angle = get_angle(gyro_id);
-/*
-      if (current_angle == previous_angle){
-        count += 1;
-        if (count > COUNT_THRESHOLD){
 
-        }
+      //try to prevent the robot being stuck while turning
+      if (difftime(time(NULL), start_time) > TURNING_TIME) {
+          recalibrate_gyro(gyro_id);
+          break;
       }
-      if (count !=0 && current_angle != previous_angle){
-        count = 0;
-      }
-    }*/
 
-    current_angle = get_angle(gyro_id);
-    if (abs(current_angle - angle_start) > 360){
-      recalibrate_gyro(gyro_id);
-      break;
-    }
+      //if the gyro gets crazy, or an angle bigger than 360 was sent
+      //the turning maneuver is stopped
+      current_angle = get_angle(gyro_id);
+      if (abs(current_angle - angle_start) > 360){
+        recalibrate_gyro(gyro_id);
+        break;
+      }
     //################## END OF LOOP ####################################
   }
+
   //printf("The finishing angle is : %d \n",current_angle);
   set_tacho_command_inx(left_wheel, TACHO_STOP);
   set_tacho_command_inx(right_wheel, TACHO_STOP);
+
+  //update the value of the angle at the end of the turn
   if (angle < 0){
     update_theta(-abs(angle_start - current_angle));
     //printf("updated angle of value : %d\n", -abs(angle_start - current_angle));
@@ -605,14 +587,13 @@ void rotation_gyro(uint8_t right_wheel, uint8_t left_wheel, uint8_t gyro_id, int
   }
 }
 
+//#######################END OF SECTION FOR TRANSLATION AND ROTATION############################################
 
-
-//##################TACHO OPERATING US SENSOR AND CARRIER###############
+//##################TACHO OPERATING US SENSOR AND CARRIER SECTION ###############################################
 
 
 //Nathan
 //function to operate tacho
-
 void operate_tacho(uint8_t tacho, int angle){
   if (!angle) return;
 
@@ -676,11 +657,11 @@ void carrier_up_position(uint8_t obstacle_carrier){
 //NOTE : the max rotation angle that can be given to the tacho to turn the head
 //is 100 or -100 when the head is at the center position
 //The value may be a bit different due to non symetrical behavior of tacho
+//NOTE : the real value of the head angle is the angle tacho value / 2
 
 
 //Nathan
 //Function to perform a single scan
-
 int single_scan(uint8_t ultrasonic_tacho, uint8_t sonar_id, int angle){
   operate_tacho(ultrasonic_tacho, angle);
   wait_tacho(ultrasonic_tacho);
@@ -691,7 +672,6 @@ int single_scan(uint8_t ultrasonic_tacho, uint8_t sonar_id, int angle){
 //Function to perform a scan of the area from the min angle to the max angle
 //need the min max angle to define range of scan and number of scan that is non zero
 //and the array with the right length
-
 void scan_distance(uint8_t ultrasonic_tacho, uint8_t sonar_id, int number_of_scan, int min_angle, int max_angle, int * array_of_scan_values){
   if (!number_of_scan) return;
   int angle_delta = round( (max_angle - min_angle) / (number_of_scan - 1) );
@@ -708,6 +688,7 @@ void scan_distance(uint8_t ultrasonic_tacho, uint8_t sonar_id, int number_of_sca
   wait_tacho(ultrasonic_tacho);
 }
 
+//################################END OF TACHO FOR US SENSOR AND CARRIER SECTION######################################
 
 #ifdef TACHO_DEBUG
 
