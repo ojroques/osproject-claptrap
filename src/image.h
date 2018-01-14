@@ -20,5 +20,6 @@ color_t val_to_color(int value);
 int min(int a, int b, int c);
 void unexplored_area(int16_t *x, int16_t *y);
 void send_image();
+void explored_line(int16_t x_start, int16_t x_finish, int16_t y_start, int16_t y_finish);
 
 #endif
