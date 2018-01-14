@@ -94,10 +94,11 @@ make run
 ## <a name="specs"></a>Claptrap specifications
 
 #### Sensors
-Claptrap uses 3 sensors:
+Claptrap uses 4 sensors:
 * [Ultrasonic Sensor](https://shop.lego.com/en-CA/EV3-Ultrasonic-Sensor-45504)
 * [Color Sensor](https://shop.lego.com/en-CA/EV3-Color-Sensor-45506)
 * [Gyro Sensor](https://shop.lego.com/en-CA/EV3-Color-Sensor-45506)
+* [Compass Sensor](http://modernroboticsinc.com/hitechnic-nxt-compass-sensor)
 
 #### Tachos
 Claptrap uses 4 tachos:
@@ -193,3 +194,5 @@ In parallel of the main algorithm, a thread updates Claptrap position. This posi
 <img src="Image/Claptrap_front.jpg" alt="Claptrap_front">
 
 <img src="Image/Claptrap_back.jpg" alt="Claptrap_back">
+
+_Videos coming soon._
