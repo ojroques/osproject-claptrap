@@ -5,6 +5,7 @@ Eurecom, 2017 - 2018. */
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <math.h>
 
 #include "image.h"
 #include "const.h"
@@ -103,7 +104,7 @@ void place_obstacle(int16_t x, int16_t y) {
         }
     }
 }
- 
+
 /* UTILITY FUNCTIONS */
 /* Function to get minimum of three values */
 int min(int a, int b, int c) {
@@ -118,35 +119,35 @@ int min(int a, int b, int c) {
 void unexplored_area(int16_t *x, int16_t *y) {
     int i, j;
     int S[img_height][img_width];
-    int max_of_s, max_i, max_j; 
+    int max_of_s, max_i, max_j;
 
     /* Set first column of S[][]*/
     for (i = 0; i < img_height; i++)
         S[i][0] = image[i][0];
 
-    /* Set first row of S[][]*/    
+    /* Set first row of S[][]*/
     for (j = 0; j < img_width; j++)
         S[0][j] = image[0][j];
 
     /* Construct other entries of S[][]*/
     for (i = 1; i < img_height; i++) {
         for (j = 1; j < img_width; j++) {
-            if (image[i][j] == 0) 
+            if (image[i][j] == 0)
                 S[i][j] = min(S[i][j-1], S[i-1][j], S[i-1][j-1]) + 1;
             else
                 S[i][j] = 0;
         }
     }
-   
+
     /* Find the maximum entry, and indexes of maximum entry in S[][] */
     max_of_s = S[0][0];
-    max_i = 0; 
+    max_i = 0;
     max_j = 0;
     for (i = 0; i < img_height; i++) {
         for (j = 0; j < img_width; j++) {
             if (max_of_s < S[i][j]) {
                 max_of_s = S[i][j];
-                max_i = i; 
+                max_i = i;
                 max_j = j;
             }
         }
@@ -184,7 +185,49 @@ void send_image() {
     send_mapdone();
 }
 
-/* For test purposes
+/* Erwan
+Update matrix after the robot moved */
+void explored_line(int16_t x_start, int16_t x_finish, int16_t y_start, int16_t y_finish){
+  int16_t delta_x = x_finish-x_start;
+  int16_t delta_y = y_finish-y_start;
+  if( delta_x != 0){
+  float slope = ((float)delta_y)/((float)delta_x);
+  float intercept = -slope*x_start + y_start;
+  int16_t x_previous_update = x_start;
+  int16_t y_previous_update = y_start;
+  set_cell(coord_to_index(x_previous_update), coord_to_index(y_previous_update),1);
+  int precision = floor(abs(slope*(delta_x)) + 1);
+  float current_x;
+  float current_y;
+  int i;
+  for (i = 0; i <= precision; i++){
+    current_x = x_start + i*(delta_x)/precision;
+    current_y = slope*current_x + intercept;
+    if(coord_to_index((round)(current_x + 0.5)) != coord_to_index(x_previous_update) || coord_to_index((round)(current_y + 0.5)) != coord_to_index(y_previous_update)){
+      x_previous_update = (round)(current_x + 0.5);
+      y_previous_update = (round)(current_y + 0.5);
+      set_cell(coord_to_index(y_previous_update), coord_to_index(x_previous_update),1);
+    }
+  }
+  }
+  else{
+    int16_t y_previous_update = y_start;
+    int16_t x_previous_update = x_start;
+    set_cell(coord_to_index(x_previous_update), coord_to_index(y_previous_update),1);
+    int precision = floor(abs(delta_y)+1);
+    float current_y;
+    int i;
+    for (i = 0; i <= precision; i++){
+      current_y = y_start + i*(delta_y)/precision;
+      if(coord_to_index((round)(current_y + 0.5)) != coord_to_index(y_previous_update)){
+        y_previous_update = (round)(current_y + 0.5);
+        set_cell(coord_to_index(y_previous_update), coord_to_index(x_previous_update),1);
+      }
+    }
+  }
+}
+
+/* For test purposes 
 int main() {
     int16_t x_free, y_free;
     init_image(24, 40);
@@ -192,13 +235,14 @@ int main() {
     place_obstacle(12, 12);
     place_obstacle(12, 12);
     place_obstacle(5, 5);
+    explored_line(0,600,0,400);
     print_image();
-    printf("La case (20, 12) a pour valeur %d\n", get_cell(20, 12));
-    unexplored_area(&x_free, &y_free);
-    printf("Centre de la zone inexploree: (%d, %d)\n", x_free, y_free);
-    open_connection();
-    printf("Envoi de la map... ");
-    send_image();
-    printf("Done.\n");
+    // printf("La case (20, 12) a pour valeur %d\n", get_cell(20, 12));
+    // unexplored_area(&x_free, &y_free);
+    // printf("Centre de la zone inexploree: (%d, %d)\n", x_free, y_free);
+    // open_connection();
+    // printf("Envoi de la map... ");
+    // send_image();
+    // printf("Done.\n");
     return 0;
 } */

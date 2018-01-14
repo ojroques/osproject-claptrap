@@ -6,10 +6,10 @@
 2. [Links](#links)
 3. [Source code and instructions](#instructions)
 4. [Claptrap specifications](#specs)
-3. [Code architecture](#architecture)
-5. [Algorithms](#algorithms)
-6. [Work division](#division)
-7. [Videos and Pictures](#videos)
+5. [Code architecture](#architecture)
+6. [Algorithms](#algorithms)
+7. [Work division](#division)
+8. [Videos and Pictures](#videos)
 
 ## <a name="presentation"></a>Presentation
 _Claptrap_ is a robot based on the LEGO MINDSTORMS EV3, whose purpose is to map a previously unknown room. It has been designed by Nathan Biette, Erwan Culerier and Olivier Roques for the OS fall course 2017 at [EURECOM](http://www.eurecom.fr/en).
@@ -187,4 +187,8 @@ In parallel of the main algorithm, a thread updates Claptrap position. This posi
 
 ## <a name="videos"></a>Videos and Pictures
 
-Coming soon
+<img src="Image/Claptrap_body.jpg" alt="Claptrap_body">
+
+<img src="Image/Claptrap_front.jpg" alt="Claptrap_front">
+
+<img src="Image/Claptrap_back.jpg" alt="Claptrap_back">
