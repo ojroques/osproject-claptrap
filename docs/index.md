@@ -177,7 +177,7 @@ In parallel of the main algorithm, a thread updates Claptrap position. This posi
 #### Nathan Biette
 * Robot architecture: building the LEGO robot
 * Sensors: tests, initialization, getters
-* Robot movements: release of an obstacle, controlling the ultrasonic tacho
+* Robot movements: release of an obstacle, controlling the tacho to rotate the head, rotation of the robot using the gyro, calibration of the translation, update of the position of the robots
 * Robot configuration in `config.c`
 
 #### Erwan Culerier
