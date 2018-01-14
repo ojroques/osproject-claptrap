@@ -69,12 +69,12 @@ void get_obst_position(int r, int theta, int16_t *x_obst, int16_t *y_obst) {
 
 float get_coordinate_x(){
   pthread_mutex_lock(&(coordinate.coordinate_lock));
-  return (float)coordinate.x
+  return (float)coordinate.x;
   pthread_mutex_unlock(&(coordinate.coordinate_lock));
 }
 
 float get_coordinate_y(){
   pthread_mutex_lock(&(coordinate.coordinate_lock));
-  return (float)coordinate.y
+  return (float)coordinate.y;
   pthread_mutex_unlock(&(coordinate.coordinate_lock));
 }
