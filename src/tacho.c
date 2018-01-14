@@ -822,7 +822,7 @@ int main(int argc, char *argv[]) {
     //}
     printf("Done.\n");
 
-    printf("Recalibration of gyro ...\n")
+    printf("Recalibration of gyro ...\n");
     recalibrate_gyro(gyro_id);
     printf("Done\n");
 

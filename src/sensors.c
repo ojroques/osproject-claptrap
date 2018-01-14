@@ -184,10 +184,10 @@ void recalibrate_gyro(uint8_t sensor_id) {
     // Sleep(100);
     // set_sensor_mode_inx(sensor_id, LEGO_EV3_GYRO_GYRO_ANG);
     set_sensor_mode_inx(sensor_id, LEGO_EV3_GYRO_GYRO_CAL);
-    int number = get_angle();
+    int number = get_angle( sensor_id);
     while(number <= 0 && number > 0){
       printf("Still not a number ...\n");
-      number = get_angle();
+      number = get_angle( sensor_id);
       Sleep(100);
     }
     printf("recalibration ... complete\n");
