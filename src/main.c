@@ -203,7 +203,7 @@ void goto_area(int16_t x_unexp, int16_t y_unexp) {
     wait_wheels(tachos_id.right_wheel, tachos_id.left_wheel);
 
     if (MAIN_DEBUG) {
-        printf("[DEBUG] r: %d, theta: %d", r, theta);
+        printf("[DEBUG] (goto_area) r: %d, theta: %d", r, theta);
         getchar();  // PAUSE PROGRAM
     }
 }
@@ -217,7 +217,7 @@ int is_rotation_impossible() {
 
     scan_distance(tachos_id.ultrasonic_tacho, sensors_id.ultrasonic_sensor, 2, THRESHOLD_ULTRASONIC_TACHO_INF, THRESHOLD_ULTRASONIC_TACHO_SUP, side_mesures);
     if (MAIN_DEBUG) {
-        printf("[DEBUG] Scan distances: %d, %d\n", side_mesures[0], side_mesures[1]);
+        printf("[DEBUG] (is_rotation_impossible) scan distances: %d, %d\n", side_mesures[0], side_mesures[1]);
         getchar();  // PAUSE PROGRAM
     }
     if (side_mesures[0] < TRESHOLD_SIDE) {    // Obstacle on the right
@@ -250,7 +250,7 @@ int get_dir_distance() {
         angle_i = (DIR_ANG_MIN + i * pas) / 2;
         get_obst_position(scans[i], angle_i, &x_dest, &y_dest);
         explored_line((int16_t)coordinate.x, x_dest, (int16_t)coordinate.y, y_dest);
-        if (MAIN_DEBUG) printf("[DEBUG] (get_dir_distance) mesure: %d, angle_i: %d, is_in_lane(): %d\n", scans[i], angle_i, is_in_lane(scans[i], angle_i));
+        if (MAIN_DEBUG) printf("[DEBUG] (get_dir_distance) i: %d, mesure: %d, angle_i: %d, is_in_lane(): %d\n", i, scans[i], angle_i, is_in_lane(scans[i], angle_i));
         if (is_in_lane(scans[i], angle_i)) {
             if (value == -1 || scans[i] < value) {
                 value = scans[i];
