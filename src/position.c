@@ -59,10 +59,11 @@ void update_coordinate(int distance) {
 
 //Erwan
 void get_obst_position(int r, int theta, int16_t *x_obst, int16_t *y_obst) {
-    float rad = M_PI * (float)theta / 180;
     pthread_mutex_lock(&(coordinate.coordinate_lock));
-    *x_obst = coordinate.x + (round)(r * cos(rad));
-    *y_obst = coordinate.y + (round)(r * sin(rad));
+    float rad_robot = M_PI * (float)coordinate.theta / 180;
+    float rad_ultrasonic = M_PI * (float)theta / 180;
+    *x_obst = coordinate.x + (round)(DIST_CENTER_SONAR * cos(rad_robot) + (r * cos(rad_ultrasonic)));
+    *y_obst = coordinate.y + (round)(DIST_CENTER_SONAR * sin(rad_robot) + (r * cos(rad_ultrasonic)));
     pthread_mutex_unlock(&(coordinate.coordinate_lock));
 }
 
