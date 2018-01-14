@@ -173,13 +173,16 @@ color_t val_to_color(int value) {
 
 /* Send the resulting map to the server */
 void send_image() {
+    int value;
     color_t col;
     int16_t i, j;
     for (i = 0; i < img_height; i++) {
         for (j = 0; j < img_width; j++) {
-            col = val_to_color(get_cell(i, j));
-            send_mapdata(i, j, col.red, col.green, col.blue);
-            Sleep(10);
+            value = get_cell(i, j);
+            if (value > 1) {
+                col = val_to_color(value);
+                send_mapdata(i, j, col.red, col.green, col.blue);
+            }
         }
     }
     send_mapdone();
