@@ -58,7 +58,7 @@ void init_image(int width, int height) {
 /* Return the value of the cell at given coordinates */
 int get_cell(uint16_t i, uint16_t j) {
     if (is_out_of_bounds(i, j)) {
-        printf("%s\n", STR_OUT_OF_BOUNDS);
+        printf("%s: (%d, %d)\n", STR_OUT_OF_BOUNDS, i, j);
         return ERR_OUT_OF_BOUNDS;
     }
     return image[i][j];
@@ -67,7 +67,7 @@ int get_cell(uint16_t i, uint16_t j) {
 /* Set the cell at given coordinates with given value*/
 int set_cell(uint16_t i, uint16_t j, int value) {
     if (is_out_of_bounds(i, j)) {
-        printf("%s\n", STR_OUT_OF_BOUNDS);
+        printf("%s: (%d, %d)\n", STR_OUT_OF_BOUNDS, i, j);
         return ERR_OUT_OF_BOUNDS;
     }
     image[i][j] = value;

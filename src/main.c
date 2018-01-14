@@ -313,6 +313,7 @@ void algorithm() {
                 running = 0;
                 break;
             }
+            print_image();
         }
     }
 
@@ -361,17 +362,18 @@ int main(int argc, char *argv[]) {
     getchar();
 
     if (MAIN_DEBUG) {
-        int16_t x_goto, y_goto;
-        x_goto = 525;
-        y_goto = 575;
-        printf("Currently at (%f, %f)\n", coordinate.x, coordinate.y);
-        printf("Going to (%d, %d)\n", x_goto, y_goto);
-        goto_area(x_goto, y_goto);
-        while(1) {
-            printf("Rotation impossible ? %d\n", is_rotation_impossible());
-            getchar();
-            printf("Sonar value: %d\n", get_dir_distance());
-        }
+        /* int16_t x_goto, y_goto; */
+        /* x_goto = 525; */
+        /* y_goto = 575; */
+        /* printf("Currently at (%f, %f)\n", coordinate.x, coordinate.y); */
+        /* printf("Going to (%d, %d)\n", x_goto, y_goto); */
+        /* goto_area(x_goto, y_goto); */
+        /* while(1) { */
+        /*     printf("Rotation impossible ? %d\n", is_rotation_impossible()); */
+        /*     getchar(); */
+        /*     printf("Sonar value: %d\n", get_dir_distance()); */
+        /* } */
+        algorithm();
     } else {
         algorithm();
     }
