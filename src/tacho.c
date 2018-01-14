@@ -6,6 +6,8 @@
 #include <math.h>
 #include <time.h>
 
+
+#include "image.h"
 #include "const.h"
 #include "position.h"
 #include "sensors.h"
