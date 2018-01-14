@@ -11,7 +11,7 @@ void recalibrate_theta(uint8_t compass_id, int compass_starting_angle);
 float get_coordinate_y();
 float get_coordinate_x();
 
-#define DIST_CENTER_SONAR 100;
+#define DIST_CENTER_SONAR 100
 
 typedef struct coordinate_t{
     double x, y;

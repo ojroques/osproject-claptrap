@@ -96,7 +96,7 @@ void analyse_env(int mesures[NB_DIRECTION]) {
 
         // If non-movable obstacle detected, place obstacle and mark free space as explored
         if (sonar_value < TRESHOLD_CHECK_OBST && obstacle_type(&sonar_value) == NONMV_OBST) {
-            get_obst_position(sonar_value, ANGLES[current_direction], &x_obstacle, &y_obstacle);
+            get_obst_position(sonar_value, 0, &x_obstacle, &y_obstacle);
             place_obstacle(x_obstacle, y_obstacle);
         } else {
             printf("None\n");
@@ -183,7 +183,6 @@ void move(int direction, int mesures[NB_DIRECTION]) {
     update_history(direction);
     printf("Done.\n");
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
-    // TODO: Update image accordingly
 }
 
 /* Go to position (x, y)
@@ -240,6 +239,7 @@ int get_dir_distance() {
     const int DIR_ANG_MAX = 60;
     int scans[DIR_NB_SCAN];    // Hold the mesures from the scan
     int value, i, angle_i, pas;
+    int16_t x_dest, y_dest;
     pas = (DIR_ANG_MAX - DIR_ANG_MIN) / (DIR_NB_SCAN - 1);
     value = -1;
 
@@ -248,6 +248,8 @@ int get_dir_distance() {
     // This loop put in value the min mesure of scans
     for(i = 0; i < DIR_NB_SCAN; i++) {
         angle_i = (DIR_ANG_MIN + i * pas) / 2;
+        get_obst_position(scans[i], angle_i, &x_dest, &y_dest);
+        explored_line((int16_t)coordinate.x, x_dest, (int16_t)coordinate.y, y_dest);
         if (MAIN_DEBUG) printf("[DEBUG] (get_dir_distance) mesure: %d, angle_i: %d, is_in_lane(): %d\n", scans[i], angle_i, is_in_lane(scans[i], angle_i));
         if (is_in_lane(scans[i], angle_i)) {
             if (value == -1 || scans[i] < value) {
