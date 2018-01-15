@@ -16,9 +16,11 @@
 #include "ev3_port.h"
 #include "ev3_tacho.h"
 
+//#define TACHO_DEBUG
+
 #ifdef TACHO_DEBUG
 #include <pthread.h>
-coordinate_t coordinate = {600, 300, 90, PTHREAD_MUTEX_INITIALIZER};
+coordinate_t coordinate = {600, 300, 0, PTHREAD_MUTEX_INITIALIZER};
 volatile int quit_request = 0;   // To stop the position thread
 #endif
 
@@ -181,6 +183,7 @@ int translation_light(uint8_t right_wheel, uint8_t left_wheel, int distance, uin
           float new_x = get_coordinate_x();
           float new_y = get_coordinate_y();
           explored_line(old_x, new_x, old_y, new_y);
+          printf("stop because of negative x or y : x = %f y = %f", current_x, current_y);
           return 2;
         }
 
@@ -545,7 +548,40 @@ int main(int argc, char *argv[]) {
     printf("Done.\n");
 
     printf("Recalibration of gyro ...\n");
-    recalibrate_gyro(gyro_id);
+    //recalibrate_gyro(gyro_id);
+    printf("Done\n");
+
+    printf("Test axe ...\n");
+    init_image(24,40);
+    float current_x = get_coordinate_x();
+    float current_y = get_coordinate_y();
+    const int DIR_NB_SCAN = 5;
+    const int DIR_ANG_MIN = -60;
+    const int DIR_ANG_MAX = 60;
+    int scans[DIR_NB_SCAN];    // Hold the mesures from the scan
+    int value, i, angle_i, pas;
+    int16_t x_dest, y_dest;
+    pas = (DIR_ANG_MAX - DIR_ANG_MIN) / (DIR_NB_SCAN - 1);
+
+    scan_distance(ultrasonic_tacho, sonar_id, DIR_NB_SCAN, DIR_ANG_MIN, DIR_ANG_MAX, scans);
+
+    for(i = 0; i < DIR_NB_SCAN; i++) {
+        angle_i = (DIR_ANG_MIN + i * pas) / 2;
+        get_obst_position(scans[i], angle_i, &x_dest, &y_dest);
+        explored_line((int16_t)current_x, x_dest, (int16_t)current_y, y_dest);
+        place_obstacle(x_dest, y_dest);
+      }
+    print_image();
+    rotation_gyro(right_wheel, left_wheel, gyro_id, 90);
+    scan_distance(ultrasonic_tacho, sonar_id, DIR_NB_SCAN, DIR_ANG_MIN, DIR_ANG_MAX, scans);
+
+    for(i = 0; i < DIR_NB_SCAN; i++) {
+        angle_i = (DIR_ANG_MIN + i * pas) / 2;
+        get_obst_position(scans[i], angle_i, &x_dest, &y_dest);
+        explored_line((int16_t)current_x, x_dest, (int16_t)current_y, y_dest);
+        place_obstacle(x_dest, y_dest);
+      }
+    print_image();
     printf("Done\n");
 
     set_tacho_stop_action_inx(right_wheel, TACHO_COAST);

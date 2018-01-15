@@ -202,8 +202,13 @@ void explored_line(int16_t x_start, int16_t x_finish, int16_t y_start, int16_t y
         if (!is_out_of_bounds(coord_to_index(y_previous_update), coord_to_index(x_previous_update))) {
             set_cell(coord_to_index(y_previous_update), coord_to_index(x_previous_update), 1);
         }
-
-        int precision = floor(abs(slope*(delta_x)) + 1);
+        int precision;
+        if (delta_y){
+          precision = floor(abs(slope*(delta_x)) + 1);
+        }
+        else{
+          precision = floor(abs(delta_x) + 1);
+        }
         float current_x;
         float current_y;
         int i;
@@ -240,7 +245,7 @@ void explored_line(int16_t x_start, int16_t x_finish, int16_t y_start, int16_t y
     }
 }
 
-/* For test purposes
+ /*For test purposes
 int main() {
     int16_t x_free, y_free;
     init_image(24, 40);
@@ -249,7 +254,7 @@ int main() {
     place_obstacle(12, 12);
     place_obstacle(12, 12);
     place_obstacle(5, 5);
-    explored_line(0,600,400,0);
+    explored_line(600,954,300,300);
     print_image();
     printf("La case (20, 12) a pour valeur %d\n", get_cell(20, 12));
     unexplored_area(&x_free, &y_free);
