@@ -113,6 +113,11 @@ void clean_exit(int signum) {
     ev3_uninit();
     printf("Done.\n");
 
+    // Send the map to the server
+    printf("Sending map to the server...\n");
+    send_image();
+    printf("Done.\n");
+
     printf("See you later!\n");
     exit(EXIT_SUCCESS);
 }
