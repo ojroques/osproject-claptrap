@@ -243,10 +243,21 @@ int get_dir_distance() {
     // This loop put in value the min mesure of scans
     float current_x = get_coordinate_x();
     float current_y = get_coordinate_y();
+    int slope;
     for(i = 0; i < DIR_NB_SCAN; i++) {
         angle_i = (DIR_ANG_MIN + i * pas) / 2;
         get_obst_position(scans[i], angle_i, &x_dest, &y_dest);
-        explored_line((int16_t)current_x, x_dest, (int16_t)current_y, y_dest);
+        if (scans[i] < SONAR_PRECISION_THRESHOLD){
+          explored_line((int16_t)current_x, x_dest, (int16_t)current_y, y_dest);
+          place_obstacle(x_dest, y_dest);
+        }
+        else{
+          slope_x = (x_dest-(int16_t)current_x)/scans[i];
+          slope_y = (y_dest-(int16_t)current_y)/scans[i];
+          x_dest = (int16_t)current_x + slope_x*SONAR_PRECISION_THRESHOLD;
+          y_dest = (int16_t)current_y + slope_y*SONAR_PRECISION_THRESHOLD;
+          explored_line((int16_t)current_x, x_dest, (int16_t)current_y, y_dest);
+        }
         if (MAIN_DEBUG) printf("[DEBUG] (get_dir_distance) i: %d, mesure: %d, angle_i: %d, is_in_lane(): %d\n", i, scans[i], angle_i, is_in_lane(scans[i], angle_i));
         if (is_in_lane(scans[i], angle_i)) {
             if (value == -1 || scans[i] < value) {
