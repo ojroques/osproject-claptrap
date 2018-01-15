@@ -20,7 +20,7 @@ Eurecom, 2017 - 2018. */
 #include "image.h"
 #include "client.h"
 
-#define MAIN_DEBUG 1
+#define MAIN_DEBUG 0
 
 volatile int quit_request                 = 0;                      // To stop the position thread
 sensors_t sensors_id                      = {0, 0, 0, 0, 0};        // Contains the sensors' identifiant
@@ -234,6 +234,10 @@ int get_dir_distance() {
     const int DIR_ANG_MAX = 60;
     int scans[DIR_NB_SCAN];    // Hold the mesures from the scan
     int value, i, angle_i, pas;
+    float current_x = get_coordinate_x();
+    float current_y = get_coordinate_y();
+    float slope_x;
+    float slope_y;
     int16_t x_dest, y_dest;
     pas = (DIR_ANG_MAX - DIR_ANG_MIN) / (DIR_NB_SCAN - 1);
     value = -1;
@@ -241,12 +245,20 @@ int get_dir_distance() {
     scan_distance(tachos_id.ultrasonic_tacho, sensors_id.ultrasonic_sensor, DIR_NB_SCAN, DIR_ANG_MIN, DIR_ANG_MAX, scans);
 
     // This loop put in value the min mesure of scans
-    float current_x = get_coordinate_x();
-    float current_y = get_coordinate_y();
     for(i = 0; i < DIR_NB_SCAN; i++) {
         angle_i = (DIR_ANG_MIN + i * pas) / 2;
         get_obst_position(scans[i], angle_i, &x_dest, &y_dest);
-        explored_line((int16_t)current_x, x_dest, (int16_t)current_y, y_dest);
+        if (scans[i] < SONAR_PRECISION_THRESHOLD){
+          explored_line((int16_t)current_x, x_dest, (int16_t)current_y, y_dest);
+          place_obstacle(x_dest, y_dest);
+        }
+        else{
+          slope_x = (x_dest-(int16_t)current_x)/scans[i];
+          slope_y = (y_dest-(int16_t)current_y)/scans[i];
+          x_dest = (int16_t)current_x + slope_x*SONAR_PRECISION_THRESHOLD;
+          y_dest = (int16_t)current_y + slope_y*SONAR_PRECISION_THRESHOLD;
+          explored_line((int16_t)current_x, x_dest, (int16_t)current_y, y_dest);
+        }
         if (MAIN_DEBUG) printf("[DEBUG] (get_dir_distance) i: %d, mesure: %d, angle_i: %d, is_in_lane(): %d\n", i, scans[i], angle_i, is_in_lane(scans[i], angle_i));
         if (is_in_lane(scans[i], angle_i)) {
             if (value == -1 || scans[i] < value) {

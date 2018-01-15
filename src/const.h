@@ -10,6 +10,7 @@
 #define TRESHOLD_MANEUVER                150    // Dist in mm to maneuver correctly
 #define TRESHOLD_CHECK_OBST              250    // Dist in mm to go check the obst type
 #define TRESHOLD_SIDE                     70    // Dist in mm to allow rotation
+#define SONAR_PRECISION_THRESHOLD       1800    // Dist max at which we consider the sonar is precise
 #define THRESHOLD_ULTRASONIC_TACHO_SUP   100    // Max angle of rotation of the tacho rotating the head of the robot
 #define THRESHOLD_ULTRASONIC_TACHO_INF  -100    // Min angle of rotation of the tacho rotating the head of the robot
 #define NAV_ANGLE_RANGE                  110    // Min/max angle for the scan
