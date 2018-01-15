@@ -20,7 +20,7 @@ Eurecom, 2017 - 2018. */
 #include "image.h"
 #include "client.h"
 
-#define MAIN_DEBUG 0
+#define MAIN_DEBUG 1
 
 volatile int quit_request                 = 0;                      // To stop the position thread
 sensors_t sensors_id                      = {0, 0, 0, 0, 0};        // Contains the sensors' identifiant
@@ -241,10 +241,12 @@ int get_dir_distance() {
     scan_distance(tachos_id.ultrasonic_tacho, sensors_id.ultrasonic_sensor, DIR_NB_SCAN, DIR_ANG_MIN, DIR_ANG_MAX, scans);
 
     // This loop put in value the min mesure of scans
+    float current_x = get_coordinate_x();
+    float current_y = get_coordinate_y();
     for(i = 0; i < DIR_NB_SCAN; i++) {
         angle_i = (DIR_ANG_MIN + i * pas) / 2;
         get_obst_position(scans[i], angle_i, &x_dest, &y_dest);
-        explored_line((int16_t)coordinate.x, x_dest, (int16_t)coordinate.y, y_dest);
+        explored_line((int16_t)current_x, x_dest, (int16_t)current_y, y_dest);
         if (MAIN_DEBUG) printf("[DEBUG] (get_dir_distance) i: %d, mesure: %d, angle_i: %d, is_in_lane(): %d\n", i, scans[i], angle_i, is_in_lane(scans[i], angle_i));
         if (is_in_lane(scans[i], angle_i)) {
             if (value == -1 || scans[i] < value) {
