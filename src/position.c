@@ -67,6 +67,7 @@ void get_obst_position(int r, int theta, int16_t *x_obst, int16_t *y_obst) {
     pthread_mutex_unlock(&(coordinate.coordinate_lock));
 }
 
+//Erwan
 float get_coordinate_x(){
   pthread_mutex_lock(&(coordinate.coordinate_lock));
   float buffer = (float)coordinate.x;
@@ -74,6 +75,7 @@ float get_coordinate_x(){
   return buffer;
 }
 
+//Erwan
 float get_coordinate_y(){
   pthread_mutex_lock(&(coordinate.coordinate_lock));
   float buffer = (float)coordinate.y;

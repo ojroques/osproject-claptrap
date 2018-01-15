@@ -182,7 +182,8 @@ In parallel of the main algorithm, a thread updates Claptrap position. This posi
 
 #### Erwan Culerier
 * Robot movements: rotation, translation
-* Positioning: calculation, thread
+* Positioning: calculation, thread, obstacle_position ...
+* Map : Update map after scan or movement.
 * Robot configuration in `config.c`
 
 ## <a name="videos"></a>Videos and Pictures

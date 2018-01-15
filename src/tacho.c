@@ -42,7 +42,7 @@ void wait_tacho(uint8_t tacho) {
 
 //#########################################SECTION OF TACHO OPERATORS TO TURN AND TRANSLATE#########################################
 
-/* By Nathan
+/* By Nathan and Erwan
    Tranlate by X millimeters.
    And do the checking for obstacle and update coordinates and angle while moving
     */
