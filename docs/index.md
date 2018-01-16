@@ -1,6 +1,6 @@
 # Claptrap, a room mapping robot
 
-## Table of contents
+## <a name="contents"></a>Table of contents
 
 1. [Presentation](#presentation)
 2. [Links](#links)
@@ -14,6 +14,8 @@
 ## <a name="presentation"></a>Presentation
 _Claptrap_ is a robot based on the LEGO MINDSTORMS EV3, whose purpose is to map a previously unknown room. It has been designed by Nathan Biette, Erwan Culerier and Olivier Roques for the OS fall course 2017 at [EURECOM](http://www.eurecom.fr/en).
 
+[_Back to top_](#contents)
+
 ## <a name="links"></a>Links
 
 #### General information
@@ -25,6 +27,8 @@ _Claptrap_ is a robot based on the LEGO MINDSTORMS EV3, whose purpose is to map 
 #### Documentation
 * [EV3DEV Hardware Documentation](http://docs.ev3dev.org/projects/lego-linux-drivers/en/ev3dev-jessie/index.html)
 * [EV3DEV C Library](http://in4lio.github.io/ev3dev-c/index.html)
+
+[_Back to top_](#contents)
 
 ## <a name="instructions"></a>Source code and instructions
 
@@ -91,6 +95,8 @@ cd OSproject-Claptrap/src/
 make run
 ```
 
+[_Back to top_](#contents)
+
 ## <a name="specs"></a>Claptrap specifications
 
 #### Sensors
@@ -105,6 +111,8 @@ Claptrap uses 4 tachos:
 * Two [large tachos](https://shop.lego.com/en-CA/EV3-Large-Servo-Motor-45502) for both wheels
 * One large tacho in its back for the obstacle carrier
 * One [medium tacho](https://shop.lego.com/en-CA/EV3-Medium-Servo-Motor-45503) to control the rotation of the ultrasonic sensor
+
+[_Back to top_](#contents)
 
 ## <a name="architecture"></a>Code architecture
 
@@ -123,6 +131,8 @@ The source code is split into 8 parts:
 - **sensors.c** and **sensors.h** : to use the sensors
 - **tachos.c** and **tachos.h** : to control the tachos
 - **const.h** : general constants
+
+[_Back to top_](#contents)
 
 ## <a name="algorithms"></a>Algorithms
 
@@ -166,34 +176,59 @@ This function returns the type of obstacle Claptrap is currently facing:
 #### Position thread
 In parallel of the main algorithm, a thread updates Claptrap position. This position is then sent to the server every 1.5s.
 
+[_Back to top_](#contents)
+
 ## <a name="division"></a>Work division
+
+You can check our repository activity [here](https://github.com/ojroques/OSproject-Claptrap/pulse/monthly).
 
 #### Olivier Roques
 * Main algorithm: procedures for room exploration and mapping
 * Client / Server communications
-* Map and image
+* Map and image: initialization, manipulation and transmission
 * Website
 * Integration
+* Robot configuration in `config.c` regarding the server and the image
 
 #### Nathan Biette
 * Robot architecture: building the LEGO robot
 * Sensors: tests, initialization, getters
-* Robot movements: release of an obstacle, controlling the tacho to rotate the head, rotation of the robot using the gyro, calibration of the translation, update of the position of the robots
-* Robot configuration in `config.c`
+* Robot movements: release of an obstacle, controlling the tacho to rotate the head, rotation of the robot using the gyro, translation calibration, updating the robot position
+* Robot configuration in `config.c` regarding the sensors
 
 #### Erwan Culerier
-* Robot movements: rotation, translation
-* Positioning: calculation, thread, obstacle_position ...
-* Map : Update map after scan or movement.
-* Robot configuration in `config.c`
+* Robot movements: basic rotation and translation
+* Position: calculation, thread, obstacle positioning
+* Map and image: update map after scan or movement
+* Robot configuration in `config.c` regarding the tachos
 * Images and videos
+
+[_Back to top_](#contents)
 
 ## <a name="videos"></a>Videos and Pictures
 
-<img src="Image/Claptrap_body.jpg" alt="Claptrap_body">
+#### Pictures
 
-<img src="Image/Claptrap_front.jpg" alt="Claptrap_front">
+###### Claptrap
+<img src="images/claptrap_body.jpg" alt="Claptrap's Body">
 
-<img src="Image/Claptrap_back.jpg" alt="Claptrap_back">
+###### The movable ultrasonic sensor
+<img src="images/claptrap_front.jpg" alt="Claptrap Front">
 
-_Videos coming soon._
+###### The obstacle carrier
+<img src="images/claptrap_back.jpg" alt="Claptrap Back">
+
+#### Videos
+
+Click the pictures to access the videos.
+
+###### Exploration
+[![Exploration](images/exploration.png)](https://drive.google.com/open?id=1-tx63NhBDDRA2mw_ZKFJzJqHn8uxgZY8)
+
+###### Sonar scan
+[![Sonar scan](images/sonar_scan.png)](https://drive.google.com/open?id=1p0SSvEVGU6Y8ZADcCbOXx9lE1dRZOtQf)
+
+###### Drop obstacle
+[![Drop obstacle](images/drop_obstacle.png)](https://drive.google.com/open?id=1xmphxhF1rfvHbXHMVS1Uy_wXY_cWWB8V)
+
+[_Back to top_](#contents)
