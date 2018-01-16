@@ -9,7 +9,7 @@
 5. [Code architecture](#architecture)
 6. [Algorithms](#algorithms)
 7. [Work division](#division)
-8. [Videos and Pictures](#videos)
+8. [Videos and Pictures](#vidsnimgs)
 
 ## <a name="presentation"></a>Presentation
 _Claptrap_ is a robot based on the LEGO MINDSTORMS EV3, whose purpose is to map a previously unknown room. It has been designed by Nathan Biette, Erwan Culerier and Olivier Roques for the OS fall course 2017 at [EURECOM](http://www.eurecom.fr/en).
@@ -205,7 +205,7 @@ You can check our repository activity [here](https://github.com/ojroques/OSproje
 
 [_Back to top_](#contents)
 
-## <a name="videos"></a>Videos and Pictures
+## <a name="vidsnimgs"></a>Videos and Pictures
 
 #### Pictures
 
