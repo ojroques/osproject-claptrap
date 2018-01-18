@@ -86,7 +86,7 @@ int get_color(uint8_t sensor_id){
   return color;
 }
 
-/**
+/**By Olivier
  *Function which gives the color detected most often over N mesures
  *Returns an int between 0 and ?
  **/
@@ -210,7 +210,7 @@ int get_distance(uint8_t sensor_id){
   return retrieve_single_value(sensor_id, LEGO_EV3_US_US_DIST_CM);
 }
 
-/**
+/**By Olivier
  *Function which gives the average distance over N mesures
  *by the ultrasonic sensor.
  *Returns an int between 0 and 2550

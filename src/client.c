@@ -18,14 +18,14 @@ int s;
 uint16_t msgId = 1;
 
 /* Convert a position to an index
-   c is in millimeters */
+ * c is in millimeters */
 uint16_t coord_to_index(int16_t c) {
     uint16_t i = (uint16_t) c;
     return (i - (i % 50)) / 50;
 }
 
 /* Convert an index to a position
-   x is in millimeters */
+ * x is in millimeters */
 int16_t index_to_coord(uint16_t i) {
     int16_t c = (int16_t) i;
     return c * 50 + 25;

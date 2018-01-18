@@ -158,8 +158,8 @@ void unexplored_area(int16_t *x, int16_t *y) {
 }
 
 /* Convert the given value to a color based on the probability of presence of
-   an obstacle. A larger value means a higher probability.
-   TODO: Offer a larger choice of colors */
+ * an obstacle. A larger value means a higher probability.
+ * TODO: Offer a larger choice of colors */
 color_t val_to_color(int value) {
     switch (value) {
         case 0:
@@ -188,8 +188,8 @@ void send_image() {
     send_mapdone();
 }
 
-/* Erwan
-Update matrix after the robot moved */
+/* By Erwan
+ * Update matrix after the robot moved */
 void explored_line(int16_t x_start, int16_t x_finish, int16_t y_start, int16_t y_finish){
     int16_t delta_x = x_finish-x_start;
     int16_t delta_y = y_finish-y_start;

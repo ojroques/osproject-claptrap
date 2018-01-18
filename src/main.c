@@ -1,6 +1,3 @@
-/* Written by Olivier Roques for the OS project.
-Eurecom, 2017 - 2018. */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -31,7 +28,8 @@ const char *DIRECTIONS_NAME[NB_DIRECTION] = {"E", "N", "W", "S"};   // Name of a
 coordinate_t coordinate                   = {600., 300., 90, PTHREAD_MUTEX_INITIALIZER};    // The current position and angle
 int mv_history[2]                         = {-1, -2};               // Holds the last two moves
 
-/* Drop non-movable obstacle. */
+/* By Olivier
+ * Drop non-movable obstacle. */
 void drop_obstacle() {
     printf("    Dropping non-movable obstacle... ");
     carrier_down_position(tachos_id.obstacle_carrier);
@@ -42,10 +40,11 @@ void drop_obstacle() {
     printf("Done.\n");
 }
 
-/* Return the type of obstacle detectd:
-* NO_OBST: No obstacle, sonar_value is updated accordingly
-* MV_OBST: Movable obstacle
-* NONMV_OBST: Non-movable obstacle */
+/* By Olivier 
+ * Return the type of obstacle detectd:
+ * NO_OBST: No obstacle, sonar_value is updated accordingly
+ * MV_OBST: Movable obstacle
+ * NONMV_OBST: Non-movable obstacle */
 int obstacle_type(int *sonar_value) {
     int distance, new_distance, color;
     distance = *sonar_value;
@@ -79,8 +78,9 @@ int obstacle_type(int *sonar_value) {
     return NONMV_OBST;
 }
 
-/* Analyse all four directions and write the corresponding sonar value into
-the given array */
+/* By Olivier
+ * Analyse all four directions and write the corresponding sonar value into
+ * the given array */
 void analyse_env(int mesures[NB_DIRECTION]) {
     int sonar_value, initial_direction, modulo_angle, i;
     int16_t x_obstacle, y_obstacle;
@@ -123,8 +123,9 @@ void analyse_env(int mesures[NB_DIRECTION]) {
     }
 }
 
-/* Return the direction with the largest free space (> 10cm)
-or -1 if there are none */
+/* By Olivier
+ * Return the direction with the largest free space (> 10cm)
+ * or -1 if there are none */
 int choose_direction(int mesures[NB_DIRECTION]) {
     int i, direction, is_looping;
     direction = -1;
@@ -150,14 +151,16 @@ int choose_direction(int mesures[NB_DIRECTION]) {
     return direction;
 }
 
-/* Update the last two movements */
+/* By Olivier
+ * Update the last two movements */
 void update_history(int new_direction) {
     current_direction = new_direction;
     mv_history[1] = mv_history[0];
     mv_history[0] = new_direction;
 }
 
-/* Rotate and move 20cm forward in the given direction */
+/* By Olivier
+ * Rotate and move 20cm forward in the given direction */
 void move(int direction, int mesures[NB_DIRECTION]) {
     int travel_distance, ang;
 
@@ -182,7 +185,8 @@ void move(int direction, int mesures[NB_DIRECTION]) {
     if (MAIN_DEBUG) getchar();  // PAUSE PROGRAM
 }
 
-/* Go to position (x, y)
+/* By Olivier
+ * Go to position (x, y)
  * Return 1 if stopped by an obstacle, else 0.*/
 void goto_area(int16_t x_unexp, int16_t y_unexp) {
     int r, theta;
@@ -203,7 +207,8 @@ void goto_area(int16_t x_unexp, int16_t y_unexp) {
     }
 }
 
-/* Check both sides of the robot before rotating.
+/* By Olivier
+ * Check both sides of the robot before rotating.
  * Return 0 if no obstacles detected (can turn)
  * Else 1 if there is an obstacle on the right side
  * Or -1 if there is an obstacle on the left side */
@@ -226,7 +231,8 @@ int is_rotation_impossible() {
     }
 }
 
-/* Perform a scan, then check the mesured distances and
+/* By Olivier
+ * Perform a scan, then check the mesured distances and
  * return the minimum value in the lane in front of the robot */
 int get_dir_distance() {
     const int DIR_NB_SCAN = 5;
@@ -270,8 +276,8 @@ int get_dir_distance() {
 }
 
 
-/* Erwan
-   Return if yes or not the mesure is in the lane */
+/* By Erwan
+ * Return if yes or not the mesure is in the lane */
 int is_in_lane(int mesure, int angle) {
     if (angle == 0) return 1;
 
@@ -282,7 +288,8 @@ int is_in_lane(int mesure, int angle) {
     return 0;
 }
 
-/* The main algorithm for room exploration and mapping */
+/* By Olivier
+ * The main algorithm for room exploration and mapping */
 void algorithm() {
     time_t start_time;                  // The robot stops after 3mn50
     int mesures[NB_DIRECTION] = {0};    // Contains the mesured distance of all 4 directions
@@ -330,6 +337,7 @@ void algorithm() {
     printf("********** END OF EXPLORATION **********\n\n");
 }
 
+/* By Olivier */
 int main(int argc, char *argv[]) {
 
     // Retrieve the map dimensions
